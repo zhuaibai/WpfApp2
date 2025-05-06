@@ -1,0 +1,241 @@
+﻿<UserControl
+    x:Class="WpfApp2.UserControls.SetProtolViewUC"
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+    xmlns:local="clr-namespace:WpfApp2.UserControls"
+    xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+    d:DesignHeight="600"
+    d:DesignWidth="1000"
+    mc:Ignorable="d">
+    <UserControl.Resources>
+        <!--  GroupBox模版控件  -->
+        <Style TargetType="GroupBox">
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="GroupBox">
+                        <Grid Width="{TemplateBinding Width}" Height="{TemplateBinding Height}">
+                            <StackPanel>
+                                <Border Height="22" Background="#FFD9E8FF">
+                                    <TextBlock
+                                        HorizontalAlignment="Center"
+                                        VerticalAlignment="Center"
+                                        FontSize="16"
+                                        FontWeight="Bold"
+                                        Text="{TemplateBinding Header}" />
+                                </Border>
+                                <ContentPresenter />
+                            </StackPanel>
+                        </Grid>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
+    </UserControl.Resources>
+    <Grid Background="Pink">
+        <Grid.RowDefinitions>
+            <RowDefinition Height="auto" />
+            <RowDefinition />
+            <RowDefinition Height="auto" />
+        </Grid.RowDefinitions>
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="2*" />
+            <ColumnDefinition Width="3*" />
+        </Grid.ColumnDefinitions>
+        <!--  标题  -->
+        <TextBlock
+            Grid.ColumnSpan="2"
+            HorizontalAlignment="Center"
+            FontSize="30"
+            Text="配置界面" />
+        <!-- 串口配置-->
+        <UniformGrid
+            Grid.Row="1"
+            Columns="1"
+            Rows="2">
+            <GroupBox Header="串口通信一" Margin="10">
+                <Grid>
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="Auto" />
+                        <RowDefinition Height="Auto" />
+                        <RowDefinition Height="Auto" />
+                        <RowDefinition Height="Auto" />
+                        <RowDefinition Height="Auto" />
+                        <RowDefinition Height="Auto" />
+                    </Grid.RowDefinitions>
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="Auto" />
+                        <ColumnDefinition Width="*" />
+                    </Grid.ColumnDefinitions>
+
+                    <Label
+                        Grid.Row="0"
+                        Grid.Column="0"
+                        Margin="5"
+                        Content="串口名称:"
+                        FontSize="15" />
+                    <ComboBox
+                        Grid.Row="0"
+                        Grid.Column="1"
+                        Margin="5"
+                        FontSize="15"
+                        ItemsSource="{Binding AvailablePorts}"
+                        SelectedItem="{Binding SelectedPort}" />
+
+                    <Label
+                        Grid.Row="1"
+                        Grid.Column="0"
+                        Margin="5"
+                        Content="波特率:"
+                        FontSize="15" />
+                    <ComboBox
+                        Grid.Row="1"
+                        Grid.Column="1"
+                        Margin="5"
+                        FontSize="15"
+                        ItemsSource="{Binding BaudRates}"
+                        SelectedItem="{Binding SelectedBaudRate}" />
+
+                    <Label
+                        Grid.Row="2"
+                        Grid.Column="0"
+                        Margin="5"
+                        Content="数据位:"
+                        FontSize="15" />
+                    <ComboBox
+                        Grid.Row="2"
+                        Grid.Column="1"
+                        Margin="5"
+                        FontSize="15"
+                        ItemsSource="{Binding DataBits}"
+                        SelectedItem="{Binding SelectedDataBits}" />
+
+                    <Label
+                        Grid.Row="3"
+                        Grid.Column="0"
+                        Margin="5"
+                        Content="停止位:"
+                        FontSize="15" />
+                    <ComboBox
+                        Grid.Row="3"
+                        Grid.Column="1"
+                        Margin="5"
+                        FontSize="15"
+                        ItemsSource="{Binding StopBitsOptions}"
+                        SelectedItem="{Binding SelectedStopBits}" />
+
+                    <Label
+                        Grid.Row="4"
+                        Grid.Column="0"
+                        Margin="5"
+                        Content="校验位:"
+                        FontSize="15" />
+                    <ComboBox
+                        Grid.Row="4"
+                        Grid.Column="1"
+                        Margin="5"
+                        FontSize="15"
+                        ItemsSource="{Binding ParityOptions}"
+                        SelectedItem="{Binding SelectedParity}" />
+
+                    <!--<Button Content="保存" Style="{StaticResource BtnStyle}" Height="30" Command="{Binding SaveCommand}" Grid.Row="5" Grid.Column="0" Margin="5,10"/>-->
+
+                </Grid>
+            </GroupBox>
+            <GroupBox Header="串口通信二" Margin="10">
+                <Grid>
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="Auto" />
+                        <RowDefinition Height="Auto" />
+                        <RowDefinition Height="Auto" />
+                        <RowDefinition Height="Auto" />
+                        <RowDefinition Height="Auto" />
+                        <RowDefinition Height="Auto" />
+                    </Grid.RowDefinitions>
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="Auto" />
+                        <ColumnDefinition Width="*" />
+                    </Grid.ColumnDefinitions>
+
+                    <Label
+                        Grid.Row="0"
+                        Grid.Column="0"
+                        Margin="5"
+                        Content="串口名称:"
+                        FontSize="15" />
+                    <ComboBox
+                        Grid.Row="0"
+                        Grid.Column="1"
+                        Margin="5"
+                        FontSize="15"
+                        ItemsSource="{Binding AvailablePorts}"
+                        SelectedItem="{Binding SelectedPort}" />
+
+                    <Label
+                        Grid.Row="1"
+                        Grid.Column="0"
+                        Margin="5"
+                        Content="波特率:"
+                        FontSize="15" />
+                    <ComboBox
+                        Grid.Row="1"
+                        Grid.Column="1"
+                        Margin="5"
+                        FontSize="15"
+                        ItemsSource="{Binding BaudRates}"
+                        SelectedItem="{Binding SelectedBaudRate}" />
+
+                    <Label
+                        Grid.Row="2"
+                        Grid.Column="0"
+                        Margin="5"
+                        Content="数据位:"
+                        FontSize="15" />
+                    <ComboBox
+                        Grid.Row="2"
+                        Grid.Column="1"
+                        Margin="5"
+                        FontSize="15"
+                        ItemsSource="{Binding DataBits}"
+                        SelectedItem="{Binding SelectedDataBits}" />
+
+                    <Label
+                        Grid.Row="3"
+                        Grid.Column="0"
+                        Margin="5"
+                        Content="停止位:"
+                        FontSize="15" />
+                    <ComboBox
+                        Grid.Row="3"
+                        Grid.Column="1"
+                        Margin="5"
+                        FontSize="15"
+                        ItemsSource="{Binding StopBitsOptions}"
+                        SelectedItem="{Binding SelectedStopBits}" />
+
+                    <Label
+                        Grid.Row="4"
+                        Grid.Column="0"
+                        Margin="5"
+                        Content="校验位:"
+                        FontSize="15" />
+                    <ComboBox
+                        Grid.Row="4"
+                        Grid.Column="1"
+                        Margin="5"
+                        FontSize="15"
+                        ItemsSource="{Binding ParityOptions}"
+                        SelectedItem="{Binding SelectedParity}" />
+
+                    <!--<Button Content="保存" Style="{StaticResource BtnStyle}" Height="30" Command="{Binding SaveCommand}" Grid.Row="5" Grid.Column="0" Margin="5,10"/>-->
+
+                </Grid>
+            </GroupBox>
+        </UniformGrid>
+        <!-- 机型选择 -->
+        <GroupBox Header="测试机型选择" Grid.Row="1" Grid.Column="1" Margin="10">
+            
+        </GroupBox>
+
+    </Grid>
+</UserControl>
