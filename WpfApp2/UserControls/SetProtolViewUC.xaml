@@ -5,8 +5,8 @@
     xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
     xmlns:local="clr-namespace:WpfApp2.UserControls"
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
-    d:DesignHeight="600"
-    d:DesignWidth="1000"
+    d:DesignHeight="800"
+    d:DesignWidth="1294"
     mc:Ignorable="d">
     <UserControl.Resources>
         <!--  GroupBox模版控件  -->
@@ -32,7 +32,7 @@
             </Setter>
         </Style>
     </UserControl.Resources>
-    <Grid Background="Pink">
+    <Grid >
         <Grid.RowDefinitions>
             <RowDefinition Height="auto" />
             <RowDefinition />
@@ -72,73 +72,73 @@
                         Grid.Row="0"
                         Grid.Column="0"
                         Margin="5"
-                        Content="串口名称:"
+                        Content="{DynamicResource 串口号}"
                         FontSize="15" />
                     <ComboBox
                         Grid.Row="0"
                         Grid.Column="1"
                         Margin="5"
                         FontSize="15"
-                        ItemsSource="{Binding AvailablePorts}"
-                        SelectedItem="{Binding SelectedPort}" />
+                        ItemsSource="{Binding SerialPort1.AvailablePorts}"
+                        SelectedItem="{Binding SerialPort1.SelectedPort}" />
 
                     <Label
                         Grid.Row="1"
                         Grid.Column="0"
                         Margin="5"
-                        Content="波特率:"
+                        Content="{DynamicResource 波特率}"
                         FontSize="15" />
                     <ComboBox
                         Grid.Row="1"
                         Grid.Column="1"
                         Margin="5"
                         FontSize="15"
-                        ItemsSource="{Binding BaudRates}"
-                        SelectedItem="{Binding SelectedBaudRate}" />
+                        ItemsSource="{Binding SerialPort1.BaudRates}"
+                        SelectedItem="{Binding SerialPort1.SelectedBaudRate}" />
 
                     <Label
                         Grid.Row="2"
                         Grid.Column="0"
                         Margin="5"
-                        Content="数据位:"
+                        Content="{DynamicResource 数据位}"
                         FontSize="15" />
                     <ComboBox
                         Grid.Row="2"
                         Grid.Column="1"
                         Margin="5"
                         FontSize="15"
-                        ItemsSource="{Binding DataBits}"
-                        SelectedItem="{Binding SelectedDataBits}" />
+                        ItemsSource="{Binding SerialPort1.DataBits}"
+                        SelectedItem="{Binding SerialPort1.SelectedDataBits}" />
 
                     <Label
                         Grid.Row="3"
                         Grid.Column="0"
                         Margin="5"
-                        Content="停止位:"
+                        Content="{DynamicResource 停止位}"
                         FontSize="15" />
                     <ComboBox
                         Grid.Row="3"
                         Grid.Column="1"
                         Margin="5"
                         FontSize="15"
-                        ItemsSource="{Binding StopBitsOptions}"
-                        SelectedItem="{Binding SelectedStopBits}" />
+                        ItemsSource="{Binding SerialPort1.StopBitsOptions}"
+                        SelectedItem="{Binding SerialPort1.SelectedStopBits}" />
 
                     <Label
                         Grid.Row="4"
                         Grid.Column="0"
                         Margin="5"
-                        Content="校验位:"
+                        Content="{DynamicResource 校验位}"
                         FontSize="15" />
                     <ComboBox
                         Grid.Row="4"
                         Grid.Column="1"
                         Margin="5"
                         FontSize="15"
-                        ItemsSource="{Binding ParityOptions}"
-                        SelectedItem="{Binding SelectedParity}" />
+                        ItemsSource="{Binding SerialPort1.ParityOptions}"
+                        SelectedItem="{Binding SerialPort1.SelectedParity}" />
 
-                    <!--<Button Content="保存" Style="{StaticResource BtnStyle}" Height="30" Command="{Binding SaveCommand}" Grid.Row="5" Grid.Column="0" Margin="5,10"/>-->
+                    <Button Content="保存"  Height="30" Command="{Binding SerialPort1.SaveCommand}" Grid.Row="5" Grid.Column="1" Margin="5,10"/>
 
                 </Grid>
             </GroupBox>
@@ -161,73 +161,73 @@
                         Grid.Row="0"
                         Grid.Column="0"
                         Margin="5"
-                        Content="串口名称:"
+                        Content="{DynamicResource 串口号}"
                         FontSize="15" />
                     <ComboBox
                         Grid.Row="0"
                         Grid.Column="1"
                         Margin="5"
                         FontSize="15"
-                        ItemsSource="{Binding AvailablePorts}"
-                        SelectedItem="{Binding SelectedPort}" />
+                        ItemsSource="{Binding SerialPort2.AvailablePorts}"
+                        SelectedItem="{Binding SerialPort2.SelectedPort}" />
 
                     <Label
                         Grid.Row="1"
                         Grid.Column="0"
                         Margin="5"
-                        Content="波特率:"
+                        Content="{DynamicResource 波特率}"
                         FontSize="15" />
                     <ComboBox
                         Grid.Row="1"
                         Grid.Column="1"
                         Margin="5"
                         FontSize="15"
-                        ItemsSource="{Binding BaudRates}"
-                        SelectedItem="{Binding SelectedBaudRate}" />
+                        ItemsSource="{Binding SerialPort2.BaudRates}"
+                        SelectedItem="{Binding SerialPort2.SelectedBaudRate}" />
 
                     <Label
                         Grid.Row="2"
                         Grid.Column="0"
                         Margin="5"
-                        Content="数据位:"
+                        Content="{DynamicResource 数据位}"
                         FontSize="15" />
                     <ComboBox
                         Grid.Row="2"
                         Grid.Column="1"
                         Margin="5"
                         FontSize="15"
-                        ItemsSource="{Binding DataBits}"
-                        SelectedItem="{Binding SelectedDataBits}" />
+                        ItemsSource="{Binding SerialPort2.DataBits}"
+                        SelectedItem="{Binding SerialPort2.SelectedDataBits}" />
 
                     <Label
                         Grid.Row="3"
                         Grid.Column="0"
                         Margin="5"
-                        Content="停止位:"
+                        Content="{DynamicResource 停止位}"
                         FontSize="15" />
                     <ComboBox
                         Grid.Row="3"
                         Grid.Column="1"
                         Margin="5"
                         FontSize="15"
-                        ItemsSource="{Binding StopBitsOptions}"
-                        SelectedItem="{Binding SelectedStopBits}" />
+                        ItemsSource="{Binding SerialPort2.StopBitsOptions}"
+                        SelectedItem="{Binding SerialPort2.SelectedStopBits}" />
 
                     <Label
                         Grid.Row="4"
                         Grid.Column="0"
                         Margin="5"
-                        Content="校验位:"
+                        Content="{DynamicResource 校验位}"
                         FontSize="15" />
                     <ComboBox
                         Grid.Row="4"
                         Grid.Column="1"
                         Margin="5"
                         FontSize="15"
-                        ItemsSource="{Binding ParityOptions}"
-                        SelectedItem="{Binding SelectedParity}" />
+                        ItemsSource="{Binding SerialPort2.ParityOptions}"
+                        SelectedItem="{Binding SerialPort2.SelectedParity}" />
 
-                    <!--<Button Content="保存" Style="{StaticResource BtnStyle}" Height="30" Command="{Binding SaveCommand}" Grid.Row="5" Grid.Column="0" Margin="5,10"/>-->
+                    <Button Content="保存"  Height="30" Command="{Binding SerialPort2.SaveCommand}" Grid.Row="5" Grid.Column="1" Margin="5,10"/>
 
                 </Grid>
             </GroupBox>
