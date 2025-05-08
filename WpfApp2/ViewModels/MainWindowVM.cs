@@ -1,9 +1,13 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Collections.ObjectModel;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Controls;
+using System.Windows.Input;
+using WpfApp2.Command;
+using WpfApp2.Models;
 using WpfApp2.Tools;
 using WpfApp2.UserControls;
 
@@ -25,18 +29,60 @@ namespace WpfApp2.ViewModels
 			//初始化串口通讯设置
 			SerialPort1 = new SerialPortSettingViewModel();
 			SerialPort2 = new SerialPortSettingViewModel_2();
-            Items = new List<Item>
+
+			//初始化UC
+			TestUC = new TestViewUC();
+			TestUC.DataContext = this;
+			SetViewUC = new SetProtolViewUC();
+			
+
+
+            Items = new ObservableCollection<TestItem>
             {
-                new Item { Id = 1, Name = "项目 1", IsImportant = true },
-                new Item { Id = 2, Name = "项目 2", IsImportant = false },
-                new Item { Id = 3, Name = "项目 3", IsImportant = true }
+                new TestItem { Id = 1, Name = "项目 1", IsImportant = true },
+                new TestItem { Id = 2, Name = "项目 2", IsImportant = false },
+                new TestItem { Id = 3, Name = "项目 3", IsImportant = true }
             };
 
-           
+            LogEntries = new ObservableCollection<LogEntry>
+            {
+                new LogEntry{ Message = "电仪测试完成",Time = DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss")},
+                new LogEntry{ Message = "电仪测试完成",Time = DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss")},
+                new LogEntry{ Message = "电仪测试完成",Time = DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss")},
+                new LogEntry{ Message = "电仪测试完成",Time = DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss")},
+                new LogEntry{ Message = "电仪测试完成",Time = DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss")},
+                new LogEntry{ Message = "电仪测试完成",Time = DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss")},
+                new LogEntry{ Message = "电仪测试完成",Time = DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss")}
+            };
         }
-        public List<Item> Items { get; set; }
 
-        #region 主体界面
+        
+        public ObservableCollection<TestItem> Items { get; set; }
+
+        #region 日志
+        /// <summary>
+        /// 添加日志
+        /// </summary>
+        private void AddLog(string log)
+        {
+            var logEntry = new LogEntry
+            {
+                Time = DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss"),
+                Message = log
+            };
+            LogEntries.Add(logEntry);
+        }
+
+        //日志项
+        public ObservableCollection<LogEntry> LogEntries { get; set; }
+
+		#endregion
+
+		#region 主体界面
+
+		SetProtolViewUC SetViewUC;
+		TestViewUC TestUC;
+
         private UserControl _ContentControl;
 
 		public UserControl ContentControl
@@ -44,7 +90,7 @@ namespace WpfApp2.ViewModels
 			get {
 				if(_ContentControl == null)
 				{
-					_ContentControl = new TestViewUC();
+					_ContentControl = SetViewUC;
 				}
 				return _ContentControl; }
 			set
@@ -54,12 +100,35 @@ namespace WpfApp2.ViewModels
 			}
 		}
 
-		#endregion
+        public ICommand SwitchUC
+        {
+            get
+			{
+				return new RelayCommand(SwitchContentUC);
+			} 
+		}
 
-		#region 串口工具
+		private bool UC_Tga = false;
+		private void SwitchContentUC()
+		{
+			if (UC_Tga)
+			{
+				ContentControl = SetViewUC;
+				UC_Tga = false;
+			}
+			else
+			{
+				ContentControl = TestUC;
+				UC_Tga = true;
+			}
+		}
 
-		//串口通讯设置一
-		private SerialPortSettingViewModel _serialPort1;
+        #endregion
+
+        #region 串口工具
+
+        //串口通讯设置一
+        private SerialPortSettingViewModel _serialPort1;
 
 		public SerialPortSettingViewModel SerialPort1	
 		{
@@ -89,10 +158,4 @@ namespace WpfApp2.ViewModels
 
 	}
 
-    public class Item
-    {
-        public int Id { get; set; }
-        public string Name { get; set; }
-        public bool IsImportant { get; set; }
-    }
 }

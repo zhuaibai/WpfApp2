@@ -21,6 +21,7 @@ namespace WpfApp2
         {
             InitializeComponent();
             this.DataContext = new MainWindowVM();
+            
         }
     }
 }

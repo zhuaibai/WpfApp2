@@ -233,9 +233,16 @@
             </GroupBox>
         </UniformGrid>
         <!-- 机型选择 -->
-        <GroupBox Header="测试机型选择" Grid.Row="1" Grid.Column="1" Margin="10">
-            
-        </GroupBox>
+        <Grid Grid.Row="1" Grid.Column="1" Margin="10">
+            <Grid.RowDefinitions>
+                <RowDefinition></RowDefinition>
+                <RowDefinition Height="auto"></RowDefinition>
+            </Grid.RowDefinitions>
+            <GroupBox Header="测试机型选择"  >
 
+            </GroupBox>
+            <Button  Grid.Row="1" Style="{StaticResource BtnStyle}" FontSize="30" Content="开始测试" VerticalAlignment="Bottom" Command="{Binding SwitchUC}"></Button>
+        </Grid>
+       
     </Grid>
 </UserControl>
