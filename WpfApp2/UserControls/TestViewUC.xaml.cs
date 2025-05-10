@@ -12,6 +12,7 @@ using System.Windows.Media;
 using System.Windows.Media.Imaging;
 using System.Windows.Navigation;
 using System.Windows.Shapes;
+using WpfApp2.Models;
 using WpfApp2.ViewModels;
 
 namespace WpfApp2.UserControls
@@ -24,7 +25,9 @@ namespace WpfApp2.UserControls
         public TestViewUC()
         {
             InitializeComponent();
+            
         }
+
         public void SetupScrolling()
         {
             var viewModel = (MainWindowVM)DataContext;
@@ -33,18 +36,26 @@ namespace WpfApp2.UserControls
             {
                 if (e.NewItems != null && e.NewItems.Count > 0)
                 {
-                    LogListView.ScrollIntoView(e.NewItems[e.NewItems.Count - 1]);
+                    // 为新添加的项注册属性变更事件
+                    foreach (LogEntry newItem in e.NewItems)
+                    {
+                        newItem.PropertyChanged += (s, args) =>
+                        {
+                            // 同样使用Dispatcher确保UI已更新
+                            Dispatcher.BeginInvoke((Action)(() =>
+                            {
+                                LogListView.ScrollIntoView(s);
+                            }), System.Windows.Threading.DispatcherPriority.Render);
+                        };
+                    }
+
+                    // 延迟滚动到最后一项，确保UI已更新
+                    Dispatcher.BeginInvoke((Action)(() =>
+                    {
+                        LogListView.ScrollIntoView(e.NewItems[e.NewItems.Count - 1]);
+                    }), System.Windows.Threading.DispatcherPriority.Render);
                 }
-            }; 
-            
-            //测试项自动滚动到已完成项目
-            foreach (var item in viewModel.Items)
-            {
-                item.PropertyChanged += (sender, e) =>
-                {
-                    TestItemListView.ScrollIntoView(sender);
-                };
-            }
+            };
         }
 
         private void ScrollToSpecificRecord_Click(object sender, RoutedEventArgs e)

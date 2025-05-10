@@ -1,13 +1,17 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
+using System.Configuration;
+using System.IO;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Input;
 using WpfApp2.Command;
 using WpfApp2.Models;
+using WpfApp2.Models.Service;
 using WpfApp2.Tools;
 using WpfApp2.UserControls;
 
@@ -19,6 +23,8 @@ namespace WpfApp2.ViewModels
 		{
 			//初始化
 			Init();
+           
+			
 		}
 
 		/// <summary>
@@ -26,40 +32,82 @@ namespace WpfApp2.ViewModels
 		/// </summary>
 		private void Init()
 		{
-			//初始化串口通讯设置
-			SerialPort1 = new SerialPortSettingViewModel();
+           
+            //数据库初始化
+            SQLiteHelper.ConnectionString = "Data Source=MyDatabase.db;Version=3;";
+			InitTestItems();
+			
+
+            //初始化串口通讯设置
+            SerialPort1 = new SerialPortSettingViewModel();
 			SerialPort2 = new SerialPortSettingViewModel_2();
 
 			//初始化UC
 			TestUC = new TestViewUC();
 			TestUC.DataContext = this;
 			SetViewUC = new SetProtolViewUC();
-			
 
+            //初始化命令
+            StartCommand = new RelayCommand(StartBackgroundThread);
+            StopCommand = new RelayCommand(StopBackgroundThread);
 
-            Items = new ObservableCollection<TestItem>
-            {
-                new TestItem { Id = 1, Name = "项目 1", IsImportant = true },
-                new TestItem { Id = 2, Name = "项目 2", IsImportant = false },
-                new TestItem { Id = 3, Name = "项目 3", IsImportant = true }
-            };
-
-            LogEntries = new ObservableCollection<LogEntry>
-            {
-                new LogEntry{ Message = "电仪测试完成",Time = DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss")},
-                new LogEntry{ Message = "电仪测试完成",Time = DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss")},
-                new LogEntry{ Message = "电仪测试完成",Time = DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss")},
-                new LogEntry{ Message = "电仪测试完成",Time = DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss")},
-                new LogEntry{ Message = "电仪测试完成",Time = DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss")},
-                new LogEntry{ Message = "电仪测试完成",Time = DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss")},
-                new LogEntry{ Message = "电仪测试完成",Time = DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss")}
-            };
+            LogEntries = new ObservableCollection<LogEntry>();
+            TestUC.SetupScrolling();
+            
         }
 
-        
-        public ObservableCollection<TestItem> Items { get; set; }
+        #region 项目显示
+        public ObservableCollection<TestItem> TestItems { get; set; }
+
+        private  TestItemService _service;
+
+		/// <summary>
+		/// 初始化项目显示
+		/// </summary>
+		private void InitTestItems()
+		{
+            _service = new TestItemService();
+            TestItems = new ObservableCollection<TestItem>();
+
+            // 初始化数据库表
+            _service.CreateTable();
+
+            // 加载数据
+            LoadTestItems();
+        }
+
+		/// <summary>
+		/// 从数据库获取最新数据
+		/// </summary>
+        private void LoadTestItems()
+        {
+            TestItems.Clear();
+            var items = _service.GetAllTestItems();
+            foreach (var item in items)
+            {
+                TestItems.Add(item);
+            }
+        }
+		
+		/// <summary>
+		/// 添加项目到数据库
+		/// </summary>
+		/// <param name="item"></param>
+		private void AddTestItem(TestItem item)
+		{
+			if (item != null)
+			{
+				_service.AddTestItem(item);
+			}
+			LoadTestItems();
+		}
+
+        #endregion
 
         #region 日志
+
+        //日志项
+        public ObservableCollection<LogEntry> LogEntries { get; set; }
         /// <summary>
         /// 添加日志
         /// </summary>
@@ -70,17 +118,57 @@ namespace WpfApp2.ViewModels
                 Time = DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss"),
                 Message = log
             };
-            LogEntries.Add(logEntry);
+
+            Application.Current.Dispatcher.Invoke(() =>
+            {
+
+                LogEntries.Add(logEntry);
+                if (LogEntries.Count > 100) LogEntries.RemoveAt(0);
+            });
+           SaveLogToFile($"【{logEntry.Time}】  {log}");
         }
 
-        //日志项
-        public ObservableCollection<LogEntry> LogEntries { get; set; }
+       
+       
+        /// <summary>
+        /// 保存一条日志到本地
+        /// </summary>
+        /// <param name="log"></param>
+        private void SaveLogToFile(string log)
+        {
+            DateTime now = DateTime.Now;
+            string logName = "日志";
+            string yearMonth = now.ToString("yyyy-MM");
+            string DayFolder = now.ToString("dd");
 
-		#endregion
+            // 构建日志文件夹路径
+            string logFolder = Path.Combine(Directory.GetCurrentDirectory(), logName, yearMonth);
+            if (!Directory.Exists(logFolder))
+            {
+                Directory.CreateDirectory(logFolder);
+            }
 
-		#region 主体界面
+            // 构建日志文件路径
+            string logFilePath = Path.Combine(logFolder, $"log_{now:yyyyMMdd}.txt");
+            try
+            {
+                using (StreamWriter writer = File.AppendText(logFilePath))
+                {
+                    writer.WriteLine(log);
+                }
+            }
+            catch (Exception ex)
+            {
+                AddLog($"写入日志文件时出错: {ex.Message}");
+            }
+        }
+        
 
-		SetProtolViewUC SetViewUC;
+        #endregion
+
+        #region 主体界面
+
+        SetProtolViewUC SetViewUC;
 		TestViewUC TestUC;
 
         private UserControl _ContentControl;
@@ -111,6 +199,7 @@ namespace WpfApp2.ViewModels
 		private bool UC_Tga = false;
 		private void SwitchContentUC()
 		{
+			
 			if (UC_Tga)
 			{
 				ContentControl = SetViewUC;
@@ -154,8 +243,109 @@ namespace WpfApp2.ViewModels
 		}
 
 
-		#endregion
+        #endregion
 
-	}
+        #region 后台测试线程
+
+        private CancellationTokenSource _cts = new CancellationTokenSource();//取消线程专用
+        private ManualResetEventSlim _pauseEvent = new ManualResetEventSlim(true);//暂停线程专用
+        private readonly SemaphoreSlim _semaphore = new SemaphoreSlim(1, 1); // 异步竞争	
+
+
+        // 命令定义
+        public RelayCommand StartCommand { get; set; }//启动
+
+        public RelayCommand StopCommand { get; set; }//停止
+
+        // 后台线程是否正在运行
+        private bool _isRunning;
+        public bool IsRunning
+        {
+            get => _isRunning;
+            set
+            {
+                _isRunning = value;
+                OnPropertyChanged();
+            }
+        }
+
+        /// <summary>
+        /// 启动后台通信线程
+        /// </summary>
+        private void StartBackgroundThread()
+        {
+
+            //if (!SerialCommunicationService.IsOpen())
+            //{
+            //    MessageBox.Show(App.GetText("请先打开串口!"), "提示", MessageBoxButton.OK, MessageBoxImage.Error);
+            //    return;
+            //}
+            if (IsRunning) { return; }
+            else
+            {
+                IsRunning = true;
+                StartCommand.RaiseCanExecuteChanged();
+                StopCommand.RaiseCanExecuteChanged();
+                _cts = new CancellationTokenSource();
+                _pauseEvent.Set();
+                Task.Run(() => BackgroundWorker(_cts.Token));
+                AddLog("后台通信线程已启动");
+            }
+
+        }
+
+        /// <summary>
+        /// 停止后台通信
+        /// </summary>
+        private void StopBackgroundThread()
+        {
+            _cts.Cancel();
+            AddLog("后台通信停止请求已发送");
+        }
+
+        /// <summary>
+        /// 后台工作线程主循环
+        /// </summary>
+        private async Task BackgroundWorker(CancellationToken token)
+        {
+            int i = -1;
+            bool flag = false;
+            try
+            {
+               
+                while (!token.IsCancellationRequested)
+                {
+                   
+                    if (i++ < 17)
+                    {
+                        TestItems[i].IsImportant = flag;
+                    }
+                    else
+                    {
+                        i=-1;
+                        flag = !flag;
+                    }
+                    // 模拟常规通信
+                    await Task.Delay(1000, token);
+
+                    //AddLog($"[后台] 常规通信: {DateTime.Now:HH:mm:ss.fff}");
+                }
+            }
+            catch (OperationCanceledException)
+            {
+
+                IsRunning = false;
+
+            }
+            finally
+            {
+                AddLog("已停止");
+            }
+           
+           
+        }
+
+        #endregion
+    }
 
 }

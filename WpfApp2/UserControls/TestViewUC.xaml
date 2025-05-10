@@ -7,8 +7,11 @@
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
     d:DesignHeight="450"
     d:DesignWidth="800"
+    xmlns:convert="clr-namespace:WpfApp2.Tools.ConvertTool"
     mc:Ignorable="d">
     <UserControl.Resources>
+        <!--注册布尔值到文本的转换器-->
+        <convert:BooleanToTextConverter x:Key="BoolLeanToTextConvert" TrueText="合格" FalseText="不合格"/>
         <!--  定义 ListViewItem 的样式  -->
         <Style x:Key="TestViewSty" TargetType="ListViewItem">
             <Setter Property="Height" Value="30" />
@@ -16,10 +19,10 @@
             <Style.Triggers>
                 <!--  根据 IsImportant 属性的值设置背景颜色  -->
                 <DataTrigger Binding="{Binding IsImportant}" Value="True">
-                    <Setter Property="Background" Value="LightCoral" />
+                    <Setter Property="Background" Value= "LightGreen"/>
                 </DataTrigger>
                 <DataTrigger Binding="{Binding IsImportant}" Value="False">
-                    <Setter Property="Background" Value="LightGreen" />
+                    <Setter Property="Background" Value="LightCoral" />
                 </DataTrigger>
             </Style.Triggers>
         </Style>
@@ -39,8 +42,7 @@
                             Background="{TemplateBinding Background}"
                             BorderBrush="{TemplateBinding BorderBrush}"
                             BorderThickness="{TemplateBinding BorderThickness}" 
-                             CornerRadius="5">
-                           
+                            CornerRadius="5">
                             <ContentPresenter/>
                         </Border>
 
@@ -60,24 +62,29 @@
             <ColumnDefinition MaxWidth="250" />
             <ColumnDefinition Width="auto" />
             <ColumnDefinition Width="4*" />
+            <ColumnDefinition Width="auto" />
         </Grid.ColumnDefinitions>
         <Grid.RowDefinitions>
             <RowDefinition Height="auto" />
             <RowDefinition />
+            
         </Grid.RowDefinitions>
+        
         <!--  返回配置界面  -->
         <Button
             Margin="5"
             Command="{Binding SwitchUC}"
             Content="返回"
             Style="{StaticResource BtnStyle}" />
-        <!--  标题  -->
+        
+        <!--  第一行 标题  -->
         <TextBlock
-            Grid.ColumnSpan="3"
+            Grid.ColumnSpan="4"
             HorizontalAlignment="Center"
             FontSize="30"
             Text="测试界面" />
-        <!--  串口显示、机器类型和日志显示  -->
+        
+        <!--  第二行 串口显示、机器类型和日志显示  -->
         <Grid Grid.Row="1">
             <Grid.RowDefinitions>
                 <RowDefinition Height="auto" />
@@ -285,7 +292,7 @@
             Width="3"
             Margin="0,10"
             Background="Gray" />
-        <!--  测试项目展示  -->
+        <!-- 第二行 测试项目展示  -->
         <Grid
             Grid.Row="1"
             Grid.Column="2"
@@ -305,14 +312,14 @@
             Grid.Column="2"
             Margin="10"
             ItemContainerStyle="{StaticResource TestViewSty}"
-            ItemsSource="{Binding Items}">
+            ItemsSource="{Binding TestItems}">
             <ListView.View>
                 <GridView AllowsColumnReorder="True">
                     <!--  设置第一列宽度为比例宽度 2*  -->
                     <GridViewColumn Width="{Binding ElementName=column1, Path=ActualWidth}" Header="ID">
                         <GridViewColumn.CellTemplate>
                             <DataTemplate>
-                                <TextBlock FontSize="14" Text="{Binding Id}" />
+                                <TextBlock FontSize="20" Text="{Binding Id}" />
                             </DataTemplate>
 
                         </GridViewColumn.CellTemplate>
@@ -322,7 +329,7 @@
                     <GridViewColumn Width="{Binding ElementName=column2, Path=ActualWidth}" Header="名称">
                         <GridViewColumn.CellTemplate>
                             <DataTemplate>
-                                <TextBlock FontSize="14" Text="{Binding Name}" />
+                                <TextBlock FontSize="20" Text="{Binding Name}" />
                             </DataTemplate>
                         </GridViewColumn.CellTemplate>
 
@@ -331,7 +338,7 @@
                     <GridViewColumn Width="{Binding ElementName=column3, Path=ActualWidth}" Header="是否通过">
                         <GridViewColumn.CellTemplate>
                             <DataTemplate>
-                                <TextBlock FontSize="14" Text="{Binding IsImportant}" />
+                                <TextBlock FontSize="20" Text="{Binding IsImportant,Converter={StaticResource BoolLeanToTextConvert}}" />
                             </DataTemplate>
                         </GridViewColumn.CellTemplate>
 
@@ -339,5 +346,18 @@
                 </GridView>
             </ListView.View>
         </ListView>
+
+        <Grid  Grid.Row="1" Grid.Column="3" Margin="0,0,0,10">
+            <StackPanel VerticalAlignment="Bottom" Orientation="Horizontal">
+                <Button Content="开始" FontSize="30" Margin="5" Background="Green" Command="{Binding StartCommand}"></Button>
+                <Button Content="停止" FontSize="30" Background="Red" Margin="5" Command="{Binding StopCommand}"></Button>
+            </StackPanel>
+        </Grid>
+        <!--第二行 右侧属性显示-->
+       
+        
+       
+        
+        
     </Grid>
 </UserControl>
