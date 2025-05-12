@@ -28,9 +28,12 @@ namespace WpfApp2.UserControls
             
         }
 
+        #region 日志自动滚动
         public void SetupScrolling()
         {
             var viewModel = (MainWindowVM)DataContext;
+
+           
             //日志自动滚动到最新
             viewModel.LogEntries.CollectionChanged += (sender, e) =>
             {
@@ -52,11 +55,88 @@ namespace WpfApp2.UserControls
                     // 延迟滚动到最后一项，确保UI已更新
                     Dispatcher.BeginInvoke((Action)(() =>
                     {
-                        LogListView.ScrollIntoView(e.NewItems[e.NewItems.Count - 1]);
+                        if (!IsItemVisible(e.NewItems[e.NewItems.Count - 1]))
+                        {
+                            LogListView.ScrollIntoView(e.NewItems[e.NewItems.Count - 1]);
+                        }
+                        //LogListView.ScrollIntoView(e.NewItems[e.NewItems.Count - 1]);
                     }), System.Windows.Threading.DispatcherPriority.Render);
                 }
             };
         }
+
+        //仅当最新项不在视图中时才触发滚动，避免干扰用户当前浏览位置
+        private bool IsItemVisible(object item)
+        {
+            var container = LogListView.ItemContainerGenerator.ContainerFromItem(item) as ListViewItem;
+            if (container == null) return false;
+
+            var transform = container.TransformToAncestor(LogListView);
+            var bounds = transform.TransformBounds(new Rect(0, 0, container.ActualWidth, container.ActualHeight));
+            var viewport = new Rect(0, 0, LogListView.ActualWidth, LogListView.ActualHeight);
+
+            return viewport.Contains(bounds.TopLeft) || viewport.Contains(bounds.BottomRight);
+        }
+
+
+        #endregion
+
+
+
+
+        #region 测试项自动滚动
+
+        public void SetupScrolling2()
+        {
+            var viewModel = (MainWindowVM)DataContext;
+
+          
+            //日志自动滚动到最新
+           
+                    // 为新添加的项注册属性变更事件
+                    foreach (TestItem newItem in viewModel.TestItems)
+                    {
+                        newItem.PropertyChanged += (s, args) =>
+                        {
+                            // 同样使用Dispatcher确保UI已更新
+                            Dispatcher.BeginInvoke((Action)(() =>
+                            {
+                                if (!IsItemVisible(s))
+                                {
+                                    TestItemListView.ScrollIntoView(s);
+                                }
+                                
+                            }), System.Windows.Threading.DispatcherPriority.Render);
+                        };
+                    }
+
+                    //// 延迟滚动到最后一项，确保UI已更新
+                    //Dispatcher.BeginInvoke((Action)(() =>
+                    //{
+                    //    if (!IsItemVisible(e.NewItems[e.NewItems.Count - 1]))
+                    //    {
+                    //        LogListView.ScrollIntoView(e.NewItems[e.NewItems.Count - 1]);
+                    //    }
+                    //    //LogListView.ScrollIntoView(e.NewItems[e.NewItems.Count - 1]);
+                    //}), System.Windows.Threading.DispatcherPriority.Render);
+           
+        }
+
+
+        //仅当最新项不在视图中时才触发滚动，避免干扰用户当前浏览位置
+        private bool IsItemVisible2(object item)
+        {
+            var container = TestItemListView.ItemContainerGenerator.ContainerFromItem(item) as ListViewItem;
+            if (container == null) return false;
+
+            var transform = container.TransformToAncestor(TestItemListView);
+            var bounds = transform.TransformBounds(new Rect(0, 0, container.ActualWidth, container.ActualHeight));
+            var viewport = new Rect(0, 0, TestItemListView.ActualWidth, TestItemListView.ActualHeight);
+
+            return viewport.Contains(bounds.TopLeft) || viewport.Contains(bounds.BottomRight);
+        }
+
+        #endregion
 
         private void ScrollToSpecificRecord_Click(object sender, RoutedEventArgs e)
         {

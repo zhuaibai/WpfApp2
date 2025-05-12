@@ -113,7 +113,7 @@ namespace WpfApp2.ViewModels
             SaveCommand = new DelegateCommand(SaveSettings);
         }
 
-        private SerialPortSettings LoadSettings()
+        public SerialPortSettings LoadSettings()
         {
             try
             {
@@ -136,7 +136,7 @@ namespace WpfApp2.ViewModels
 
         }
 
-        private void SaveSettings(object parameter)
+        public void SaveSettings(object parameter)
         {
             try
             {
@@ -254,7 +254,7 @@ namespace WpfApp2.ViewModels
             SaveCommand = new DelegateCommand(SaveSettings);
         }
 
-        private SerialPortSettings LoadSettings()
+        public SerialPortSettings LoadSettings()
         {
             try
             {
@@ -277,7 +277,7 @@ namespace WpfApp2.ViewModels
 
         }
 
-        private void SaveSettings(object parameter)
+        public void SaveSettings(object parameter)
         {
             try
             {

@@ -9,7 +9,12 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <Compile Remove="Dictionary\GroupBoxMachineTypeSty.cs" />
+  </ItemGroup>
+
+  <ItemGroup>
     <None Remove="App.config" />
+    <None Remove="Resource\Fonts\iconfont.ttf" />
   </ItemGroup>
 
   <ItemGroup>
@@ -23,6 +28,10 @@
 
   <ItemGroup>
     <EditorConfigFiles Include="App.config" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Resource Include="Resource\Fonts\iconfont.ttf" />
   </ItemGroup>
 
 </Project>

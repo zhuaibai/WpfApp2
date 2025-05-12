@@ -53,6 +53,7 @@ namespace WpfApp2.ViewModels
 
             LogEntries = new ObservableCollection<LogEntry>();
             TestUC.SetupScrolling();
+            TestUC.SetupScrolling2();
             
         }
 
@@ -207,7 +208,8 @@ namespace WpfApp2.ViewModels
 			}
 			else
 			{
-				ContentControl = TestUC;
+                SaveSerialInfo();
+                ContentControl = TestUC;
 				UC_Tga = true;
 			}
 		}
@@ -215,6 +217,21 @@ namespace WpfApp2.ViewModels
         #endregion
 
         #region 串口工具
+
+        /// <summary>
+        /// 更新串口通讯配置
+        /// </summary>
+        private void SaveSerialInfo()
+        {
+            //保存串口通讯一配置
+            SerialPort1.SaveSettings(this);
+            //保存串口通讯二配置
+            SerialPort2.SaveSettings(this);
+            //重新加载配置
+            SerialPort1.LoadSettings();
+            SerialPort2.LoadSettings();
+
+        }
 
         //串口通讯设置一
         private SerialPortSettingViewModel _serialPort1;

@@ -9,9 +9,9 @@
                         <!--渐变色-->
                         <Border.BorderBrush>
                             <LinearGradientBrush StartPoint="0,0" EndPoint="1,0">
-                                <GradientStop Color="Red" Offset="0"></GradientStop>
-                                <GradientStop Color="Black" Offset="0.5"></GradientStop>
-                                <GradientStop Color="Red" Offset="1"></GradientStop>
+                                <GradientStop Color="#22ffffff" Offset="0"></GradientStop>
+                                <GradientStop Color="#77ffffff" Offset="0.5"></GradientStop>
+                                <GradientStop Color="#22ffffff" Offset="1"></GradientStop>
                             </LinearGradientBrush>
                         </Border.BorderBrush>
                         <StackPanel Orientation="Horizontal" HorizontalAlignment="Center" VerticalAlignment="Center">
@@ -22,6 +22,64 @@
                     <ControlTemplate.Triggers>
                         <Trigger Property="IsMouseOver" Value="True">
                             <Setter TargetName="border" Property="Background" Value="#11ffffff"></Setter>
+                        </Trigger>
+                    </ControlTemplate.Triggers>
+                </ControlTemplate>
+            </Setter.Value>
+        </Setter>
+    </Style>
+    <Style TargetType="Button" x:Key="BtnStyle3">
+        <Setter Property="Foreground" Value="#aaa"></Setter>
+        <Setter Property="Template">
+            <Setter.Value>
+                <ControlTemplate TargetType="Button">
+                    <Border BorderThickness="1" CornerRadius="5" Background="Transparent" x:Name="border">
+                        <!--渐变色-->
+                        <Border.BorderBrush>
+                            <LinearGradientBrush StartPoint="0,0" EndPoint="1,0">
+                                <GradientStop Color="#22ffffff" Offset="0"></GradientStop>
+                                <GradientStop Color="#77ffffff" Offset="0.5"></GradientStop>
+                                <GradientStop Color="#22ffffff" Offset="1"></GradientStop>
+                            </LinearGradientBrush>
+                        </Border.BorderBrush>
+                        <StackPanel Orientation="Horizontal" HorizontalAlignment="Center" VerticalAlignment="Center">
+                            <TextBlock Text="{TemplateBinding Tag}" Foreground="Red" FontFamily="../Resource/Fonts/#iconfont" Margin="0,2,5,0"></TextBlock>
+                            <TextBlock Text="{TemplateBinding Content}" Foreground="Red" VerticalAlignment="Center"></TextBlock>
+                        </StackPanel>
+                    </Border>
+                    <ControlTemplate.Triggers>
+                        <Trigger Property="IsMouseOver" Value="True">
+                            <Setter TargetName="border" Property="Background" Value="black"></Setter>
+                            <Setter Property="Cursor" Value="Hand"></Setter>
+                        </Trigger>
+                    </ControlTemplate.Triggers>
+                </ControlTemplate>
+            </Setter.Value>
+        </Setter>
+    </Style> 
+    <Style TargetType="Button" x:Key="BtnStyle2">
+        <Setter Property="Foreground" Value="#aaa"></Setter>
+        <Setter Property="Template">
+            <Setter.Value>
+                <ControlTemplate TargetType="Button">
+                    <Border BorderThickness="1" CornerRadius="5" Background="Transparent" x:Name="border">
+                        <!--渐变色-->
+                        <Border.BorderBrush>
+                            <LinearGradientBrush StartPoint="0,0" EndPoint="1,0">
+                                <GradientStop Color="#22ffffff" Offset="0"></GradientStop>
+                                <GradientStop Color="#77ffffff" Offset="0.5"></GradientStop>
+                                <GradientStop Color="#22ffffff" Offset="1"></GradientStop>
+                            </LinearGradientBrush>
+                        </Border.BorderBrush>
+                        <StackPanel Orientation="Horizontal" HorizontalAlignment="Center" VerticalAlignment="Center">
+                            <TextBlock Text="{TemplateBinding Tag}" Foreground="Green" FontFamily="../Resource/Fonts/#iconfont" Margin="0,2,5,0"></TextBlock>
+                            <TextBlock Text="{TemplateBinding Content}" Foreground="Green" VerticalAlignment="Center"></TextBlock>
+                        </StackPanel>
+                    </Border>
+                    <ControlTemplate.Triggers>
+                        <Trigger Property="IsMouseOver" Value="True">
+                            <Setter TargetName="border" Property="Background" Value="#11ffffff"></Setter>
+                            <Setter Property="Cursor" Value="Hand"></Setter>
                         </Trigger>
                     </ControlTemplate.Triggers>
                 </ControlTemplate>

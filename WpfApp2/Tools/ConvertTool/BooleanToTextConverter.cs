@@ -32,4 +32,20 @@ namespace WpfApp2.Tools.ConvertTool
             return value;
         }
     }
+    public class StringSubstringConverter : IValueConverter
+    {
+        public object Convert(object value, Type targetType, object parameter, CultureInfo culture)
+        {
+            if (value is string timeString && timeString.Length > 10)
+            {
+                return timeString.Substring(11, 8); // 从第11个字符开始，截取8个字符（时分秒）
+            }
+            return value;
+        }
+
+        public object ConvertBack(object value, Type targetType, object parameter, CultureInfo culture)
+        {
+            throw new NotImplementedException();
+        }
+    }
 }

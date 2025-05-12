@@ -11,10 +11,13 @@
             <!--  背景颜色渐变  -->
             <Grid.Background>
                 <RadialGradientBrush>
-                <GradientStop Offset="0" Color="#FF83A813" />
+                <!--<GradientStop Offset="0" Color="#FF83A813" />
                 <GradientStop Offset="0.5" Color="#FF749511" />
-                <GradientStop Offset="1" Color="#FFB5E61D" />
-                </RadialGradientBrush>
+                <GradientStop Offset="1" Color="#FFB5E61D" />-->
+                <GradientStop Color="#ff285173" Offset="0"></GradientStop>
+                <GradientStop Color="#ff244967" Offset="0.5"></GradientStop>
+                <GradientStop Color="#ff14273a" Offset="1"></GradientStop>
+            </RadialGradientBrush>
             </Grid.Background>
             <ContentControl Content="{Binding ContentControl}">
             
