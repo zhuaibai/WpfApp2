@@ -8,6 +8,7 @@ using System.Text;
 using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Controls;
+using System.Windows.Documents;
 using System.Windows.Input;
 using WpfApp2.Command;
 using WpfApp2.Models;
@@ -26,6 +27,10 @@ namespace WpfApp2.ViewModels
            
 			
 		}
+
+
+
+
 
 		/// <summary>
 		/// 初始化
@@ -52,6 +57,8 @@ namespace WpfApp2.ViewModels
             StopCommand = new RelayCommand(StopBackgroundThread);
 
             LogEntries = new ObservableCollection<LogEntry>();
+
+            //添加自动滚动功能
             TestUC.SetupScrolling();
             TestUC.SetupScrolling2();
             
@@ -203,20 +210,38 @@ namespace WpfApp2.ViewModels
 			
 			if (UC_Tga)
 			{
-				ContentControl = SetViewUC;
-				UC_Tga = false;
+                //关闭串口
+                if (CloseCom())
+                {
+                    ContentControl = SetViewUC;
+                    UC_Tga = false;
+                }
+                else
+                {
+                    MessageBox.Show("关闭串口失败");
+                }
+				
 			}
 			else
 			{
+                //更新串口信息
                 SaveSerialInfo();
-                ContentControl = TestUC;
-				UC_Tga = true;
+                //打开串口
+                if (OpenCom())
+                {
+                    //打开成功跳转测试界面
+                    ContentControl = TestUC;
+                    UC_Tga = true;
+                }
+               
 			}
 		}
 
         #endregion
 
         #region 串口工具
+
+
 
         /// <summary>
         /// 更新串口通讯配置
@@ -231,6 +256,34 @@ namespace WpfApp2.ViewModels
             SerialPort1.LoadSettings();
             SerialPort2.LoadSettings();
 
+        }
+
+        /// <summary>
+        /// 打开串口
+        /// </summary>
+        /// <returns></returns>
+        private bool OpenCom()
+        {
+            //串口一通讯初始化
+            SerialCommunicationService.InitiateCom(SerialPort1._settings);
+            //窗口二通讯初始化
+            SerialCommunicationService2.InitiateCom(SerialPort2._settings);
+            try
+            {
+                bool Com1 = SerialCommunicationService.OpenCom();
+                bool Com2 = SerialCommunicationService2.OpenCom();
+                return Com1 && Com2;
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show($"串口打开失败，请检查!\r\n{ex.Message}", "打开串口", MessageBoxButton.OK, MessageBoxImage.Warning);
+                return false;
+            }
+        }
+
+        private bool CloseCom()
+        {
+            return SerialCommunicationService.CloseCom() && SerialCommunicationService2.CloseCom();
         }
 
         //串口通讯设置一
@@ -353,6 +406,10 @@ namespace WpfApp2.ViewModels
 
                 IsRunning = false;
 
+            }
+            catch (Exception ex)
+            {
+                IsRunning = false;
             }
             finally
             {

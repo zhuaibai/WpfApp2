@@ -420,6 +420,7 @@
         <TextBlock
             Grid.ColumnSpan="2"
             HorizontalAlignment="Center"
+            VerticalAlignment="Center"
             FontSize="30"
             Foreground="White"
             Text="配置界面" />
@@ -662,13 +663,25 @@
         <!--  机型选择  -->
         <Grid
             Grid.Row="1"
-            Grid.Column="1"
+            Grid.Column="1"            
             Margin="10">
             <Grid.RowDefinitions>
                 <RowDefinition />
                 <RowDefinition Height="auto" />
             </Grid.RowDefinitions>
-            <GroupBox Header="测试机型选择" Style="{StaticResource GroupBoxMachineTypeSty}" />
+            <GroupBox Header="测试机型选择" Style="{StaticResource GroupBoxMachineTypeSty}"  >
+                <UniformGrid Columns="2" Margin="0,45,0,0">
+                    <RadioButton Style="{StaticResource RadioButtonMachineSelected}" IsChecked="True">
+                        <StackPanel>
+                            <TextBlock Text="机器一 测试三项"></TextBlock>
+                        </StackPanel>
+                    </RadioButton>
+                    <RadioButton Style="{StaticResource RadioButtonMachineSelected}"></RadioButton>
+                    <RadioButton Style="{StaticResource RadioButtonMachineSelected}"></RadioButton>
+                    <RadioButton Style="{StaticResource RadioButtonMachineSelected}"></RadioButton>
+                    
+                </UniformGrid>
+            </GroupBox>
 
         </Grid>
 

@@ -54,8 +54,6 @@ namespace WpfApp2.Tools
         /// </summary>
         public static void InitiateCom(SerialPortSettings serialPortSettings)
         {
-            //初始化之前先关闭已打开的串口(有的话）
-            CloseCom();
             SerialPortModel = serialPortSettings;
             SerialPort = new SerialPort();
             SerialPort.PortName = SerialPortModel.PortName;
@@ -98,7 +96,7 @@ namespace WpfApp2.Tools
                 }
                 catch (Exception ex)
                 {
-                    SerialPort.Close();
+                   
                     return false;
                 }
                 return true;
@@ -119,12 +117,12 @@ namespace WpfApp2.Tools
             {
                 try
                 {
-
                     SerialPort.Open();
                     return true;
                 }
                 catch (Exception ex)
                 {
+                    throw new Exception("串口通讯一打开失败", ex);
                     return false;
                 }
             }
@@ -138,6 +136,7 @@ namespace WpfApp2.Tools
                 }
                 catch (Exception ex)
                 {
+                    throw new Exception("串口通讯一打开失败", ex);
                     return false;
                 }
             }

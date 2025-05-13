@@ -15,20 +15,45 @@
             x:Key="BoolLeanToTextConvert"
             FalseText="不合格"
             TrueText="合格" />
-        <convert:StringSubstringConverter x:Key="StringSubstringConverter"/>
+        <convert:StringSubstringConverter x:Key="StringSubstringConverter" />
         <!--  定义 ListViewItem 的样式  -->
         <Style x:Key="TestViewSty" TargetType="ListViewItem">
             <Setter Property="HorizontalContentAlignment" Value="Stretch" />
+            
             <Style.Triggers>
                 <!--  根据 IsImportant 属性的值设置背景颜色  -->
                 <DataTrigger Binding="{Binding IsImportant}" Value="True">
-                    <Setter Property="Background" Value="LightGreen" />
+                    <Setter Property="Background" Value="Green" />
                 </DataTrigger>
                 <DataTrigger Binding="{Binding IsImportant}" Value="False">
-                    <Setter Property="Background" Value="LightCoral" />
+                    <Setter Property="Background" Value="#FFFF8080" />
                 </DataTrigger>
             </Style.Triggers>
         </Style>
+        <Style TargetType="GridViewColumnHeader">
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="GridViewColumnHeader">
+                        <Border
+                            Padding="{TemplateBinding Padding}"
+                            Background="{TemplateBinding Background}"
+                            BorderBrush="{TemplateBinding BorderBrush}"
+                            BorderThickness="{TemplateBinding BorderThickness}"
+                            CornerRadius="5">
+                            <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center" />
+                        </Border>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+            <Setter Property="Background" Value="Transparent" />
+            <Setter Property="Foreground" Value="White" />
+            <Setter Property="FontSize" Value="14" />
+            <Setter Property="Padding" Value="10" />
+            <Setter Property="BorderThickness" Value="0" />
+            
+        </Style>
+
+
         <!--  定义 ListViewItem 的样式  -->
         <Style x:Key="LogViewSty" TargetType="ListViewItem">
             <Setter Property="Margin" Value="5" />
@@ -70,37 +95,53 @@
         <Grid.RowDefinitions>
             <RowDefinition Height="auto" />
             <RowDefinition />
+            <RowDefinition Height="auto" />
 
         </Grid.RowDefinitions>
-
+        <Border
+            Grid.ColumnSpan="4"
+            Margin="5"
+            Background="#1118aabd"
+            CornerRadius="10" />
         <!--  返回配置界面  -->
         <Button
-            Margin="5"
+            Margin="10"
             Command="{Binding SwitchUC}"
-            Tag="&#xe973;"
             Content="主页"
             FontSize="35"
-            Style="{StaticResource BtnStyle}" />
+            Style="{StaticResource BtnStyle}"
+            Tag="&#xe973;" />
 
         <!--  第一行 标题  -->
         <TextBlock
             Grid.ColumnSpan="4"
             HorizontalAlignment="Center"
+            VerticalAlignment="Center"
             FontSize="30"
             Foreground="White"
             Text="测试界面" />
 
         <!--  第二行 串口显示、机器类型和日志显示  -->
+
         <Grid Grid.Row="1">
             <Grid.RowDefinitions>
                 <RowDefinition Height="auto" />
                 <RowDefinition />
             </Grid.RowDefinitions>
+            <Border
+                Margin="5"
+                Background="#1118aabd"
+                CornerRadius="10" />
+            <Border
+                Grid.Row="1"
+                Margin="5,5,5,5"
+                Background="#1118aabd"
+                CornerRadius="10" />
             <!--  串口信息显示  -->
             <StackPanel Orientation="Vertical">
                 <StackPanel
                     Grid.Column="0"
-                    Margin="10,0,10,10"
+                    Margin="10,10,10,10"
                     Orientation="Vertical">
                     <GroupBox
                         Margin="5"
@@ -212,7 +253,7 @@
                                 Margin="0,0,0,4"
                                 FontSize="10"
                                 Foreground="#666666"
-                                Text="{Binding Time,Converter={StaticResource StringSubstringConverter}}" />
+                                Text="{Binding Time, Converter={StaticResource StringSubstringConverter}}" />
                             <TextBlock
                                 FontSize="14"
                                 Foreground="#333333"
@@ -233,10 +274,16 @@
             Margin="0,0,0,10"
             Background="Gray" />
         <!--  第二行 测试项目展示  -->
+        <Border
+            Grid.Row="1"
+            Grid.Column="2"
+            Margin="5"
+            Background="#1118aabd"
+            CornerRadius="10" />
         <Grid
             Grid.Row="1"
             Grid.Column="2"
-            Margin="40,10">
+            Margin="30,10">
             <Grid.ColumnDefinitions>
                 <ColumnDefinition Width="100" />
                 <ColumnDefinition Width="*" />
@@ -250,16 +297,18 @@
             x:Name="TestItemListView"
             Grid.Row="1"
             Grid.Column="2"
-            Margin="10,0,10,10"
-            ScrollViewer.VerticalScrollBarVisibility="Hidden"
+            Margin="20,10,20,20"
             Background="Transparent"
             BorderThickness="0"
+           
             ItemContainerStyle="{StaticResource TestViewSty}"
-            ItemsSource="{Binding TestItems}">
+            ItemsSource="{Binding TestItems}"
+            ScrollViewer.VerticalScrollBarVisibility="Hidden">
             <ListView.View>
                 <GridView AllowsColumnReorder="True">
+                    
                     <!--  设置第一列宽度为比例宽度 2*  -->
-                    <GridViewColumn Width="{Binding ElementName=column1, Path=ActualWidth}" Header="ID">
+                    <GridViewColumn  Width="{Binding ElementName=column1, Path=ActualWidth}" Header="ID">
                         <GridViewColumn.CellTemplate>
                             <DataTemplate>
                                 <TextBlock FontSize="30" Text="{Binding Id}" />
@@ -269,7 +318,7 @@
 
                     </GridViewColumn>
                     <!--  设置第二列宽度为比例宽度 3*  -->
-                    <GridViewColumn Width="{Binding ElementName=column2, Path=ActualWidth}" Header="名称">
+                    <GridViewColumn Width="{Binding ElementName=column2, Path=ActualWidth}" Header="测试项目">
                         <GridViewColumn.CellTemplate>
                             <DataTemplate>
                                 <TextBlock FontSize="30" Text="{Binding Name}" />
@@ -278,10 +327,13 @@
 
                     </GridViewColumn>
                     <!--  设置第三列宽度为比例宽度 2*  -->
-                    <GridViewColumn Width="{Binding ElementName=column3, Path=ActualWidth}" Header="是否通过">
+                    <GridViewColumn Width="{Binding ElementName=column3, Path=ActualWidth}" Header="是否合格">
                         <GridViewColumn.CellTemplate>
                             <DataTemplate>
-                                <TextBlock FontSize="30" Text="{Binding IsImportant, Converter={StaticResource BoolLeanToTextConvert}}" />
+                                
+                                    <TextBlock FontSize="30" Text="{Binding IsImportant, Converter={StaticResource BoolLeanToTextConvert}}" />
+                               
+                                
                             </DataTemplate>
                         </GridViewColumn.CellTemplate>
 
@@ -295,34 +347,48 @@
             Grid.Column="3"
             Margin="0,0,0,10">
             <Grid.RowDefinitions>
-                <RowDefinition></RowDefinition>
-                <RowDefinition Height="auto"></RowDefinition>
+                <RowDefinition />
+                <RowDefinition Height="auto" />
             </Grid.RowDefinitions>
             <Grid.ColumnDefinitions>
-                <ColumnDefinition></ColumnDefinition>
-                <ColumnDefinition></ColumnDefinition>
+                <ColumnDefinition />
+                <ColumnDefinition />
             </Grid.ColumnDefinitions>
-            
-                <Button
-                    Grid.Row="1"
-                    Margin="5"
-                    Command="{Binding StartCommand}"
-                    Content="开始"
-                    Tag="&#xe622;"
-                    Style="{StaticResource BtnStyle2}"
-                    FontSize="30" />
-                <Button
-                    Grid.Column="1"
-                    Grid.Row="1"
-                    Margin="5"
-                    Tag="&#xe691;"
-                    Command="{Binding StopCommand}"
-                    Style="{StaticResource BtnStyle3}"
-                    Content="停止"
-                    FontSize="30" />
-           
+            <Border
+                Grid.ColumnSpan="2"
+                Margin="5"
+                Background="#1118aabd"
+                CornerRadius="10" />
+            <Button
+                Grid.Row="1"
+                Margin="5"
+                Command="{Binding StartCommand}"
+                Content="开始"
+                FontSize="30"
+                Style="{StaticResource BtnStyle2}"
+                Tag="&#xe622;" />
+            <Button
+                Grid.Row="1"
+                Grid.Column="1"
+                Margin="5"
+                Command="{Binding StopCommand}"
+                Content="停止"
+                FontSize="30"
+                Style="{StaticResource BtnStyle3}"
+                Tag="&#xe691;" />
+
         </Grid>
         <!--  第二行 右侧属性显示  -->
+
+
+        <!--  底边  -->
+        <Border
+            Grid.Row="2"
+            Grid.ColumnSpan="4"
+            Height="10"
+            Margin="5"
+            Background="#1118aabd"
+            CornerRadius="5" />
 
 
 

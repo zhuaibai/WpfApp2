@@ -24,7 +24,7 @@ namespace WpfApp2.ViewModels
             PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
         }
 
-        private SerialPortSettings _settings;
+        public SerialPortSettings _settings;
 
         public ObservableCollection<string> AvailablePorts { get; }
         public ObservableCollection<int> BaudRates { get; }
@@ -165,7 +165,7 @@ namespace WpfApp2.ViewModels
             PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
         }
 
-        private SerialPortSettings _settings;
+        public SerialPortSettings _settings;
 
         public ObservableCollection<string> AvailablePorts { get; }
         public ObservableCollection<int> BaudRates { get; }
