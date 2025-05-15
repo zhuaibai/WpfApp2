@@ -28,20 +28,16 @@ namespace WpfApp2.ViewModels
 			
 		}
 
-
-
-
-
-		/// <summary>
-		/// 初始化
-		/// </summary>
-		private void Init()
+        #region 初始化
+        /// <summary>
+        /// 初始化
+        /// </summary>
+        private void Init()
 		{
            
             //数据库初始化
             SQLiteHelper.ConnectionString = "Data Source=MyDatabase.db;Version=3;";
-			InitTestItems();
-			
+			InitTestItems();			
 
             //初始化串口通讯设置
             SerialPort1 = new SerialPortSettingViewModel();
@@ -61,8 +57,157 @@ namespace WpfApp2.ViewModels
             //添加自动滚动功能
             TestUC.SetupScrolling();
             TestUC.SetupScrolling2();
-            
         }
+        #endregion
+
+        #region 机器类型选择
+
+        //地址
+        static string MachineCfgPath = "MachineTypes/";
+        private bool _isOption1Selected =true;
+        private bool _isOption2Selected;
+        private bool _isOption3Selected;
+        private bool _isOption4Selected;
+        //选择的机型
+        private string SelectedValue="选项1";
+
+        public bool IsOption1Selected
+        {
+            get => _isOption1Selected;
+            set
+            {
+                _isOption1Selected = value;
+                OnPropertyChanged(nameof(IsOption1Selected));
+                if (value) // 当选项1被选中时
+                {
+                    // 处理选择逻辑
+                    SelectedValue = "选项1";
+                }
+            }
+        }
+        public bool IsOption2Selected
+        {
+            get => _isOption2Selected;
+            set
+            {
+                _isOption2Selected = value;
+                OnPropertyChanged(nameof(IsOption2Selected));
+                if (value) // 当选项2被选中时
+                {
+                    // 处理选择逻辑
+                    SelectedValue = "选项2";
+                }
+            }
+        }
+        public bool IsOption3Selected
+        {
+            get => _isOption3Selected;
+            set
+            {
+                _isOption3Selected = value;
+                OnPropertyChanged(nameof(IsOption3Selected));
+                if (value) // 当选项3被选中时
+                {
+                    // 处理选择逻辑
+                    SelectedValue = "选项3";
+                }
+            }
+        } 
+        public bool IsOption4Selected
+        {
+            get => _isOption4Selected;
+            set
+            {
+                _isOption4Selected = value;
+                OnPropertyChanged(nameof(IsOption4Selected));
+                if (value) // 当选项4被选中时
+                {
+                    // 处理选择逻辑
+                    SelectedValue = "选项4";
+                }
+            }
+        }
+
+       
+
+        //测试机器
+        private MachineType _testMachine;
+        public MachineType testMachine
+        { get
+            {
+                return _testMachine;
+            }
+            set
+            {
+                _testMachine = value;
+                OnPropertyChanged();
+            }           
+        }
+
+        //机器类型一
+        public MachineTypeVM machineTypeVM_1 { get; set; } = new MachineTypeVM(MachineCfgPath + "machine1.xml");
+        //机器类型二
+        public MachineTypeVM machineTypeVM_2 { get; set; } = new MachineTypeVM(MachineCfgPath+ "machine2.xml");
+        //机器类型三
+        public MachineTypeVM machineTypeVM_3 { get; set; } = new MachineTypeVM(MachineCfgPath+ "machine3.xml");
+        //机器类型四
+        public MachineTypeVM machineTypeVM_4 { get; set; } = new MachineTypeVM(MachineCfgPath+"machine4.xml");
+
+        public ICommand SelectedMachine { get; set; }
+
+        private void SelectMachine(object parameter)
+        {
+            string param = parameter as string;
+            switch (parameter)
+            {
+                case "选项1":
+                    testMachine = new MachineType
+                    {
+                        MachineName = machineTypeVM_1.Machine,
+                        A_Hour = machineTypeVM_1.A_Hour,
+                        BatVol = machineTypeVM_1.BatVol
+                    };
+                    machineTypeVM_1.SaveSelectedMachine();
+                    break;
+                case "选项2":
+                    testMachine = new MachineType
+                    {
+                        MachineName = machineTypeVM_2.Machine,
+                        A_Hour = machineTypeVM_2.A_Hour,
+                        BatVol = machineTypeVM_2.BatVol
+                    };
+                    machineTypeVM_2.SaveSelectedMachine();
+                    break;
+                case "选项3":
+                    testMachine = new MachineType
+                    {
+                        MachineName = machineTypeVM_3.Machine,
+                        A_Hour = machineTypeVM_3.A_Hour,
+                        BatVol = machineTypeVM_3.BatVol
+                    };
+                    machineTypeVM_3.SaveSelectedMachine();
+                    break;
+                case "选项4":
+                    testMachine = new MachineType
+                    {
+                        MachineName = machineTypeVM_4.Machine,
+                        A_Hour = machineTypeVM_4.A_Hour,
+                        BatVol = machineTypeVM_4.BatVol
+                    };
+                    machineTypeVM_4.SaveSelectedMachine();
+                    break;
+                default:
+                    testMachine = new MachineType
+                    {
+                        MachineName = "没选机型",
+                        A_Hour = machineTypeVM_2.A_Hour,
+                        BatVol = machineTypeVM_2.BatVol
+                    };
+                    break;
+            }
+        }
+
+        #endregion
 
         #region 项目显示
         public ObservableCollection<TestItem> TestItems { get; set; }
@@ -116,6 +261,7 @@ namespace WpfApp2.ViewModels
 
         //日志项
         public ObservableCollection<LogEntry> LogEntries { get; set; }
+
         /// <summary>
         /// 添加日志
         /// </summary>
@@ -137,7 +283,6 @@ namespace WpfApp2.ViewModels
         }
 
        
-       
         /// <summary>
         /// 保存一条日志到本地
         /// </summary>
@@ -157,7 +302,7 @@ namespace WpfApp2.ViewModels
             }
 
             // 构建日志文件路径
-            string logFilePath = Path.Combine(logFolder, $"log_{now:yyyyMMdd}.txt");
+            string logFilePath = Path.Combine(logFolder, $"log_{now:yyyyMM-dd}.txt");
             try
             {
                 using (StreamWriter writer = File.AppendText(logFilePath))
@@ -210,6 +355,8 @@ namespace WpfApp2.ViewModels
 			
 			if (UC_Tga)
 			{
+                //测试界面跳转配置界面
+
                 //关闭串口
                 if (CloseCom())
                 {
@@ -224,8 +371,12 @@ namespace WpfApp2.ViewModels
 			}
 			else
 			{
+                //配置界面跳转测试界面
+
                 //更新串口信息
                 SaveSerialInfo();
+                //更新机器类型
+                SelectMachine(SelectedValue);
                 //打开串口
                 if (OpenCom())
                 {
@@ -354,8 +505,6 @@ namespace WpfApp2.ViewModels
             else
             {
                 IsRunning = true;
-                StartCommand.RaiseCanExecuteChanged();
-                StopCommand.RaiseCanExecuteChanged();
                 _cts = new CancellationTokenSource();
                 _pauseEvent.Set();
                 Task.Run(() => BackgroundWorker(_cts.Token));

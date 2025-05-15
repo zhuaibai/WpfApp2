@@ -6,6 +6,7 @@
         xmlns:local="clr-namespace:WpfApp2"
         mc:Ignorable="d"
         WindowStartupLocation="CenterScreen"
+        WindowState="Maximized"
         Title="MainWindow" Height="800" Width="1294">
     <Grid>
             <!--  背景颜色渐变  -->

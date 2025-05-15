@@ -442,7 +442,6 @@
                             <RowDefinition Height="Auto" />
                             <RowDefinition Height="Auto" />
                             <RowDefinition Height="Auto" />
-                            <RowDefinition Height="Auto" />
                         </Grid.RowDefinitions>
                         <Grid.ColumnDefinitions>
                             <ColumnDefinition Width="Auto" />
@@ -545,7 +544,6 @@
                 <GroupBox
                     Margin="10"
                     Header="串口通信二"
-                    
                     Style="{StaticResource GroupBoxMachineTypeSty}">
                     <Grid Margin="10,30,10,10">
                         <Grid.RowDefinitions>
@@ -599,7 +597,7 @@
                             Margin="5"
                             Content="{DynamicResource 数据位}"
                             FontSize="15"
-                            Foreground="#aaffffff"/>
+                            Foreground="#aaffffff" />
                         <ComboBox
                             Grid.Row="2"
                             Grid.Column="1"
@@ -655,31 +653,274 @@
                 VerticalAlignment="Bottom"
                 Command="{Binding SwitchUC}"
                 Content="开始测试"
-                FontWeight="Bold"
                 FontSize="60"
+                FontWeight="Bold"
                 Style="{StaticResource BtnStyle}" />
         </Grid>
 
         <!--  机型选择  -->
         <Grid
             Grid.Row="1"
-            Grid.Column="1"            
+            Grid.Column="1"
             Margin="10">
             <Grid.RowDefinitions>
                 <RowDefinition />
                 <RowDefinition Height="auto" />
             </Grid.RowDefinitions>
-            <GroupBox Header="测试机型选择" Style="{StaticResource GroupBoxMachineTypeSty}"  >
-                <UniformGrid Columns="2" Margin="0,45,0,0">
-                    <RadioButton Style="{StaticResource RadioButtonMachineSelected}" IsChecked="True">
-                        <StackPanel>
-                            <TextBlock Text="机器一 测试三项"></TextBlock>
-                        </StackPanel>
+            <GroupBox Header="测试机型选择" Style="{StaticResource GroupBoxMachineTypeSty}">
+                <UniformGrid Margin="0,45,0,0" Columns="2">
+                    <!--  机型一  -->
+                    <RadioButton IsChecked="{Binding IsOption1Selected}" Style="{StaticResource RadioButtonMachineSelected}">
+                        <Grid Margin="10,30,10,10">
+                            <Grid.RowDefinitions>
+                                <RowDefinition Height="Auto" />
+                                <RowDefinition Height="Auto" />
+                                <RowDefinition Height="Auto" />
+                                <RowDefinition Height="Auto" />
+                                <RowDefinition Height="Auto" />
+                            </Grid.RowDefinitions>
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="Auto" />
+                                <ColumnDefinition Width="*" />
+                            </Grid.ColumnDefinitions>
+
+                            <Label
+                                Grid.Row="0"
+                                Grid.Column="0"
+                                Margin="5"
+                                Content="机器"
+                                FontSize="40" />
+
+                            <Label
+                                Grid.Row="0"
+                                Grid.Column="1"
+                                Margin="5"
+                                Content="{Binding machineTypeVM_1.Machine}"
+                                FontSize="40" />
+
+
+
+                            <Label
+                                Grid.Row="1"
+                                Grid.Column="0"
+                                Margin="5"
+                                Content="功率"
+                                FontSize="15" />
+                            <ComboBox
+                                Grid.Row="1"
+                                Grid.Column="1"
+                                Margin="5"
+                                FontSize="15"
+                                ItemsSource="{Binding machineTypeVM_1.AvailableA_Hours}"
+                                SelectedItem="{Binding machineTypeVM_1.A_Hour}" />
+
+                            <Label
+                                Grid.Row="2"
+                                Grid.Column="0"
+                                Margin="5"
+                                Content="电池电压"
+                                FontSize="15" />
+                            <ComboBox
+                                Grid.Row="2"
+                                Grid.Column="1"
+                                Margin="5"
+                                FontSize="15"
+                                ItemsSource="{Binding machineTypeVM_1.AvailableBatVols}"
+                                SelectedItem="{Binding machineTypeVM_1.BatVol}" />
+
+
+
+
+
+                        </Grid>
                     </RadioButton>
-                    <RadioButton Style="{StaticResource RadioButtonMachineSelected}"></RadioButton>
-                    <RadioButton Style="{StaticResource RadioButtonMachineSelected}"></RadioButton>
-                    <RadioButton Style="{StaticResource RadioButtonMachineSelected}"></RadioButton>
-                    
+                    <!--  机型二  -->
+                    <RadioButton IsChecked="{Binding IsOption2Selected}" Style="{StaticResource RadioButtonMachineSelected}">
+                        <Grid Margin="10,30,10,10">
+                            <Grid.RowDefinitions>
+                                <RowDefinition Height="Auto" />
+                                <RowDefinition Height="Auto" />
+                                <RowDefinition Height="Auto" />
+                                <RowDefinition Height="Auto" />
+                                <RowDefinition Height="Auto" />
+                            </Grid.RowDefinitions>
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="Auto" />
+                                <ColumnDefinition Width="*" />
+                            </Grid.ColumnDefinitions>
+
+                            <Label
+                                Grid.Row="0"
+                                Grid.Column="0"
+                                Margin="5"
+                                Content="机器"
+                                FontSize="40" />
+
+                            <Label
+                                Grid.Row="0"
+                                Grid.Column="1"
+                                Margin="5"
+                                Content="{Binding machineTypeVM_2.Machine}"
+                                FontSize="40" />
+
+
+
+                            <Label
+                                Grid.Row="1"
+                                Grid.Column="0"
+                                Margin="5"
+                                Content="功率"
+                                FontSize="15" />
+                            <ComboBox
+                                Grid.Row="1"
+                                Grid.Column="1"
+                                Margin="5"
+                                FontSize="15"
+                                ItemsSource="{Binding machineTypeVM_2.AvailableA_Hours}"
+                                SelectedItem="{Binding machineTypeVM_2.A_Hour}" />
+
+                            <Label
+                                Grid.Row="2"
+                                Grid.Column="0"
+                                Margin="5"
+                                Content="电池电压"
+                                FontSize="15" />
+                            <ComboBox
+                                Grid.Row="2"
+                                Grid.Column="1"
+                                Margin="5"
+                                FontSize="15"
+                                ItemsSource="{Binding machineTypeVM_2.AvailableBatVols}"
+                                SelectedItem="{Binding machineTypeVM_2.BatVol}" />
+
+
+
+
+
+                        </Grid>
+                    </RadioButton>
+                    <!--  机型三  -->
+                    <RadioButton IsChecked="{Binding IsOption3Selected}" Style="{StaticResource RadioButtonMachineSelected}">
+                        <Grid Margin="10,30,10,10">
+                            <Grid.RowDefinitions>
+                                <RowDefinition Height="Auto" />
+                                <RowDefinition Height="Auto" />
+                                <RowDefinition Height="Auto" />
+                                <RowDefinition Height="Auto" />
+                                <RowDefinition Height="Auto" />
+                            </Grid.RowDefinitions>
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="Auto" />
+                                <ColumnDefinition Width="*" />
+                            </Grid.ColumnDefinitions>
+
+                            <Label
+                                Grid.Row="0"
+                                Grid.Column="0"
+                                Margin="5"
+                                Content="机器"
+                                FontSize="40" />
+
+                            <Label
+                                Grid.Row="0"
+                                Grid.Column="1"
+                                Margin="5"
+                                Content="{Binding machineTypeVM_3.Machine}"
+                                FontSize="40" />
+
+
+
+                            <Label
+                                Grid.Row="1"
+                                Grid.Column="0"
+                                Margin="5"
+                                Content="功率"
+                                FontSize="15" />
+                            <ComboBox
+                                Grid.Row="1"
+                                Grid.Column="1"
+                                Margin="5"
+                                FontSize="15"
+                                ItemsSource="{Binding machineTypeVM_3.AvailableA_Hours}"
+                                SelectedItem="{Binding machineTypeVM_3.A_Hour}" />
+
+                            <Label
+                                Grid.Row="2"
+                                Grid.Column="0"
+                                Margin="5"
+                                Content="电池电压"
+                                FontSize="15" />
+                            <ComboBox
+                                Grid.Row="2"
+                                Grid.Column="1"
+                                Margin="5"
+                                FontSize="15"
+                                ItemsSource="{Binding machineTypeVM_3.AvailableBatVols}"
+                                SelectedItem="{Binding machineTypeVM_3.BatVol}" />
+
+
+
+
+
+                        </Grid>
+                    </RadioButton>
+                    <!--  机型四  -->
+                    <RadioButton IsChecked="{Binding IsOption4Selected}" Style="{StaticResource RadioButtonMachineSelected}">
+                        <Grid Margin="10,30,10,10">
+                            <Grid.RowDefinitions>
+                                <RowDefinition Height="Auto" />
+                                <RowDefinition Height="Auto" />
+                                <RowDefinition Height="Auto" />
+                                <RowDefinition Height="Auto" />
+                            </Grid.RowDefinitions>
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="Auto" />
+                                <ColumnDefinition Width="*" />
+                            </Grid.ColumnDefinitions>
+
+                            <Label
+                                Grid.Row="0"
+                                Grid.Column="0"
+                                Margin="5"
+                                Content="机器"
+                                FontSize="40" />
+
+                            <Label
+                                Grid.Row="0"
+                                Grid.Column="1"
+                                Margin="5"
+                                Content="{Binding machineTypeVM_4.Machine}"
+                                FontSize="40" />
+
+                            <Label
+                                Grid.Row="1"
+                                Grid.Column="0"
+                                Margin="5"
+                                Content="功率"
+                                FontSize="15" />
+                            <ComboBox
+                                Grid.Row="1"
+                                Grid.Column="1"
+                                Margin="5"
+                                FontSize="15"
+                                ItemsSource="{Binding machineTypeVM_4.AvailableA_Hours}"
+                                SelectedItem="{Binding machineTypeVM_4.A_Hour}" />
+                            <Label
+                                Grid.Row="2"
+                                Grid.Column="0"
+                                Margin="5"
+                                Content="电池电压"
+                                FontSize="15" />
+                            <ComboBox
+                                Grid.Row="2"
+                                Grid.Column="1"
+                                Margin="5"
+                                FontSize="15"
+                                ItemsSource="{Binding machineTypeVM_4.AvailableBatVols}"
+                                SelectedItem="{Binding machineTypeVM_4.BatVol}" />
+                        </Grid>
+                    </RadioButton>
+
                 </UniformGrid>
             </GroupBox>
 
