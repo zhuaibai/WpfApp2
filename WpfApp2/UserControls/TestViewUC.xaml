@@ -11,22 +11,34 @@
     mc:Ignorable="d">
     <UserControl.Resources>
         <!--  注册布尔值到文本的转换器  -->
-        <convert:BooleanToTextConverter
-            x:Key="BoolLeanToTextConvert"
-            FalseText="不合格"
-            TrueText="合格" />
+        <convert:BooleanToTextConverter x:Key="BooleanToTextConverter" ></convert:BooleanToTextConverter>
         <convert:StringSubstringConverter x:Key="StringSubstringConverter" />
         <!--  定义 ListViewItem 的样式  -->
         <Style x:Key="TestViewSty" TargetType="ListViewItem">
             <Setter Property="HorizontalContentAlignment" Value="Stretch" />
 
             <Style.Triggers>
-                <!--  根据 IsImportant 属性的值设置背景颜色  -->
-                <DataTrigger Binding="{Binding IsImportant}" Value="True">
+                <!-- Flag=0 且 IsImportant=True 时为绿色 -->
+                <MultiDataTrigger>
+                    <MultiDataTrigger.Conditions>
+                        <Condition Binding="{Binding Flag}" Value="1" />
+                        <Condition Binding="{Binding IsImportant}" Value="True" />
+                    </MultiDataTrigger.Conditions>
                     <Setter Property="Background" Value="Green" />
-                </DataTrigger>
-                <DataTrigger Binding="{Binding IsImportant}" Value="False">
+                </MultiDataTrigger>
+
+                <!-- Flag=0 且 IsImportant=False 时为红色 -->
+                <MultiDataTrigger>
+                    <MultiDataTrigger.Conditions>
+                        <Condition Binding="{Binding Flag}" Value="1" />
+                        <Condition Binding="{Binding IsImportant}" Value="False" />
+                    </MultiDataTrigger.Conditions>
                     <Setter Property="Background" Value="#FFFF8080" />
+                </MultiDataTrigger>
+
+                <!-- Flag=1 时无论 IsImportant 为何值都为黄色 -->
+                <DataTrigger Binding="{Binding Flag}" Value="0">
+                    <Setter Property="Background" Value="Orange" />
                 </DataTrigger>
             </Style.Triggers>
         </Style>
@@ -353,10 +365,15 @@
                     <GridViewColumn Width="{Binding ElementName=column3, Path=ActualWidth}" Header="是否合格">
                         <GridViewColumn.CellTemplate>
                             <DataTemplate>
-
-                                <TextBlock FontSize="30" Text="{Binding IsImportant, Converter={StaticResource BoolLeanToTextConvert}}" />
-
-
+                                <!--<TextBlock FontSize="30" Text="{Binding IsImportant, Converter={StaticResource BooleanToTextConverter}}" />-->
+                                <TextBlock FontSize="30">
+                                    <TextBlock.Text>
+                                        <MultiBinding Converter="{StaticResource BooleanToTextConverter}">
+                                            <Binding Path="IsImportant" />
+                                            <Binding Path="Flag" />
+                                        </MultiBinding>
+                                    </TextBlock.Text>
+                                </TextBlock>
                             </DataTemplate>
                         </GridViewColumn.CellTemplate>
 

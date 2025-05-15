@@ -538,9 +538,11 @@ namespace WpfApp2.ViewModels
                     if (i++ < 17)
                     {
                         TestItems[i].IsImportant = flag;
+                        TestItems[i].Flag = 1;
                     }
                     else
                     {
+                        ReSetTestItems();
                         i=-1;
                         flag = !flag;
                     }
@@ -566,6 +568,17 @@ namespace WpfApp2.ViewModels
             }
            
            
+        }
+
+
+        /// <summary>
+        /// 测试项复位
+        /// </summary>
+        private void ReSetTestItems()
+        {
+            foreach( TestItem item in TestItems ){
+                item.Flag = 0;
+            }
         }
 
         #endregion

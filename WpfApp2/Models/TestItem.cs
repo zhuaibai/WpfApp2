@@ -43,6 +43,18 @@ namespace WpfApp2.Models
 				this.RaiseProperChanged(nameof(IsImportant));
 			}
 		}
+		private int flag =0;
 
-    }
+		public int Flag
+		{
+			get { return flag; }
+			set
+			{
+				flag = value;
+				this.RaiseProperChanged(nameof(Flag));
+			}
+		}
+
+
+	}
 }
