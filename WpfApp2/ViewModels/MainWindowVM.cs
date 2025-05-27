@@ -10,6 +10,7 @@ using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Documents;
 using System.Windows.Input;
+using System.Windows.Media.Animation;
 using WpfApp2.Command;
 using WpfApp2.Models;
 using WpfApp2.Models.Service;
@@ -680,6 +681,8 @@ namespace WpfApp2.ViewModels
                     }
                     else
                     {
+                        Application.Current.Dispatcher.Invoke(() => ShowBubble("一次测试完成"));
+                        
                         ReSetTestItems();
                         i=-1;
                         flag = !flag;
@@ -718,6 +721,95 @@ namespace WpfApp2.ViewModels
                 item.Flag = 0;
             }
         }
+
+        #endregion
+
+        #region 气泡弹窗
+
+        /// <summary>
+        /// 气泡控件
+        /// </summary>
+        private UserControl _bubbleControl;
+
+        public UserControl Bubble
+        {
+            get { return _bubbleControl; }
+            set
+            {
+                _bubbleControl = value;
+                OnPropertyChanged();
+            }
+        }
+
+        private string _BubbleMesg;
+
+        public string BubbleMesg
+        {
+            get { return _BubbleMesg; }
+            set
+            {
+                _BubbleMesg = value;
+                OnPropertyChanged(nameof(BubbleMesg));
+            }
+        }
+
+
+        private async void ShowBubble(string message)
+        {
+
+
+            var bubbleControl = new BubbleControl();
+            Bubble = bubbleControl;
+
+
+            BubbleMesg = message;
+
+            //动画效果(由下而上)
+            //位移 移动时间
+            ThicknessAnimation thicknessAnimation = new ThicknessAnimation(new Thickness(0, 10, 0, -10), new Thickness(0, 0, 0, 0), new TimeSpan(0, 0, 0, 0, 200));
+
+            //透明度
+            DoubleAnimation doubleAnimation = new DoubleAnimation(0, 1, new TimeSpan(0, 0, 0, 0, 200));
+
+            Storyboard.SetTarget(thicknessAnimation, bubbleControl);
+            Storyboard.SetTarget(doubleAnimation, bubbleControl);
+
+            Storyboard.SetTargetProperty(thicknessAnimation, new PropertyPath("Margin"));
+            Storyboard.SetTargetProperty(doubleAnimation, new PropertyPath("Opacity"));
+
+            Storyboard storyboard = new Storyboard();
+            storyboard.Children.Add(thicknessAnimation);
+            storyboard.Children.Add(doubleAnimation);
+            storyboard.Begin();
+
+
+            await Task.Delay(4600);
+
+            // 位移
+            ThicknessAnimation thicknessAnimation2 = new ThicknessAnimation(
+                new Thickness(0, 0, 0, 0), new Thickness(0, -10, 0, 10),
+                new TimeSpan(0, 0, 0, 0, 400));
+            // 透明度
+            DoubleAnimation doubleAnimation2 = new DoubleAnimation(1, 0, new TimeSpan(0, 0, 0, 0, 400));
+
+            Storyboard.SetTarget(thicknessAnimation2, bubbleControl);
+            Storyboard.SetTarget(doubleAnimation2, bubbleControl);
+            Storyboard.SetTargetProperty(thicknessAnimation2, new PropertyPath("Margin"));
+            Storyboard.SetTargetProperty(doubleAnimation2, new PropertyPath("Opacity"));
+
+            Storyboard storyboard2 = new Storyboard();
+            storyboard2.Children.Add(thicknessAnimation2);
+            storyboard2.Children.Add(doubleAnimation2);
+
+            //动画效果完了才关闭
+            storyboard2.Completed += (se, ev) =>
+            {
+                bubbleControl.Visibility = Visibility.Collapsed;
+            };
+            storyboard2.Begin();
+
+        }
+
 
         #endregion
     }

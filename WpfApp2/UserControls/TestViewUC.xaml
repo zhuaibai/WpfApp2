@@ -110,6 +110,9 @@
             <RowDefinition Height="auto" />
 
         </Grid.RowDefinitions>
+        <Grid Grid.ColumnSpan="4" Grid.RowSpan="4" Panel.ZIndex="3">
+            <UserControl VerticalAlignment="Center" HorizontalAlignment="Center" Content="{Binding Bubble}"></UserControl>
+        </Grid>
         <Border
             Grid.ColumnSpan="4"
             Margin="5"
