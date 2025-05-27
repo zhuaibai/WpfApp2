@@ -9,6 +9,9 @@ namespace WpfApp2.Models
 {
     public class TestItem:BaseViewModel
     {
+		/// <summary>
+		/// 主键
+		/// </summary>
 		private int _Id;
 
 		public int Id
@@ -21,6 +24,9 @@ namespace WpfApp2.Models
 			}
 		}
 
+		/// <summary>
+		/// 测试项目名称
+		/// </summary>
 		private string _name;
 
 		public string Name
@@ -32,6 +38,10 @@ namespace WpfApp2.Models
 				this.RaiseProperChanged(nameof(Name));
 			}
 		}
+
+		/// <summary>
+		/// 测试是否通过标志位
+		/// </summary>
 		private bool _IsImportant;
 
 		public bool IsImportant
@@ -45,6 +55,10 @@ namespace WpfApp2.Models
 		}
 		private int flag =0;
 
+
+		/// <summary>
+		/// 是否已经测试标志位
+		/// </summary>
 		public int Flag
 		{
 			get { return flag; }

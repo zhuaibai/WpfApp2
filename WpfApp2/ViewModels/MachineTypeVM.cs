@@ -86,7 +86,7 @@ namespace WpfApp2.ViewModels
             }
             catch (Exception ex)
             {
-                Console.WriteLine($"加载设置时出错: {ex.Message}");
+               
                 return new MachineType();
             }
             return new MachineType();
@@ -102,12 +102,12 @@ namespace WpfApp2.ViewModels
                 {
                     serializer.Serialize(writer, machineType);
                 }
-                Console.WriteLine("设置已保存");
+               
                 // MessageBox.Show("设置已保存,请重新打开串口生效!\r\nThe settings have been saved, please re-open the serial port to take effect!");
             }
             catch (Exception ex)
             {
-                Console.WriteLine($"保存设置时出错: {ex.Message}");
+                
                 MessageBox.Show($"保存设置时出错:{ex.Message}");
             }
         }

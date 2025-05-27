@@ -697,9 +697,6 @@
                                 Margin="5"
                                 Content="{Binding machineTypeVM_1.Machine}"
                                 FontSize="40" />
-
-
-
                             <Label
                                 Grid.Row="1"
                                 Grid.Column="0"
@@ -713,7 +710,6 @@
                                 FontSize="15"
                                 ItemsSource="{Binding machineTypeVM_1.AvailableA_Hours}"
                                 SelectedItem="{Binding machineTypeVM_1.A_Hour}" />
-
                             <Label
                                 Grid.Row="2"
                                 Grid.Column="0"

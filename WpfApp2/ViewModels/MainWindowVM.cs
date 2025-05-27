@@ -24,8 +24,6 @@ namespace WpfApp2.ViewModels
 		{
 			//初始化
 			Init();
-           
-			
 		}
 
         #region 初始化
@@ -35,12 +33,12 @@ namespace WpfApp2.ViewModels
         private void Init()
 		{
            
-            //数据库初始化
+            //数据库路径
             SQLiteHelper.ConnectionString = "Data Source=MyDatabase.db;Version=3;";
-			InitTestItems();			
+            InitTestItems();
 
-            //初始化串口通讯设置
-            SerialPort1 = new SerialPortSettingViewModel();
+             //初始化串口通讯设置
+             SerialPort1 = new SerialPortSettingViewModel();
 			SerialPort2 = new SerialPortSettingViewModel_2();
 
 			//初始化UC
@@ -55,8 +53,8 @@ namespace WpfApp2.ViewModels
             LogEntries = new ObservableCollection<LogEntry>();
 
             //添加自动滚动功能
-            TestUC.SetupScrolling();
-            TestUC.SetupScrolling2();
+            TestUC.SetupScrolling();    //日志自动滚动
+           
         }
         #endregion
 
@@ -155,19 +153,39 @@ namespace WpfApp2.ViewModels
 
         public ICommand SelectedMachine { get; set; }
 
+        /// <summary>
+        /// 根据所选机器类型加载对应测试项
+        /// </summary>
+        /// <param name="parameter"></param>
         private void SelectMachine(object parameter)
         {
             string param = parameter as string;
             switch (parameter)
             {
                 case "选项1":
+                    
+                    //测试机器类型实例化
                     testMachine = new MachineType
                     {
                         MachineName = machineTypeVM_1.Machine,
                         A_Hour = machineTypeVM_1.A_Hour,
                         BatVol = machineTypeVM_1.BatVol
                     };
+
+                    //更新机器类型选项
                     machineTypeVM_1.SaveSelectedMachine();
+
+                    //选择相应的数据表
+                    string sql = @"
+                    CREATE TABLE IF NOT EXISTS TestItems (
+                    Id INTEGER PRIMARY KEY,
+                    Name TEXT NOT NULL,
+                    IsImportant INTEGER NOT NULL
+                     )";
+
+                    //从数据库中加载对应测试项
+                    InitTestItems("TestItems");
+
                     break;
                 case "选项2":
                     testMachine = new MachineType
@@ -176,7 +194,19 @@ namespace WpfApp2.ViewModels
                         A_Hour = machineTypeVM_2.A_Hour,
                         BatVol = machineTypeVM_2.BatVol
                     };
+                    //更新及其类型选项
                     machineTypeVM_2.SaveSelectedMachine();
+
+                    //选择相应的数据表
+                    sql = @"
+                    CREATE TABLE IF NOT EXISTS TestItems2 (
+                    Id INTEGER PRIMARY KEY,
+                    Name TEXT NOT NULL,
+                    IsImportant INTEGER NOT NULL
+                     )";
+
+                    //从数据库中加载对应测试项
+                    InitTestItems("TestItems2");
                     break;
                 case "选项3":
                     testMachine = new MachineType
@@ -185,7 +215,19 @@ namespace WpfApp2.ViewModels
                         A_Hour = machineTypeVM_3.A_Hour,
                         BatVol = machineTypeVM_3.BatVol
                     };
+                    //更新及其类型选项
                     machineTypeVM_3.SaveSelectedMachine();
+
+                    //选择相应的数据表
+                    sql = @"
+                    CREATE TABLE IF NOT EXISTS TestItems3 (
+                    Id INTEGER PRIMARY KEY,
+                    Name TEXT NOT NULL,
+                    IsImportant INTEGER NOT NULL
+                     )";
+
+                    //从数据库中加载对应测试项
+                    InitTestItems("TestItems3");
                     break;
                 case "选项4":
                     testMachine = new MachineType
@@ -194,7 +236,19 @@ namespace WpfApp2.ViewModels
                         A_Hour = machineTypeVM_4.A_Hour,
                         BatVol = machineTypeVM_4.BatVol
                     };
+                    //更新及其类型选项
                     machineTypeVM_4.SaveSelectedMachine();
+
+                    //选择相应的数据表
+                    sql = @"
+                    CREATE TABLE IF NOT EXISTS TestItems4 (
+                    Id INTEGER PRIMARY KEY,
+                    Name TEXT NOT NULL,
+                    IsImportant INTEGER NOT NULL
+                     )";
+
+                    //从数据库中加载对应测试项
+                    InitTestItems("TestItems4");
                     break;
                 default:
                     testMachine = new MachineType
@@ -214,12 +268,32 @@ namespace WpfApp2.ViewModels
 
         private  TestItemService _service;
 
-		/// <summary>
+        /// <summary>
+        /// 加载对应数据库项目项目显示
+        /// </summary>
+        /// <param name="sql">创建数据库表的指令</param>
+        private void InitTestItems(string table)
+		{
+            //加载新的数据表
+            _service = new TestItemService(table);
+            
+
+            // 初始化数据库表
+            _service.CreateTable();
+
+            // 加载数据
+            LoadTestItems();
+
+            //测试项自动滚动
+            TestUC.SetupScrolling2();   
+        }
+
+        /// <summary>
 		/// 初始化项目显示
 		/// </summary>
 		private void InitTestItems()
-		{
-            _service = new TestItemService();
+        {
+            _service = new TestItemService("TestItems");
             TestItems = new ObservableCollection<TestItem>();
 
             // 初始化数据库表
@@ -229,9 +303,9 @@ namespace WpfApp2.ViewModels
             LoadTestItems();
         }
 
-		/// <summary>
-		/// 从数据库获取最新数据
-		/// </summary>
+        /// <summary>
+        /// 从数据库获取最新数据
+        /// </summary>
         private void LoadTestItems()
         {
             TestItems.Clear();
@@ -282,6 +356,13 @@ namespace WpfApp2.ViewModels
            SaveLogToFile($"【{logEntry.Time}】  {log}");
         }
 
+        /// <summary>
+        /// 清空日志
+        /// </summary>
+        private void LogClear()
+        {
+            LogEntries.Clear();
+        }
        
         /// <summary>
         /// 保存一条日志到本地
@@ -316,6 +397,8 @@ namespace WpfApp2.ViewModels
             }
         }
         
+
+
 
         #endregion
 
@@ -375,7 +458,7 @@ namespace WpfApp2.ViewModels
 
                 //更新串口信息
                 SaveSerialInfo();
-                //更新机器类型
+                //根据机器类型加载数据库的测试项
                 SelectMachine(SelectedValue);
                 //打开串口
                 if (OpenCom())
@@ -473,6 +556,57 @@ namespace WpfApp2.ViewModels
         private readonly SemaphoreSlim _semaphore = new SemaphoreSlim(1, 1); // 异步竞争	
 
 
+        #region 开始、停止按钮的互相切换
+        private Visibility _visibility=Visibility.Visible;
+
+        //开始按钮可视
+        public Visibility StartVisible { 
+            get
+            {
+                return _visibility;
+            }
+            set 
+            {
+                _visibility = value;
+                OnPropertyChanged();
+            }
+        }
+
+        private Visibility _visibility2 = Visibility.Collapsed;
+
+        //停止按钮可视化
+        public Visibility StopVisible {
+            get
+            {
+                return _visibility2;
+            }
+            set 
+            {
+                _visibility2=value;
+                OnPropertyChanged();
+            } 
+        }
+
+        /// <summary>
+        /// 按钮可视化切换
+        /// </summary>
+        /// <param name="startShow">开始按钮是否显示</param>
+
+        private void SwitchButtonVisible(bool startShow)
+        {
+            if (startShow)
+            {
+                StartVisible = Visibility.Visible;
+                StopVisible = Visibility.Collapsed;
+            }
+            else
+            {
+                StopVisible = Visibility.Visible;
+                StartVisible = Visibility.Collapsed;
+            }
+        }
+        #endregion
+
         // 命令定义
         public RelayCommand StartCommand { get; set; }//启动
 
@@ -509,8 +643,9 @@ namespace WpfApp2.ViewModels
                 _pauseEvent.Set();
                 Task.Run(() => BackgroundWorker(_cts.Token));
                 AddLog("后台通信线程已启动");
+                //显示停止按钮
+                SwitchButtonVisible(false);
             }
-
         }
 
         /// <summary>
@@ -520,6 +655,7 @@ namespace WpfApp2.ViewModels
         {
             _cts.Cancel();
             AddLog("后台通信停止请求已发送");
+            SwitchButtonVisible(true);
         }
 
         /// <summary>
@@ -537,7 +673,9 @@ namespace WpfApp2.ViewModels
                    
                     if (i++ < 17)
                     {
+                        //修改测试结果(true = 通过, false = 失败)
                         TestItems[i].IsImportant = flag;
+                        //修改成已测试
                         TestItems[i].Flag = 1;
                     }
                     else

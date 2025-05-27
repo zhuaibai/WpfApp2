@@ -306,7 +306,7 @@
         <Border
             Grid.Row="1"
             Grid.Column="1"
-            Width="3"
+            Width="0"
             Margin="0,0,0,10"
             Background="Gray" />
         <!--  第二行 测试项目展示  -->
@@ -348,10 +348,9 @@
                             <DataTemplate>
                                 <TextBlock FontSize="30" Text="{Binding Id}" />
                             </DataTemplate>
-
                         </GridViewColumn.CellTemplate>
-
                     </GridViewColumn>
+                    
                     <!--  设置第二列宽度为比例宽度 3*  -->
                     <GridViewColumn Width="{Binding ElementName=column2, Path=ActualWidth}" Header="测试项目">
                         <GridViewColumn.CellTemplate>
@@ -359,7 +358,6 @@
                                 <TextBlock FontSize="30" Text="{Binding Name}" />
                             </DataTemplate>
                         </GridViewColumn.CellTemplate>
-
                     </GridViewColumn>
                     <!--  设置第三列宽度为比例宽度 2*  -->
                     <GridViewColumn Width="{Binding ElementName=column3, Path=ActualWidth}" Header="是否合格">
@@ -376,7 +374,6 @@
                                 </TextBlock>
                             </DataTemplate>
                         </GridViewColumn.CellTemplate>
-
                     </GridViewColumn>
                 </GridView>
             </ListView.View>
@@ -402,18 +399,21 @@
             <Button
                 Grid.Row="1"
                 Margin="5"
+                Grid.ColumnSpan="2"
+                Visibility= "{Binding StartVisible}"
                 Command="{Binding StartCommand}"
                 Content="开始"
-                FontSize="30"
+                FontSize="45"
                 Style="{StaticResource BtnStyle2}"
                 Tag="&#xe622;" />
             <Button
                 Grid.Row="1"
-                Grid.Column="1"
+                Grid.ColumnSpan="2"
+                Visibility="{Binding StopVisible}"
                 Margin="5"
                 Command="{Binding StopCommand}"
                 Content="停止"
-                FontSize="30"
+                FontSize="45"
                 Style="{StaticResource BtnStyle3}"
                 Tag="&#xe691;" />
 
