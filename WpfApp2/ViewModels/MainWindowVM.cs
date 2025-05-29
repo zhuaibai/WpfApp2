@@ -264,7 +264,7 @@ namespace WpfApp2.ViewModels
 
         #endregion
 
-        #region 项目显示
+        #region 测试项目显示
         public ObservableCollection<TestItem> TestItems { get; set; }
 
         private  TestItemService _service;
@@ -555,7 +555,7 @@ namespace WpfApp2.ViewModels
         private CancellationTokenSource _cts = new CancellationTokenSource();//取消线程专用
         private ManualResetEventSlim _pauseEvent = new ManualResetEventSlim(true);//暂停线程专用
         private readonly SemaphoreSlim _semaphore = new SemaphoreSlim(1, 1); // 异步竞争	
-
+        private BmsSystemParametersSending parametersSending = new BmsSystemParametersSending(); //发送指令实体类
 
         #region 开始、停止按钮的互相切换
         private Visibility _visibility=Visibility.Visible;
@@ -664,29 +664,73 @@ namespace WpfApp2.ViewModels
         /// </summary>
         private async Task BackgroundWorker(CancellationToken token)
         {
-            int i = -1;
-            bool flag = false;
+            //把所有项置为待测试
+            ReSetTestItems();
+
+            int i = 0;//计数
+            bool flag = false;//测试成功与否
             try
             {
                
                 while (!token.IsCancellationRequested)
                 {
                    
-                    if (i++ < 17)
+                    for(i = 0; i < TestItems.Count;)
                     {
-                        //修改测试结果(true = 通过, false = 失败)
-                        TestItems[i].IsImportant = flag;
-                        //修改成已测试
-                        TestItems[i].Flag = 1;
+                        //逐项进行测试
+                        flag = TestProgress(TestItems[i].Name);
+                        if (!flag)
+                        {
+                            AddLog($"{TestItems[i].Name}测试没通过");
+                            //测试不合格
+                            MessageBoxResult boxResult = MessageBox.Show("是否继续？", "测试暂停", MessageBoxButton.YesNo,MessageBoxImage.Question);
+                            if(boxResult == MessageBoxResult.No)
+                            {
+                                StopBackgroundThread();
+                                
+                                break;
+                            }
+                        }
+                        else
+                        {
+                            //测试合格，下一项
+                            i++;
+                            AddLog($"{TestItems[i].Name}测试通过");
+                            //修改测试结果(true = 通过, false = 失败)
+                            TestItems[i].IsImportant = true;
+                            //修改成已测试
+                            TestItems[i].Flag = 1;
+                        }
                     }
-                    else
-                    {
-                        Application.Current.Dispatcher.Invoke(() => ShowBubble("一次测试完成"));
+                    Application.Current.Dispatcher.Invoke(() => ShowBubble("测试完成！"));
+                    AddLog($"全部测试通过");
+                    //if (i++ < 10)
+                    //{
+                    //    //修改测试结果(true = 通过, false = 失败)
+                    //    TestItems[i].IsImportant = flag;
+                    //    //修改成已测试
+                    //    TestItems[i].Flag = 1;
+                    //    if (i == 3)
+                    //    {
+                    //        MessageBoxResult boxResult = MessageBox.Show("是否继续？", "测试暂停", MessageBoxButton.OKCancel);
+                    //        if (boxResult == MessageBoxResult.OK)
+                    //        {
+
+                    //        }
+                    //        else
+                    //        {
+                    //            StopBackgroundThread();
+                    //        }
+                    //    }
+                    //}
+                    //else
+                    //{
+                    //    Application.Current.Dispatcher.Invoke(() => ShowBubble("一次测试完成"));
                         
-                        ReSetTestItems();
-                        i=-1;
-                        flag = !flag;
-                    }
+                    //    ReSetTestItems();
+                    //    i=-1;
+                    //    flag = !flag;
+                    //}
                     // 模拟常规通信
                     await Task.Delay(1000, token);
 
@@ -711,6 +755,562 @@ namespace WpfApp2.ViewModels
            
         }
 
+        /// <summary>
+        /// 测试流程
+        /// </summary>
+        /// <returns></returns>
+        private bool TestProgress(string progressName)
+        {
+            switch (progressName)
+            {
+                case "BMS232通讯":
+                    AddLog("正在测试BMS232通讯");
+                    //进入测试模式1
+                    bool interSuccess= false;
+                    int ERROR_COUNT = 0;
+                    do
+                    {
+                        ERROR_COUNT++;
+                        interSuccess =  InterTestMode(1);
+                    }while (!interSuccess&&ERROR_COUNT<10);//最多发十次
+
+                    if (interSuccess)
+                    {
+                        ERROR_COUNT = 0;
+                        //已进入测试模式
+                        do
+                        {
+                            interSuccess = Bms232CommunicationTset();//BMS232通讯
+                        }while(!interSuccess && ERROR_COUNT<10);
+                        if (!interSuccess)
+                        {
+                            AddLog("测试异常过多");
+                        }
+                        return true;
+                    }
+                    else
+                    {
+                        //进入测试模式失败
+                        AddLog("进入测试模式异常");
+                        return false;
+                    }
+                case "CAN通讯":
+                    //进入测试模式1
+                    interSuccess = false;
+                    ERROR_COUNT = 0;
+                    do
+                    {
+                        ERROR_COUNT++;
+                        interSuccess = InterTestMode(1);
+                    } while (!interSuccess && ERROR_COUNT < 10);//最多发十次
+
+                    if (interSuccess)
+                    {
+                        ERROR_COUNT = 0;
+                        //已进入测试模式
+                        do
+                        {
+                            interSuccess = CanCommunicationTset();//CAN通讯
+                        } while (!interSuccess && ERROR_COUNT < 10);
+                        if (!interSuccess)
+                        {
+                            AddLog("测试异常过多");
+                        }
+                        return true;
+                    }
+                    else
+                    {
+                        //进入测试模式失败
+                        AddLog("进入测试模式异常");
+                        return false;
+                    }
+                case "BMS逆变器通讯":
+                    //进入测试模式1
+                    interSuccess = false;
+                    ERROR_COUNT = 0;
+                    do
+                    {
+                        ERROR_COUNT++;
+                        interSuccess = InterTestMode(1);
+                    } while (!interSuccess && ERROR_COUNT < 10);//最多发十次
+
+                    if (interSuccess)
+                    {
+                        ERROR_COUNT = 0;
+                        //已进入测试模式
+                        do
+                        {
+                            interSuccess = BmsInverterCommunicationTset();//BMS逆变器通讯
+                        } while (!interSuccess && ERROR_COUNT < 10);
+                        if (!interSuccess)
+                        {
+                            AddLog("测试异常过多");
+                        }
+                        return true;
+                    }
+                    else
+                    {
+                        //进入测试模式失败
+                        AddLog("进入测试模式异常");
+                        return false;
+                    }
+                case "BMS并机通讯":
+                    MessageBoxResult boxResult = MessageBox.Show("准备测试BMS并机通讯，请把最左边的拨码打开，确保拨码值为1！", "测试暂停", MessageBoxButton.OK,MessageBoxImage.Warning);
+
+                    //进入测试模式1
+                    interSuccess = false;
+                    ERROR_COUNT = 0;
+                    do
+                    {
+                        ERROR_COUNT++;
+                        interSuccess = InterTestMode(1);
+                    } while (!interSuccess && ERROR_COUNT < 10);//最多发十次
+
+                    if (interSuccess)
+                    {
+                        ERROR_COUNT = 0;
+                        //已进入测试模式
+                        do
+                        {
+                            interSuccess = BmsParallelCommunicationTset();//BMS并机通讯
+                        } while (!interSuccess && ERROR_COUNT < 10);
+                        if (!interSuccess)
+                        {
+                            AddLog("测试异常过多");
+                        }
+                        return true;
+                    }
+                    else
+                    {
+                        //进入测试模式失败
+                        AddLog("进入测试模式异常");
+                        return false;
+                    }
+                case "复位开关":
+                    boxResult = MessageBox.Show("准备测试复位开关，请确保复位开关按下！", "测试暂停", MessageBoxButton.OK, MessageBoxImage.Warning);
+                    //进入测试模式2
+                    interSuccess = false;
+                    ERROR_COUNT = 0;
+                    do
+                    {
+                        ERROR_COUNT++;
+                        interSuccess = InterTestMode(2);
+                    } while (!interSuccess && ERROR_COUNT < 10);//最多发十次
+
+                    if (interSuccess)
+                    {
+                        ERROR_COUNT = 0;
+                        //已进入测试模式
+                        do
+                        {
+                            interSuccess = ResetSwitchStatusTest();//复位开关
+                        } while (!interSuccess && ERROR_COUNT < 10);
+                        if (!interSuccess)
+                        {
+                            AddLog("测试异常过多");
+                        }
+                        return true;
+                    }
+                    else
+                    {
+                        //进入测试模式失败
+                        AddLog("进入测试模式异常");
+                        return false;
+                    }
+                case "拨码开关":
+                    boxResult = MessageBox.Show("准备测试BMS并机通讯，确保四个拨码位全部打开！", "测试暂停", MessageBoxButton.OK, MessageBoxImage.Warning);
+                    //进入测试模式3
+                    interSuccess = false;
+                    ERROR_COUNT = 0;
+                    do
+                    {
+                        ERROR_COUNT++;
+                        interSuccess = InterTestMode(3);
+                    } while (!interSuccess && ERROR_COUNT < 10);//最多发十次
+
+                    if (interSuccess)
+                    {
+                        ERROR_COUNT = 0;
+                        //已进入测试模式
+                        do
+                        {
+                            interSuccess = DIPSwitchValueTest();//拨码开关
+                        } while (!interSuccess && ERROR_COUNT < 10);
+                        if (!interSuccess)
+                        {
+                            AddLog("测试异常过多");
+                        }
+                        return true;
+                    }
+                    else
+                    {
+                        //进入测试模式失败
+                        AddLog("进入测试模式异常");
+                        return false;
+                    }
+                case "干节点开关":
+                    //进入测试模式3
+                    interSuccess = false;
+                    ERROR_COUNT = 0;
+                    do
+                    {
+                        ERROR_COUNT++;
+                        interSuccess = InterTestMode(3);
+                    } while (!interSuccess && ERROR_COUNT < 10);//最多发十次
+
+                    if (interSuccess)
+                    {
+                        ERROR_COUNT = 0;
+                        //已进入测试模式
+                        do
+                        {
+                            interSuccess = DIPSwitchValueTest();//拨码开关
+                        } while (!interSuccess && ERROR_COUNT < 10);
+                        if (!interSuccess)
+                        {
+                            AddLog("测试异常过多");
+                        }
+                        return true;
+                    }
+                    else
+                    {
+                        //进入测试模式失败
+                        AddLog("进入测试模式异常");
+                        return false;
+                    }
+
+                default:
+
+                    return false;
+            }
+
+        }
+
+        /// <summary>
+        /// 进入测试模式
+        /// </summary>
+        /// <param name="testNum">测试模式(0-4)</param>
+        /// <returns></returns>
+        private bool InterTestMode(ushort testNum)
+        {
+            //测试模式置1
+            parametersSending.TestMode = testNum;
+
+            //拼接字符串
+            byte[] Head = new byte[]{ 0x01, 0x03, 0x1A }; 
+            byte[] sengdingPack = CommunicateTool.ConcatByteArrays(Head, parametersSending.ToByteArray());
+            sengdingPack = CommunicateTool.ConcatByteArrays(sengdingPack, SerialCommunicationService.getCRC(sengdingPack));
+
+            //发送字符串
+            byte[] result = SerialCommunicationService.SendTestCommand(sengdingPack,57);
+
+            //解析
+            BmsSystemparametersReceive bms = AnalyseBmsReceive(result);
+
+            //判断
+            if (bms == null)
+            {
+                return false;
+            }
+            else
+            {
+                if(bms.TestMode == testNum)
+                {
+                    return true;
+                }
+            }
+            return false;
+            
+        }
+
+        
+
+        /// <summary>
+        /// BMS232通讯
+        /// </summary>
+        /// <returns></returns>
+        private bool Bms232CommunicationTset()
+        {
+            //测试模式置1
+            parametersSending.TestMode = 1;
+
+            //拼接字符串
+            byte[] Head = new byte[] { 0x01, 0x03, 0x1A };
+            byte[] sengdingPack = CommunicateTool.ConcatByteArrays(Head, parametersSending.ToByteArray());
+            sengdingPack = CommunicateTool.ConcatByteArrays(sengdingPack, SerialCommunicationService.getCRC(sengdingPack));
+
+            //发送字符串
+            byte[] result = SerialCommunicationService.SendTestCommand(sengdingPack, 57);
+
+            //解析
+            BmsSystemparametersReceive bms = AnalyseBmsReceive(result);
+
+            //判断
+            if (bms == null)
+            {
+                return false;
+            }
+            else
+            {
+                //判断BMS232通讯是否正常
+                if (bms.Bms232Communication == 1)
+                {
+                    return true;
+                }
+            }
+            return false;
+        }
+
+        /// <summary>
+        /// CAN通讯
+        /// </summary>
+        /// <returns></returns>
+        private bool CanCommunicationTset()
+        {
+            //测试模式置1
+            parametersSending.TestMode = 1;
+
+            //拼接字符串
+            byte[] Head = new byte[] { 0x01, 0x03, 0x1A };
+            byte[] sengdingPack = CommunicateTool.ConcatByteArrays(Head, parametersSending.ToByteArray());
+            sengdingPack = CommunicateTool.ConcatByteArrays(sengdingPack, SerialCommunicationService.getCRC(sengdingPack));
+
+            //发送字符串
+            byte[] result = SerialCommunicationService.SendTestCommand(sengdingPack, 57);
+
+            //解析
+            BmsSystemparametersReceive bms = AnalyseBmsReceive(result);
+
+            //判断
+            if (bms == null)
+            {
+                return false;
+            }
+            else
+            {
+                //判断CAN通讯是否正常
+                if (bms.CanCommunication == 1)
+                {
+                    return true;
+                }
+            }
+            return false;
+        }
+
+        /// <summary>
+        /// BMS逆变器通讯
+        /// </summary>
+        /// <returns></returns>
+        private bool BmsInverterCommunicationTset()
+        {
+            //测试模式置1
+            parametersSending.TestMode = 1;
+
+            //拼接字符串
+            byte[] Head = new byte[] { 0x01, 0x03, 0x1A };
+            byte[] sengdingPack = CommunicateTool.ConcatByteArrays(Head, parametersSending.ToByteArray());
+            sengdingPack = CommunicateTool.ConcatByteArrays(sengdingPack, SerialCommunicationService.getCRC(sengdingPack));
+
+            //发送字符串
+            byte[] result = SerialCommunicationService.SendTestCommand(sengdingPack, 57);
+
+            //解析
+            BmsSystemparametersReceive bms = AnalyseBmsReceive(result);
+
+            //判断
+            if (bms == null)
+            {
+                return false;
+            }
+            else
+            {
+                //判断BMS逆变器通讯是否正常
+                if (bms.BmsInverterCommunication == 1)
+                {
+                    return true;
+                }
+            }
+            return false;
+        }
+
+        /// <summary>
+        /// BMS并机通讯
+        /// </summary>
+        /// <returns></returns>
+        private bool BmsParallelCommunicationTset()
+        {
+            //测试模式置1
+            parametersSending.TestMode = 1;
+
+            //拼接字符串
+            byte[] Head = new byte[] { 0x01, 0x03, 0x1A };
+            byte[] sengdingPack = CommunicateTool.ConcatByteArrays(Head, parametersSending.ToByteArray());
+            sengdingPack = CommunicateTool.ConcatByteArrays(sengdingPack, SerialCommunicationService.getCRC(sengdingPack));
+
+            //发送字符串
+            byte[] result = SerialCommunicationService.SendTestCommand(sengdingPack, 57);
+
+            //解析
+            BmsSystemparametersReceive bms = AnalyseBmsReceive(result);
+
+            //判断
+            if (bms == null)
+            {
+                return false;
+            }
+            else
+            {
+                //判断BMS逆变器通讯是否正常
+                if (bms.BmsParallelCommunication == 1)
+                {
+                    return true;
+                }
+            }
+            return false;
+        }
+
+        /// <summary>
+        /// 复位开关
+        /// </summary>
+        /// <returns></returns>
+        private bool ResetSwitchStatusTest()
+        {
+            //测试模式置2
+            parametersSending.TestMode = 2;
+
+            //拼接字符串
+            byte[] Head = new byte[] { 0x01, 0x03, 0x1A };
+            byte[] sengdingPack = CommunicateTool.ConcatByteArrays(Head, parametersSending.ToByteArray());
+            sengdingPack = CommunicateTool.ConcatByteArrays(sengdingPack, SerialCommunicationService.getCRC(sengdingPack));
+
+            //发送字符串
+            byte[] result = SerialCommunicationService.SendTestCommand(sengdingPack, 57);
+
+            //解析
+            BmsSystemparametersReceive bms = AnalyseBmsReceive(result);
+
+            //判断
+            if (bms == null)
+            {
+                return false;
+            }
+            else
+            {
+                //判断复位开关是否正常
+                if (bms.ResetSwitchStatus == 1)
+                {
+                    return true;
+                }
+            }
+            return false;
+        }
+
+        /// <summary>
+        /// 拨码开关
+        /// </summary>
+        /// <returns></returns>
+        private bool DIPSwitchValueTest()
+        {
+            //测试模式置3
+            parametersSending.TestMode = 3;
+
+            //拼接字符串
+            byte[] Head = new byte[] { 0x01, 0x03, 0x1A };
+            byte[] sengdingPack = CommunicateTool.ConcatByteArrays(Head, parametersSending.ToByteArray());
+            sengdingPack = CommunicateTool.ConcatByteArrays(sengdingPack, SerialCommunicationService.getCRC(sengdingPack));
+
+            //发送字符串
+            byte[] result = SerialCommunicationService.SendTestCommand(sengdingPack, 57);
+
+            //解析
+            BmsSystemparametersReceive bms = AnalyseBmsReceive(result);
+
+            //判断
+            if (bms == null)
+            {
+                return false;
+            }
+            else
+            {
+                //判断拨码开关是否正常
+                if (bms.DIPSwitchValue == 1)
+                {
+                    return true;
+                }
+            }
+            return false;
+        }
+
+        /// <summary>
+        /// 干节点开关
+        /// </summary>
+        /// <returns></returns>
+        private bool RelayStatus()
+        {
+            //测试模式置4
+            parametersSending.TestMode = 4;
+
+            //拼接字符串
+            byte[] Head = new byte[] { 0x01, 0x03, 0x1A };
+            byte[] sengdingPack = CommunicateTool.ConcatByteArrays(Head, parametersSending.ToByteArray());
+            sengdingPack = CommunicateTool.ConcatByteArrays(sengdingPack, SerialCommunicationService.getCRC(sengdingPack));
+
+            //发送字符串
+            byte[] result = SerialCommunicationService.SendTestCommand(sengdingPack, 57);
+
+            //解析
+            BmsSystemparametersReceive bms = AnalyseBmsReceive(result);
+
+            //判断
+            if (bms == null)
+            {
+                return false;
+            }
+            else
+            {
+                //判断干节点开关是否正常
+                if (bms.Relay1Status == 1 && bms.Relay2Status == 1) 
+                {
+                    return true;
+                }
+            }
+            return false;
+        }
+
+
+
+        /// <summary>
+        /// 解析返回数据
+        /// </summary>
+        /// <param name="result">数据报文</param>
+        /// <returns>指令实体类(null代表异常)</returns>
+        private BmsSystemparametersReceive AnalyseBmsReceive(byte[] result)
+        {
+            //解析字符串
+            if (result.Length == 0)
+            {
+                AddLog("空字节异常");
+                return null;
+            }
+            else if (result.Length == 1)
+            {
+                if (result[0] == 0x01)
+                {
+                    AddLog("返回报文CRC校验不通过");
+                }
+                else if (result[0] == 0x02)
+                {
+                    AddLog("返回报文超时");
+                }
+                return null;
+            }
+            else if (result.Length == 52)
+            {
+                BmsSystemparametersReceive bms = BmsSystemparametersReceive.FromByteArray(result);
+                return bms;
+            }
+            return null;
+        }
 
         /// <summary>
         /// 测试项复位

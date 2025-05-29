@@ -433,7 +433,7 @@
             <StackPanel>
                 <GroupBox
                     Margin="10"
-                    Header="串口通信一"
+                    Header="上 位 机"
                     Style="{StaticResource GroupBoxMachineTypeSty}">
                     <Grid Margin="10,30,10,10">
                         <Grid.RowDefinitions>
@@ -543,7 +543,7 @@
                 </GroupBox>
                 <GroupBox
                     Margin="10"
-                    Header="串口通信二"
+                    Header="BMS 板"
                     Style="{StaticResource GroupBoxMachineTypeSty}">
                     <Grid Margin="10,30,10,10">
                         <Grid.RowDefinitions>

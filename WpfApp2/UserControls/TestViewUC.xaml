@@ -163,7 +163,7 @@
                         Padding="10"
                         BorderBrush="#9918aabd"
                         Foreground="White"
-                        Header="串口 1 信息">
+                        Header="上 位 机">
                         <Grid>
                             <Grid.RowDefinitions>
                                 <RowDefinition Height="Auto" />
@@ -194,7 +194,7 @@
                         BorderBrush="#9918aabd"
                         BorderThickness="1"
                         Foreground="White"
-                        Header="串口 2 信息">
+                        Header="BMS 板">
                         <Grid>
                             <Grid.RowDefinitions>
                                 <RowDefinition Height="Auto" />
