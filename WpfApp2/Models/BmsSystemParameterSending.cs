@@ -44,6 +44,12 @@ namespace WpfApp2.Models
         public ushort ChargeDischargeRelay4Control { get; set; } // 充放电继电器4控制
         public ushort ChargeDischargeRelay5Control { get; set; } // 充放电继电器5控制
 
+        //低功耗继电器控制参数
+        public ushort LowerRelay1Control { get; set; }  // 低功耗继电器1控制
+        public ushort Relay2Control { get; set; }       // 预留继电器2控制
+        public ushort Relay3Control { get; set; }       // 预留电继电器3控制
+        public ushort Relay4Control { get; set; }       // 预留电继电器4控制
+
         // 构造函数
         public BmsSystemParametersSending()
         {
@@ -86,6 +92,11 @@ namespace WpfApp2.Models
             WriteUShort(ChargeDischargeRelay4Control, result, offset); offset += 2;
             WriteUShort(ChargeDischargeRelay5Control, result, offset); offset += 2;
 
+            WriteUShort(LowerRelay1Control, result, offset); offset += 2;
+            WriteUShort(Relay2Control, result, offset); offset += 2;
+            WriteUShort(Relay3Control, result, offset); offset += 2;
+            WriteUShort(Relay4Control, result, offset); offset += 2;
+
             return result;
         }
 
@@ -126,8 +137,12 @@ namespace WpfApp2.Models
             result.ChargeDischargeRelay2Control = ReadUShort(data, offset); offset += 2;
             result.ChargeDischargeRelay3Control = ReadUShort(data, offset); offset += 2;
             result.ChargeDischargeRelay4Control = ReadUShort(data, offset); offset += 2;
-            result.ChargeDischargeRelay5Control = ReadUShort(data, offset); 
+            result.ChargeDischargeRelay5Control = ReadUShort(data, offset); offset += 2;
 
+            result.LowerRelay1Control = ReadUShort(data, offset); offset += 2;
+            result.Relay2Control = ReadUShort(data, offset); offset += 2;
+            result.Relay3Control = ReadUShort(data, offset); offset += 2;
+            result.Relay4Control = ReadUShort(data, offset); offset += 2;
             return result;
         }
 

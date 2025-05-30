@@ -48,6 +48,12 @@ namespace WpfApp2.Models
         public ushort ChargeDischargeRelay4Control { get; set; } // 充放电继电器4控制
         public ushort ChargeDischargeRelay5Control { get; set; } // 充放电继电器5控制
 
+        //低功耗继电器控制参数
+        public ushort LowerRelay1Control { get; set; }  // 低功耗继电器1控制
+        public ushort Relay2Control { get; set; }       // 预留继电器2控制
+        public ushort Relay3Control { get; set; }       // 预留电继电器3控制
+        public ushort Relay4Control { get; set; }       // 预留电继电器4控制
+
         // 构造函数
         public BmsSystemparametersReceive()
         {
@@ -57,7 +63,7 @@ namespace WpfApp2.Models
         // 转换为大端在后的字节数组
         public byte[] ToByteArray()
         {
-            byte[] result = new byte[56]; // 28个ushort，每个2字节
+            byte[] result = new byte[60]; // 30个ushort，每个2字节
             int offset = 0;
 
             WriteUShort(CommunicationVersion, result, offset); offset += 2;
@@ -91,7 +97,12 @@ namespace WpfApp2.Models
             WriteUShort(ChargeDischargeRelay2Control, result, offset); offset += 2;
             WriteUShort(ChargeDischargeRelay3Control, result, offset); offset += 2;
             WriteUShort(ChargeDischargeRelay4Control, result, offset); offset += 2;
-            WriteUShort(ChargeDischargeRelay5Control, result, offset);
+            WriteUShort(ChargeDischargeRelay5Control, result, offset); offset += 2;
+
+            WriteUShort(LowerRelay1Control, result, offset); offset += 2;
+            WriteUShort(Relay2Control, result, offset); offset += 2;
+            WriteUShort(Relay3Control, result, offset); offset += 2;
+            WriteUShort(Relay4Control, result, offset); offset += 2;
 
             return result;
         }
@@ -99,8 +110,8 @@ namespace WpfApp2.Models
         // 从大端在后的字节数组创建对象
         public static BmsSystemparametersReceive FromByteArray(byte[] data)
         {
-            if (data == null || data.Length < 56)
-                throw new ArgumentException("数据长度不足56字节");
+            if (data == null || data.Length < 60)
+                throw new ArgumentException("数据长度不足60字节");
 
             BmsSystemparametersReceive result = new BmsSystemparametersReceive();
             int offset = 0;
@@ -136,7 +147,12 @@ namespace WpfApp2.Models
             result.ChargeDischargeRelay2Control = ReadUShort(data, offset); offset += 2;
             result.ChargeDischargeRelay3Control = ReadUShort(data, offset); offset += 2;
             result.ChargeDischargeRelay4Control = ReadUShort(data, offset); offset += 2;
-            result.ChargeDischargeRelay5Control = ReadUShort(data, offset); 
+            result.ChargeDischargeRelay5Control = ReadUShort(data, offset); offset += 2;
+
+            result.LowerRelay1Control = ReadUShort(data, offset); offset += 2;
+            result.Relay2Control = ReadUShort(data, offset); offset += 2;
+            result.Relay3Control = ReadUShort(data, offset); offset += 2;
+            result.Relay4Control = ReadUShort(data, offset); offset += 2;
             return result;
         }
 

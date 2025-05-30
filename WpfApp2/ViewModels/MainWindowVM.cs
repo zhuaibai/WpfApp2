@@ -39,7 +39,7 @@ namespace WpfApp2.ViewModels
             InitTestItems();
 
              //初始化串口通讯设置
-             SerialPort1 = new SerialPortSettingViewModel();
+            SerialPort1 = new SerialPortSettingViewModel();
 			SerialPort2 = new SerialPortSettingViewModel_2();
 
 			//初始化UC
@@ -555,7 +555,8 @@ namespace WpfApp2.ViewModels
         private CancellationTokenSource _cts = new CancellationTokenSource();//取消线程专用
         private ManualResetEventSlim _pauseEvent = new ManualResetEventSlim(true);//暂停线程专用
         private readonly SemaphoreSlim _semaphore = new SemaphoreSlim(1, 1); // 异步竞争	
-        private BmsSystemParametersSending parametersSending = new BmsSystemParametersSending(); //发送指令实体类
+        private BmsSystemParametersSending parametersSending = new BmsSystemParametersSending() { CommunicationVersion=1001}; //发送指令实体类
+        
 
         #region 开始、停止按钮的互相切换
         private Visibility _visibility=Visibility.Visible;
@@ -639,6 +640,9 @@ namespace WpfApp2.ViewModels
             if (IsRunning) { return; }
             else
             {
+                //开始前清除一下日志
+                LogClear();
+
                 IsRunning = true;
                 _cts = new CancellationTokenSource();
                 _pauseEvent.Set();
@@ -656,6 +660,7 @@ namespace WpfApp2.ViewModels
         {
             _cts.Cancel();
             AddLog("后台通信停止请求已发送");
+            ShowBubble("正在停止，请稍等...");
             SwitchButtonVisible(true);
         }
 
@@ -677,17 +682,23 @@ namespace WpfApp2.ViewModels
                    
                     for(i = 0; i < TestItems.Count;)
                     {
+                        
                         //逐项进行测试
                         flag = TestProgress(TestItems[i].Name);
+                        if (token.IsCancellationRequested)
+                            break;
                         if (!flag)
                         {
                             AddLog($"{TestItems[i].Name}测试没通过");
+                            //修改测试结果(true = 通过, false = 失败)
+                            TestItems[i].IsImportant = false;
+                            //修改成已测试
+                            TestItems[i].Flag = 1;
                             //测试不合格
                             MessageBoxResult boxResult = MessageBox.Show("是否继续？", "测试暂停", MessageBoxButton.YesNo,MessageBoxImage.Question);
                             if(boxResult == MessageBoxResult.No)
                             {
-                                StopBackgroundThread();
-                                
+                                StopBackgroundThread();                               
                                 break;
                             }
                         }
@@ -702,8 +713,8 @@ namespace WpfApp2.ViewModels
                             TestItems[i].Flag = 1;
                         }
                     }
-                    Application.Current.Dispatcher.Invoke(() => ShowBubble("测试完成！"));
-                    AddLog($"全部测试通过");
+                    Application.Current.Dispatcher.Invoke(() => ShowBubble("测试结束"));
+                   
                     //if (i++ < 10)
                     //{
                     //    //修改测试结果(true = 通过, false = 失败)
@@ -732,7 +743,7 @@ namespace WpfApp2.ViewModels
                     //    flag = !flag;
                     //}
                     // 模拟常规通信
-                    await Task.Delay(1000, token);
+                    // await Task.Delay(1000, token);
 
                     //AddLog($"[后台] 常规通信: {DateTime.Now:HH:mm:ss.fff}");
                 }
@@ -740,19 +751,18 @@ namespace WpfApp2.ViewModels
             catch (OperationCanceledException)
             {
 
-                IsRunning = false;
+               
 
             }
             catch (Exception ex)
-            {
-                IsRunning = false;
+            {             
+                AddLog(ex.ToString());
             }
             finally
             {
+                IsRunning = false;
                 AddLog("已停止");
-            }
-           
-           
+            } 
         }
 
         /// <summary>
@@ -964,13 +974,17 @@ namespace WpfApp2.ViewModels
                         //已进入测试模式
                         do
                         {
-                            interSuccess = DIPSwitchValueTest();//拨码开关
+                            interSuccess = RelayStatus();//测试干节点开关
                         } while (!interSuccess && ERROR_COUNT < 10);
                         if (!interSuccess)
                         {
-                            AddLog("测试异常过多");
+                            AddLog("测试异常");
+                            return false ;
                         }
-                        return true;
+                        //干节点测试成功，退出测试模式
+                        AddLog("干节点测试合格，即将退出测试模式");
+                        bool exitTest = ExitTestMode();
+                        return exitTest;
                     }
                     else
                     {
@@ -978,6 +992,21 @@ namespace WpfApp2.ViewModels
                         AddLog("进入测试模式异常");
                         return false;
                     }
+                case "低功耗检测":
+                    boxResult = MessageBox.Show("准备测试低功耗检测，请按下低功耗开关！", "测试暂停", MessageBoxButton.OK, MessageBoxImage.Warning);
+                    ERROR_COUNT = 0;
+     
+                    //低功耗检测
+                    do
+                    {
+                        interSuccess = LowPowerVoltageAndCurrent();//低功耗检测
+                    } while (!interSuccess && ERROR_COUNT < 10);
+                    if (!interSuccess)
+                    {
+                        AddLog("测试异常过多");
+                        return false;
+                    }
+                    return true;
 
                 default:
 
@@ -987,24 +1016,39 @@ namespace WpfApp2.ViewModels
         }
 
         /// <summary>
+        /// 测试项复位
+        /// </summary>
+        private void ReSetTestItems()
+        {
+            foreach( TestItem item in TestItems ){
+                item.Flag = 0;
+            }
+        }
+
+        #endregion
+
+        #region 测试项目实际操作方法
+
+        byte[] Head = new byte[] { 0x01, 0x03, 0x1E }; //帧头
+
+        /// <summary>
         /// 进入测试模式
         /// </summary>
         /// <param name="testNum">测试模式(0-4)</param>
         /// <returns></returns>
         private bool InterTestMode(ushort testNum)
         {
-            //测试模式置1
+            //测试模式置1           
             parametersSending.TestMode = testNum;
 
-            //拼接字符串
-            byte[] Head = new byte[]{ 0x01, 0x03, 0x1A }; 
-            byte[] sengdingPack = CommunicateTool.ConcatByteArrays(Head, parametersSending.ToByteArray());
-            sengdingPack = CommunicateTool.ConcatByteArrays(sengdingPack, SerialCommunicationService.getCRC(sengdingPack));
+            //拼接报文                                                               
+            byte[] sengdingPack = CommunicateTool.ConcatByteArrays(Head, parametersSending.ToByteArray());                  //帧头 + 数据
+            sengdingPack = CommunicateTool.ConcatByteArrays(sengdingPack, SerialCommunicationService.getCRC16(sengdingPack)); //帧头 + 数据 + CRC校验码 
 
             //发送字符串
-            byte[] result = SerialCommunicationService.SendTestCommand(sengdingPack,57);
+            byte[] result = SerialCommunicationService.SendTestCommand(sengdingPack, 65);
 
-            //解析
+            //解析成帧对象
             BmsSystemparametersReceive bms = AnalyseBmsReceive(result);
 
             //判断
@@ -1014,16 +1058,14 @@ namespace WpfApp2.ViewModels
             }
             else
             {
-                if(bms.TestMode == testNum)
+                if (bms.TestMode == testNum)
                 {
                     return true;
                 }
             }
             return false;
-            
-        }
 
-        
+        }
 
         /// <summary>
         /// BMS232通讯
@@ -1035,12 +1077,11 @@ namespace WpfApp2.ViewModels
             parametersSending.TestMode = 1;
 
             //拼接字符串
-            byte[] Head = new byte[] { 0x01, 0x03, 0x1A };
             byte[] sengdingPack = CommunicateTool.ConcatByteArrays(Head, parametersSending.ToByteArray());
             sengdingPack = CommunicateTool.ConcatByteArrays(sengdingPack, SerialCommunicationService.getCRC(sengdingPack));
 
             //发送字符串
-            byte[] result = SerialCommunicationService.SendTestCommand(sengdingPack, 57);
+            byte[] result = SerialCommunicationService.SendTestCommand(sengdingPack, 65);
 
             //解析
             BmsSystemparametersReceive bms = AnalyseBmsReceive(result);
@@ -1071,12 +1112,11 @@ namespace WpfApp2.ViewModels
             parametersSending.TestMode = 1;
 
             //拼接字符串
-            byte[] Head = new byte[] { 0x01, 0x03, 0x1A };
             byte[] sengdingPack = CommunicateTool.ConcatByteArrays(Head, parametersSending.ToByteArray());
             sengdingPack = CommunicateTool.ConcatByteArrays(sengdingPack, SerialCommunicationService.getCRC(sengdingPack));
 
             //发送字符串
-            byte[] result = SerialCommunicationService.SendTestCommand(sengdingPack, 57);
+            byte[] result = SerialCommunicationService.SendTestCommand(sengdingPack, 65);
 
             //解析
             BmsSystemparametersReceive bms = AnalyseBmsReceive(result);
@@ -1107,12 +1147,11 @@ namespace WpfApp2.ViewModels
             parametersSending.TestMode = 1;
 
             //拼接字符串
-            byte[] Head = new byte[] { 0x01, 0x03, 0x1A };
             byte[] sengdingPack = CommunicateTool.ConcatByteArrays(Head, parametersSending.ToByteArray());
             sengdingPack = CommunicateTool.ConcatByteArrays(sengdingPack, SerialCommunicationService.getCRC(sengdingPack));
 
             //发送字符串
-            byte[] result = SerialCommunicationService.SendTestCommand(sengdingPack, 57);
+            byte[] result = SerialCommunicationService.SendTestCommand(sengdingPack, 65);
 
             //解析
             BmsSystemparametersReceive bms = AnalyseBmsReceive(result);
@@ -1143,12 +1182,11 @@ namespace WpfApp2.ViewModels
             parametersSending.TestMode = 1;
 
             //拼接字符串
-            byte[] Head = new byte[] { 0x01, 0x03, 0x1A };
             byte[] sengdingPack = CommunicateTool.ConcatByteArrays(Head, parametersSending.ToByteArray());
             sengdingPack = CommunicateTool.ConcatByteArrays(sengdingPack, SerialCommunicationService.getCRC(sengdingPack));
 
             //发送字符串
-            byte[] result = SerialCommunicationService.SendTestCommand(sengdingPack, 57);
+            byte[] result = SerialCommunicationService.SendTestCommand(sengdingPack, 65);
 
             //解析
             BmsSystemparametersReceive bms = AnalyseBmsReceive(result);
@@ -1179,12 +1217,11 @@ namespace WpfApp2.ViewModels
             parametersSending.TestMode = 2;
 
             //拼接字符串
-            byte[] Head = new byte[] { 0x01, 0x03, 0x1A };
             byte[] sengdingPack = CommunicateTool.ConcatByteArrays(Head, parametersSending.ToByteArray());
             sengdingPack = CommunicateTool.ConcatByteArrays(sengdingPack, SerialCommunicationService.getCRC(sengdingPack));
 
             //发送字符串
-            byte[] result = SerialCommunicationService.SendTestCommand(sengdingPack, 57);
+            byte[] result = SerialCommunicationService.SendTestCommand(sengdingPack, 65);
 
             //解析
             BmsSystemparametersReceive bms = AnalyseBmsReceive(result);
@@ -1215,12 +1252,11 @@ namespace WpfApp2.ViewModels
             parametersSending.TestMode = 3;
 
             //拼接字符串
-            byte[] Head = new byte[] { 0x01, 0x03, 0x1A };
             byte[] sengdingPack = CommunicateTool.ConcatByteArrays(Head, parametersSending.ToByteArray());
             sengdingPack = CommunicateTool.ConcatByteArrays(sengdingPack, SerialCommunicationService.getCRC(sengdingPack));
 
             //发送字符串
-            byte[] result = SerialCommunicationService.SendTestCommand(sengdingPack, 57);
+            byte[] result = SerialCommunicationService.SendTestCommand(sengdingPack, 65);
 
             //解析
             BmsSystemparametersReceive bms = AnalyseBmsReceive(result);
@@ -1251,12 +1287,11 @@ namespace WpfApp2.ViewModels
             parametersSending.TestMode = 4;
 
             //拼接字符串
-            byte[] Head = new byte[] { 0x01, 0x03, 0x1A };
             byte[] sengdingPack = CommunicateTool.ConcatByteArrays(Head, parametersSending.ToByteArray());
             sengdingPack = CommunicateTool.ConcatByteArrays(sengdingPack, SerialCommunicationService.getCRC(sengdingPack));
 
             //发送字符串
-            byte[] result = SerialCommunicationService.SendTestCommand(sengdingPack, 57);
+            byte[] result = SerialCommunicationService.SendTestCommand(sengdingPack, 65);
 
             //解析
             BmsSystemparametersReceive bms = AnalyseBmsReceive(result);
@@ -1269,13 +1304,100 @@ namespace WpfApp2.ViewModels
             else
             {
                 //判断干节点开关是否正常
-                if (bms.Relay1Status == 1 && bms.Relay2Status == 1) 
+                if (bms.Relay1Status == 1 && bms.Relay2Status == 1)
                 {
                     return true;
                 }
             }
             return false;
         }
+
+        /// <summary>
+        /// 退出测试模式
+        /// </summary>
+        /// <returns></returns>
+        private bool ExitTestMode()
+        {
+            //测试模式置4
+            parametersSending.TestMode = 5;
+
+            //拼接字符串
+            byte[] sengdingPack = CommunicateTool.ConcatByteArrays(Head, parametersSending.ToByteArray());
+            sengdingPack = CommunicateTool.ConcatByteArrays(sengdingPack, SerialCommunicationService.getCRC(sengdingPack));
+
+            //发送字符串
+            byte[] result = SerialCommunicationService.SendTestCommand(sengdingPack, 65);
+
+            //解析
+            BmsSystemparametersReceive bms = AnalyseBmsReceive(result);
+
+            //判断
+            if (bms == null)
+            {
+                return false;
+            }
+            else
+            {
+                //判断是否退出测试模式
+                if (bms.TestMode == 0)
+                {
+                    return true;
+                }
+            }
+            return false;
+        }
+
+        /// <summary>
+        /// 低功耗检测
+        /// </summary>
+        /// <returns></returns>
+        private bool LowPowerVoltageAndCurrent()
+        {
+            //测试模式置0(即不在测试模式)
+            parametersSending.TestMode = 0;
+            //低功耗继电器控制打开
+            parametersSending.LowerRelay1Control = 1;
+
+            //拼接字符串
+            byte[] sengdingPack = CommunicateTool.ConcatByteArrays(Head, parametersSending.ToByteArray());
+            sengdingPack = CommunicateTool.ConcatByteArrays(sengdingPack, SerialCommunicationService.getCRC(sengdingPack));
+
+            //发送字符串
+            byte[] result = SerialCommunicationService.SendTestCommand(sengdingPack, 65);
+
+            //解析
+            BmsSystemparametersReceive bms = AnalyseBmsReceive(result);
+
+            //判断
+            if (bms == null)
+            {
+                return false;
+            }
+            else
+            {
+                //判断是否是普通模式
+                if (bms.TestMode == 0)
+                {
+                    if (bms.LowerRelay1Control != 1)
+                    {
+                        AddLog("低功耗继电器打开失败");
+                    }
+                    if (bms.LowPowerVoltage <= 300 & bms.LowPowerCurrent <= 300)
+                        return true;
+                    else
+                    {
+                        AddLog($"不合格 低功耗:电流 {bms.LowPowerCurrent}\r 电压 {bms.LowPowerVoltage}");
+                    }
+                }
+                else
+                {
+                    //不是普通模式
+                    AddLog("返回普通模式失败");
+                }
+            }
+            return false;
+        }
+
 
 
 
@@ -1304,22 +1426,12 @@ namespace WpfApp2.ViewModels
                 }
                 return null;
             }
-            else if (result.Length == 52)
+            else if (result.Length == 60)
             {
                 BmsSystemparametersReceive bms = BmsSystemparametersReceive.FromByteArray(result);
                 return bms;
             }
             return null;
-        }
-
-        /// <summary>
-        /// 测试项复位
-        /// </summary>
-        private void ReSetTestItems()
-        {
-            foreach( TestItem item in TestItems ){
-                item.Flag = 0;
-            }
         }
 
         #endregion

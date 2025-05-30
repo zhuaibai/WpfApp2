@@ -403,12 +403,13 @@ namespace WpfApp2.Tools
                 }
 
                 //进行CRC校验
-                bool CRC_CHECK = CheckReceive_CRC(buffer);
+                bool CRC_CHECK = CheckReceive_CRC16(buffer);
 
                 if (CRC_CHECK)
                 {
-                    Array.Copy(buffer, 3, command, 0, 52);
-                    return command;
+                    byte[] bms = new byte[returnCount-5];
+                    Array.Copy(buffer, 3, bms, 0, returnCount-5);
+                    return bms;
                 }
                 else
                 {
@@ -435,7 +436,7 @@ namespace WpfApp2.Tools
         }
 
         /// <summary>
-        /// CRC校验
+        /// CRC校验(有后缀\r)
         /// </summary>
         /// <param name="bytes"></param>
         /// <returns></returns>
@@ -467,7 +468,35 @@ namespace WpfApp2.Tools
             Array.Copy(bytes, CRC_length, CRC_Receuve, 0, 2);
 
             // 获取 CRC 校验码
-            byte[] CRC_Build = getCRC(buffer);
+            byte[] CRC_Build = getCRC16(buffer);
+
+            // 判断两个校验码是否一致
+            bool isEqual = CRC_Build.SequenceEqual(CRC_Receuve);
+            return isEqual;
+        }
+
+
+        /// <summary>
+        /// CRC校验(无后缀)
+        /// </summary>
+        /// <param name="bytes"></param>
+        /// <returns></returns>
+        private static bool CheckReceive_CRC16(byte[] bytes)
+        {
+            if (bytes == null) return false;
+            int CRC_length = bytes.Length - 2;
+            // 创建新的字节数组进行 CRC 校验
+            byte[] buffer = new byte[CRC_length];
+            byte[] CRC_Receuve = new byte[2];
+
+            // 复制除 CRC 校验码外的数据到 buffer 数组
+            Array.Copy(bytes, 0, buffer, 0, CRC_length);
+
+            // 从 bytes 数组中提取接收到的 CRC 校验码到 CRC_Receuve 数组
+            Array.Copy(bytes, CRC_length, CRC_Receuve, 0, 2);
+
+            // 获取 CRC 校验码
+            byte[] CRC_Build = getCRC16(buffer);
 
             // 判断两个校验码是否一致
             bool isEqual = CRC_Build.SequenceEqual(CRC_Receuve);
@@ -512,6 +541,22 @@ namespace WpfApp2.Tools
             CRC[1] = U16_LSB(value);//获取地位校验码
             return CRC;
         }
+
+        /// <summary>
+        /// 获取CRC16校验码(查表)
+        /// </summary>
+        /// <param name="data"></param>
+        /// <returns></returns>
+        public static byte[] getCRC16(byte[] data) 
+        {
+            int value = RTU_CalCRC16(data,data.Length);
+            byte[] CRC = new byte[2];
+            CRC[1] = U16_MSB(value);//获取高位校验码
+            CRC[0] = U16_LSB(value);//获取地位校验码
+            return CRC;
+        }
+
+
         //RTU_CRC
         static int RTU_CalCRC16(byte[] pucFrame, int usDataLen)
         {
