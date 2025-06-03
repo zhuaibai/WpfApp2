@@ -1035,10 +1035,10 @@ namespace WpfApp2.ViewModels
         /// 进入测试模式
         /// </summary>
         /// <param name="testNum">测试模式(0-4)</param>
-        /// <returns></returns>
+        /// <returns>进入是否成功</returns>
         private bool InterTestMode(ushort testNum)
         {
-            //测试模式置1           
+            //测试模式置           
             parametersSending.TestMode = testNum;
 
             //拼接报文                                                               
@@ -1398,7 +1398,186 @@ namespace WpfApp2.ViewModels
             return false;
         }
 
+        /// <summary>
+        /// 充电电流
+        /// </summary>
+        /// <returns></returns>
+        private bool ChargeCurrent()
+        {
+            return false;
+            //do
+            //{
+            //    //发送指令
+            //    BmsSystemparametersReceive bms = SendPacked(parametersSending);
+            //    if (bms == null)
+                    
+            //    else if (bms.ChargeDischargeRelay4Control == 1 && bms.ChargeDischargeRelay5Control == 0)
+            //    {
+            //        flag = true;
+            //        break;
+            //    }
+            //    else
+            //    {
+            //        count++;
+            //    }
+            //} while (count < 10);
 
+            //return flag;
+
+            //if (flag)
+            //{
+            //    //打开
+            //}
+
+            ////开启对应的电流档位  
+            ////充放电继电器1用于3档电流
+            ////充放电继电器2用于2档电流
+            ////充放电继电器3用于1档电流
+
+            ////开启3档
+            //parametersSending.ChargeDischargeRelay1Control = 1;
+
+            //
+
+        }
+
+        /// <summary>
+        /// 打开或关闭第n个充放电继电器
+        /// </summary>
+        /// <param name="num">第几个继电器</param>
+        /// <param name="open">打开还是关闭</param>
+        /// <returns></returns>
+        private bool OpenOrCloseChargeDischargeRelayControl(int num, bool open)
+        {
+            //设置充放电继电器状态
+            switch (num)
+            {
+                case 1:
+                    parametersSending.ReSetChargeDischargeRelayControlToZero();
+                    parametersSending.ChargeDischargeRelay1Control = (ushort)(open == true ? 1 : 0);
+                    BmsSystemparametersReceive receive = SendPacked(parametersSending);
+                    if(receive != null)
+                    {
+                        return receive.ChargeDischargeRelay1Control == (ushort)(open ? 1 : 0);
+                    }else
+                        return false;
+                case 2:
+                    parametersSending.ReSetChargeDischargeRelayControlToZero();
+                    parametersSending.ChargeDischargeRelay2Control = (ushort)(open == true ? 1 : 0);
+                    receive = SendPacked(parametersSending);
+                    if (receive != null)
+                    {
+                        return receive.ChargeDischargeRelay2Control == (ushort)(open ? 1 : 0);
+                    }
+                    else
+                        return false;
+                case 3:
+                    parametersSending.ReSetChargeDischargeRelayControlToZero();
+                    parametersSending.ChargeDischargeRelay3Control = (ushort)(open == true ? 1 : 0);
+                    receive = SendPacked(parametersSending);
+                    if (receive != null)
+                    {
+                        return receive.ChargeDischargeRelay3Control == (ushort)(open ? 1 : 0);
+                    }
+                    else
+                        return false;
+                case 4:
+                    parametersSending.ReSetChargeDischargeRelayControlToZero();
+                    parametersSending.ChargeDischargeRelay4Control = (ushort)(open == true ? 1 : 0);
+                    receive = SendPacked(parametersSending);
+                    if (receive != null)
+                    {
+                        return receive.ChargeDischargeRelay4Control == (ushort)(open ? 1 : 0);
+                    }
+                    else
+                        return false;
+                case 5:
+                    parametersSending.ReSetChargeDischargeRelayControlToZero();
+                    parametersSending.ChargeDischargeRelay5Control = (ushort)(open == true ? 1 : 0);
+                    receive = SendPacked(parametersSending);
+                    if (receive != null)
+                    {
+                        return receive.ChargeDischargeRelay5Control == (ushort)(open ? 1 : 0);
+                    }
+                    else
+                        return false;
+                default:
+                    return false;
+            }
+
+           
+        } 
+
+        /// <summary>
+        /// 打开或关闭充放电MOS管(n)
+        /// </summary>
+        /// <param name="num">第几个MOS管</param>
+        /// <param name="open">打开或者关闭</param>
+        /// <returns></returns>
+        private bool OpenOrCloseChargeDischargeMosfetControl(int num, bool open)
+        {
+            //设置充放电继电器状态
+            switch (num)
+            {
+                case 1:
+                    parametersSending.ReSetChargeDischargeMosfetControl();
+                    parametersSending.ChargeDischargeMosfet1Control = (ushort)(open == true ? 1 : 0);
+                    break;
+                case 2:
+                    parametersSending.ReSetChargeDischargeMosfetControl();
+                    parametersSending.ChargeDischargeMosfet2Control = (ushort)(open == true ? 1 : 0);
+                    break;
+               
+            }
+
+            //拼接指令
+            byte[] sengdingPack = CommunicateTool.ConcatByteArrays(Head, parametersSending.ToByteArray());                   //帧头 + 数据
+            sengdingPack = CommunicateTool.ConcatByteArrays(sengdingPack, SerialCommunicationService.getCRC(sengdingPack));  //帧头 + 数据 + CRC
+
+            //发送指令
+            byte[] result = SerialCommunicationService.SendTestCommand(sengdingPack, 65);
+
+            //解析
+            BmsSystemparametersReceive bms = AnalyseBmsReceive(result);
+
+            //判断返回
+            if (bms == null)
+            {
+                return false;
+            }
+            else
+            {
+
+                if (bms.ChargeDischargeRelay1Control != 1)
+                {
+                    AddLog($"充放电MOS管{num}打开失败");
+                }
+                else
+                    AddLog($"充放电MOS管{num}打开成功");
+            }
+            return false;
+        }
+
+
+        /// <summary>
+        /// 发送指令
+        /// </summary>
+        /// <param name="bmsSending"></param>
+        /// <returns></returns>
+        private BmsSystemparametersReceive SendPacked( BmsSystemParametersSending bmsSending)
+        {
+            //拼接字符串
+            byte[] sengdingPack = CommunicateTool.ConcatByteArrays(Head, bmsSending.ToByteArray());
+            sengdingPack = CommunicateTool.ConcatByteArrays(sengdingPack, SerialCommunicationService.getCRC(sengdingPack));
+
+            //发送字符串
+            byte[] result = SerialCommunicationService.SendTestCommand(sengdingPack, 65);
+
+            //解析
+            BmsSystemparametersReceive bmsReceive = AnalyseBmsReceive(result);
+
+            return bmsReceive;
+        }
 
 
         /// <summary>
@@ -1433,6 +1612,8 @@ namespace WpfApp2.ViewModels
             }
             return null;
         }
+
+
 
         #endregion
 

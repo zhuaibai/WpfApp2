@@ -153,6 +153,27 @@ namespace WpfApp2.Models
             buffer[offset + 1] = (byte)((value >> 8) & 0xFF); // 高字节在后
         }
 
+        /// <summary>
+        /// 把所有充放电继电器置0
+        /// </summary>
+        public void ReSetChargeDischargeRelayControlToZero()
+        {
+            ChargeDischargeRelay1Control = 0;
+            ChargeDischargeRelay2Control = 0;
+            ChargeDischargeRelay3Control = 0;
+            ChargeDischargeRelay4Control = 0;
+            ChargeDischargeRelay5Control = 0;
+                 
+        }
+        
+        /// <summary>
+        /// 把两个MOS管置0
+        /// </summary>
+        public void ReSetChargeDischargeMosfetControl()
+        {
+            ChargeDischargeMosfet1Control = 0;
+            ChargeDischargeMosfet2Control = 0;
+        }
         // 辅助方法：以大端在后方式读取ushort（低字节在前）
         private static ushort ReadUShort(byte[] buffer, int offset)
         {
