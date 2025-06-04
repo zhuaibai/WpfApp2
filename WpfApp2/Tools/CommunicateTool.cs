@@ -56,6 +56,6 @@ namespace WpfApp2.Tools
             return (ushort)((bytes[1] << 8) | bytes[0]); // 高字节左移8位后与低字节相或
         }
 
-        
+       
     }
 }

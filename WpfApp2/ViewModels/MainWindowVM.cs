@@ -555,7 +555,7 @@ namespace WpfApp2.ViewModels
         private CancellationTokenSource _cts = new CancellationTokenSource();//取消线程专用
         private ManualResetEventSlim _pauseEvent = new ManualResetEventSlim(true);//暂停线程专用
         private readonly SemaphoreSlim _semaphore = new SemaphoreSlim(1, 1); // 异步竞争	
-        private BmsSystemParametersSending parametersSending = new BmsSystemParametersSending() { CommunicationVersion=1001}; //发送指令实体类
+        private BmsSystemParametersSending parametersSending = new BmsSystemParametersSending() { CommunicationVersion=1001,ChargeDischargeMosfet2Control=1}; //发送指令实体类初始化，默认MOS管2开启
         
 
         #region 开始、停止按钮的互相切换
@@ -660,7 +660,7 @@ namespace WpfApp2.ViewModels
         {
             _cts.Cancel();
             AddLog("后台通信停止请求已发送");
-            ShowBubble("正在停止，请稍等...");
+            Application.Current.Dispatcher.Invoke(() => ShowBubble("正在停止，请稍等..."));
             SwitchButtonVisible(true);
         }
 
@@ -1028,6 +1028,8 @@ namespace WpfApp2.ViewModels
         #endregion
 
         #region 测试项目实际操作方法
+
+        #region 串口一(上位机串口)
 
         byte[] Head = new byte[] { 0x01, 0x03, 0x1E }; //帧头
 
@@ -1399,47 +1401,162 @@ namespace WpfApp2.ViewModels
         }
 
         /// <summary>
-        /// 充电电流
+        /// 充电电流测试步骤一(开继电器4关闭继电器5)
         /// </summary>
         /// <returns></returns>
-        private bool ChargeCurrent()
+        private bool ChargeCurrentTest1()
         {
-            return false;
-            //do
-            //{
-            //    //发送指令
-            //    BmsSystemparametersReceive bms = SendPacked(parametersSending);
-            //    if (bms == null)
-                    
-            //    else if (bms.ChargeDischargeRelay4Control == 1 && bms.ChargeDischargeRelay5Control == 0)
-            //    {
-            //        flag = true;
-            //        break;
-            //    }
-            //    else
-            //    {
-            //        count++;
-            //    }
-            //} while (count < 10);
+            int failCount = 0;
+            bool IsSuccess = false;
+            do
+            {
+                //打开继电器4
+                IsSuccess = OpenOrCloseChargeDischargeRelayControl(4, true);
+                failCount++;
+            } while (!IsSuccess && failCount<=10);
+            if (!IsSuccess)
+            {
+                AddLog("打开继电器4失败");
+                return false;
+            }
 
-            //return flag;
-
-            //if (flag)
-            //{
-            //    //打开
-            //}
-
-            ////开启对应的电流档位  
-            ////充放电继电器1用于3档电流
-            ////充放电继电器2用于2档电流
-            ////充放电继电器3用于1档电流
-
-            ////开启3档
-            //parametersSending.ChargeDischargeRelay1Control = 1;
-
-            //
-
+            //关闭继电器5
+            failCount = 0;
+            do
+            {
+                IsSuccess = OpenOrCloseChargeDischargeRelayControl(5,false);
+                failCount += 1;
+            }while (!IsSuccess && failCount<=10);
+            if (!IsSuccess)
+            {
+                AddLog("关闭继电器5失败");
+                return false;
+            }
+            return true;
         }
+
+        /// <summary>
+        /// 开启电流档位
+        /// </summary>
+        /// <param name="level">电流档位</param>
+        /// <returns></returns>
+        private bool OpenOrCloseCurrentLevel(int level,bool open)
+        {
+            int failCount = 0;
+            bool IsSuccess = false;
+            if (level == 1)
+            {
+                //开启电流档位1
+                do
+                {
+                    IsSuccess = OpenOrCloseChargeDischargeRelayControl(3, open);
+                    failCount++;
+                } while (!IsSuccess && failCount <= 10);
+            }
+            else if (level == 2)
+            {
+                do
+                {
+                    IsSuccess = OpenOrCloseChargeDischargeRelayControl(2, open);
+                    failCount++;
+                } while (!IsSuccess && failCount <= 10);
+            }else if (level == 3)
+            {
+                do
+                {
+                    IsSuccess = OpenOrCloseChargeDischargeRelayControl(1, open);
+                    failCount++;
+                } while (!IsSuccess && failCount <= 10);
+            }
+            
+            if (!IsSuccess)
+            {
+                string msg = open ? "开启" : "关闭";
+                AddLog($"{msg}{level}档电流失败");
+                return false;
+            }
+            else
+            {
+                string msg = open ? "开启" : "关闭";
+                AddLog($"{msg}{level}档电流成功");
+                return true;
+            }
+                
+        }
+
+        /// <summary>
+        /// 打开充放电电流MOS管1，关闭MOS管2
+        /// </summary>
+        /// <returns></returns>
+        private bool ChargeCurrentTest2()
+        {
+            int failCount = 0;
+            bool IsSuccess = false;
+            do
+            {
+                IsSuccess = OpenOrCloseChargeDischargeMosfetControl(1,true);
+                failCount ++ ;
+            }while (!IsSuccess && failCount<=10);
+            if (!IsSuccess)
+            {
+                AddLog("打开MOS管1失败");
+                return false;
+            }else {
+                AddLog("打开MOS管1成功");
+            };
+
+            do
+            {
+                IsSuccess = OpenOrCloseChargeDischargeMosfetControl(2,false);
+                failCount++;
+            }while (!IsSuccess && failCount<=10);
+            if (!IsSuccess)
+            {
+                AddLog("关闭MOS管2失败");
+                return false;
+            }
+            else
+            {
+                AddLog("打开MOS管成功");
+                return true;
+            }
+        }
+
+        /// <summary>
+        /// 放电电流测试步骤一(开继电器5关闭继电器4)
+        /// </summary>
+        /// <returns></returns>
+        private bool DisChargeCurrentTset1()
+        {
+            int failCount = 0;
+            bool IsSuccess = false;
+            do
+            {
+                //打开继电器5
+                IsSuccess = OpenOrCloseChargeDischargeRelayControl(5, true);
+                failCount++;
+            } while (!IsSuccess && failCount <= 10);
+            if (!IsSuccess)
+            {
+                AddLog("打开继电器5失败");
+                return false;
+            }
+
+            //关闭继电器4
+            failCount = 0;
+            do
+            {
+                IsSuccess = OpenOrCloseChargeDischargeRelayControl(4, false);
+                failCount += 1;
+            } while (!IsSuccess && failCount <= 10);
+            if (!IsSuccess)
+            {
+                AddLog("关闭继电器4失败");
+                return false;
+            }
+            return true;
+        }
+
 
         /// <summary>
         /// 打开或关闭第n个充放电继电器
@@ -1522,12 +1639,24 @@ namespace WpfApp2.ViewModels
                 case 1:
                     parametersSending.ReSetChargeDischargeMosfetControl();
                     parametersSending.ChargeDischargeMosfet1Control = (ushort)(open == true ? 1 : 0);
-                    break;
+                    BmsSystemparametersReceive receive = SendPacked(parametersSending);
+                    if (receive != null)
+                    {
+                        return receive.ChargeDischargeMosfet1Control == (ushort)(open ? 1 : 0);
+                    }
+                    else
+                        return false;
                 case 2:
                     parametersSending.ReSetChargeDischargeMosfetControl();
                     parametersSending.ChargeDischargeMosfet2Control = (ushort)(open == true ? 1 : 0);
-                    break;
-               
+                    receive = SendPacked(parametersSending);
+                    if (receive != null)
+                    {
+                        return receive.ChargeDischargeRelay2Control == (ushort)(open ? 1 : 0);
+                    }
+                    else
+                        return false;
+
             }
 
             //拼接指令
@@ -1564,7 +1693,7 @@ namespace WpfApp2.ViewModels
         /// </summary>
         /// <param name="bmsSending"></param>
         /// <returns></returns>
-        private BmsSystemparametersReceive SendPacked( BmsSystemParametersSending bmsSending)
+        private BmsSystemparametersReceive SendPacked(BmsSystemParametersSending bmsSending)
         {
             //拼接字符串
             byte[] sengdingPack = CommunicateTool.ConcatByteArrays(Head, bmsSending.ToByteArray());
@@ -1613,6 +1742,621 @@ namespace WpfApp2.ViewModels
             return null;
         }
 
+        #endregion
+
+        #region 串口二(bms板)
+
+        /// <summary>
+        /// 读取电流
+        /// </summary>
+        /// <returns></returns>
+        private ushort GetCurrentFormBMS()
+        {
+            //拼接指令
+            byte[] command = new byte[]
+            {
+                0x01,0x03,0x00,0x17,0x00,0x01
+            };
+            byte[] sendPack = CommunicateTool.ConcatByteArrays(command,SerialCommunicationService2.getCRC16(command));
+
+            //发送指令
+            byte[] receive = SerialCommunicationService2.SendTestCommand(sendPack,sendPack.Length);
+
+            //解析出读取的电流
+
+            return 0;
+
+        }
+        
+        /// <summary>
+        /// 读取充电电流校准系数
+        /// </summary>
+        /// <returns></returns>
+        private ushort ReadChargeCurrentAdjustParameter()
+        {
+            //拼接指令
+            byte[] command = new byte[]
+            {
+                0x01,0x03,0x01,0x11,0x00,0x01
+            };
+            byte[] sendPack = CommunicateTool.ConcatByteArrays(command, SerialCommunicationService2.getCRC16(command));
+
+            //发送指令
+            byte[] receive = SerialCommunicationService2.SendTestCommand(sendPack, sendPack.Length);
+
+            //
+            return 0;
+        }
+
+        /// <summary>
+        /// 读取放电电流校准系数
+        /// </summary>
+        /// <returns></returns>
+        private ushort ReadDischargeCurrentAdjustParameter()
+        {
+            //拼接指令
+            byte[] command = new byte[]
+            {
+                0x01,0x03,0x01,0x12,0x00,0x01
+            };
+            byte[] sendPack = CommunicateTool.ConcatByteArrays(command, SerialCommunicationService2.getCRC16(command));
+
+            //发送指令
+            byte[] receive = SerialCommunicationService2.SendTestCommand(sendPack, sendPack.Length);
+
+            return 0;
+        }
+
+        /// <summary>
+        /// 写入充电电流校准系数
+        /// </summary>
+        /// <param name="value"></param>
+        /// <returns></returns>
+        private bool WriteChargeCurrentAdjustParameter(ushort value)
+        {
+            //拼接指令
+            byte[] command = new byte[]
+            {
+                0x01,0x06,0x01,0x11,0x00,0x01,0x00,0x65
+            };
+            byte[] sendPack = CommunicateTool.ConcatByteArrays(command, SerialCommunicationService2.getCRC16(command));
+
+            //发送指令
+            byte[] receive = SerialCommunicationService2.SendTestCommand(sendPack, sendPack.Length);
+
+            return true;
+        }
+
+        /// <summary>
+        /// 写入放电电流校准系数
+        /// </summary>
+        /// <param name="value"></param>
+        /// <returns></returns>
+        private bool WriteDischargeCurrentAdjustParameter(ushort value)
+        {
+            //拼接指令
+            byte[] command = new byte[]
+            {
+                0x01,0x06,0x01,0x12,0x00,0x01,0x00,0x65
+            };
+            byte[] sendPack = CommunicateTool.ConcatByteArrays(command, SerialCommunicationService2.getCRC16(command));
+
+            //发送指令
+            byte[] receive = SerialCommunicationService2.SendTestCommand(sendPack, sendPack.Length);
+
+            return false;
+        }
+
+        /// <summary>
+        /// 开启限流开关
+        /// </summary>
+        /// <returns></returns>
+        private bool OpenLimitedCurrent()
+        {
+            //拼接指令
+            byte[] command = new byte[]
+            {
+                0x01,0x06,0x00,0xC8,0x00,0x01
+            };
+            byte[] sendPack = CommunicateTool.ConcatByteArrays(command, SerialCommunicationService2.getCRC16(command));
+
+            //发送指令
+            byte[] receive = SerialCommunicationService2.SendTestCommand(sendPack, sendPack.Length);
+
+            return false;
+        }
+
+        /// <summary>
+        /// 关闭限流开关
+        /// </summary>
+        /// <returns></returns>
+        private bool CloseLimitedCurrent()
+        {
+            //拼接指令
+            byte[] command = new byte[]
+            {
+                0x01,0x06,0x00,0xC8,0x00,0x00
+            };
+            byte[] sendPack = CommunicateTool.ConcatByteArrays(command, SerialCommunicationService2.getCRC16(command));
+
+            //发送指令
+            byte[] receive = SerialCommunicationService2.SendTestCommand(sendPack, sendPack.Length);
+
+            return false;
+        }
+
+
+        #endregion
+
+
+        #endregion
+
+        #region 单步测试按钮
+
+
+        /// <summary>
+        /// 充电开启
+        /// </summary>
+        public RelayCommand OpenCharge { get
+            {
+                return new RelayCommand(() =>
+                {
+                    bool isSuccess = OpenOrCloseChargeDischargeRelayControl(4, true);
+                    if (isSuccess)
+                    {
+                        ShowBubbleWithTime("充电开启成功", 2000);
+                    }
+                    else
+                    {
+                        ShowBubbleWithTime("充电开启失败", 2000);
+                    }
+                });
+            } }
+
+        /// <summary>
+        /// 关闭充电
+        /// </summary>
+        public RelayCommand CloseCharge
+        {
+            get
+            {
+                return new RelayCommand(() =>
+                {
+                    bool isSuccess = OpenOrCloseChargeDischargeRelayControl(4, false);
+                    if (isSuccess)
+                    {
+                        ShowBubbleWithTime("充电关闭成功", 2000);
+                    }
+                    else
+                    {
+                        ShowBubbleWithTime("充电关闭失败", 2000);
+                    }
+                });
+            }
+        }
+
+        /// <summary>
+        /// 开启放电
+        /// </summary>
+        public RelayCommand OpenDisCharge
+        {
+            get
+            {
+                return new RelayCommand(() =>
+                {
+                    bool isSuccess = OpenOrCloseChargeDischargeRelayControl(5, true);
+                    if (isSuccess)
+                    {
+                        ShowBubbleWithTime("放电开启成功", 2000);
+                    }
+                    else
+                    {
+                        ShowBubbleWithTime("放电开启失败", 2000);
+                    }
+                });
+            }
+        }
+
+        /// <summary>
+        /// 关闭放电
+        /// </summary>
+        public RelayCommand CloseDisCharge
+        {
+            get
+            {
+                return new RelayCommand(() =>
+                {
+                    bool isSuccess = OpenOrCloseChargeDischargeRelayControl(5, false);
+                    if (isSuccess)
+                    {
+                        ShowBubbleWithTime("放电关闭成功", 2000);
+                    }
+                    else
+                    {
+                        ShowBubbleWithTime("放电关闭失败", 2000);
+                    }
+                });
+            }
+        }
+
+        /// <summary>
+        /// 一档电流开启
+        /// </summary>
+        public RelayCommand OpenLevel1Current
+        {
+            get
+            {
+                return new RelayCommand(() =>
+                {
+                    bool isSuccess = OpenOrCloseChargeDischargeRelayControl(3, true);
+                    if (isSuccess)
+                    {
+                        ShowBubbleWithTime("一档电流开启成功", 2000);
+                    }
+                    else
+                    {
+                        ShowBubbleWithTime("一档电流开启失败", 2000);
+                    }
+                });
+            }
+        }
+
+        /// <summary>
+        /// 一档电流关闭
+        /// </summary>
+        public RelayCommand CloseLevel1Current
+        {
+            get
+            {
+                return new RelayCommand(() =>
+                {
+                    bool isSuccess = OpenOrCloseChargeDischargeRelayControl(3, false);
+                    if (isSuccess)
+                    {
+                        ShowBubbleWithTime("一档电流关闭成功", 2000);
+                    }
+                    else
+                    {
+                        ShowBubbleWithTime("一档电流关闭失败", 2000);
+                    }
+                });
+            }
+        }
+
+        /// <summary>
+        /// 二档电流开启
+        /// </summary>
+        public RelayCommand OpenLevel2Current
+        {
+            get
+            {
+                return new RelayCommand(() =>
+                {
+                    bool isSuccess = OpenOrCloseChargeDischargeRelayControl(2, true);
+                    if (isSuccess)
+                    {
+                        ShowBubbleWithTime("二档电流开启成功", 2000);
+                    }
+                    else
+                    {
+                        ShowBubbleWithTime("二档电流开启失败", 2000);
+                    }
+                });
+            }
+        }
+
+        /// <summary>
+        /// 二挡电流关闭
+        /// </summary>
+        public RelayCommand CloseLevel2Current
+        {
+            get
+            {
+                return new RelayCommand(() =>
+                {
+                    bool isSuccess = OpenOrCloseChargeDischargeRelayControl(2, false);
+                    if (isSuccess)
+                    {
+                        ShowBubbleWithTime("二档电流关闭成功", 2000);
+                    }
+                    else
+                    {
+                        ShowBubbleWithTime("二档电流关闭失败", 2000);
+                    }
+                });
+            }
+        }
+
+        /// <summary>
+        /// 三挡电流开启
+        /// </summary>
+        public RelayCommand OpenLevel3Current
+        {
+            get
+            {
+                return new RelayCommand(() =>
+                {
+                    bool isSuccess = OpenOrCloseChargeDischargeRelayControl(1, true);
+                    if (isSuccess)
+                    {
+                        ShowBubbleWithTime("三档电流开启成功", 2000);
+                    }
+                    else
+                    {
+                        ShowBubbleWithTime("三档电流开启失败", 2000);
+                    }
+                });
+            }
+        }
+
+        /// <summary>
+        /// 三挡电流关闭
+        /// </summary>
+        public RelayCommand CloseLevel3Current
+        {
+            get
+            {
+                return new RelayCommand(() =>
+                {
+                    bool isSuccess = OpenOrCloseChargeDischargeRelayControl(1, false);
+                    if (isSuccess)
+                    {
+                        ShowBubbleWithTime("三档电流关闭成功", 2000);
+                    }
+                    else
+                    {
+                        ShowBubbleWithTime("三档电流关闭失败", 2000);
+                    }
+                });
+            }
+        }
+
+        /// <summary>
+        /// 充电MOS管1打开
+        /// </summary>
+        public RelayCommand OpenChargeMOS1
+        {
+            get
+            {
+                return new RelayCommand(() =>
+                {
+                    bool isSuccess = OpenOrCloseChargeDischargeMosfetControl(1, true);
+                    if (isSuccess)
+                    {
+                        ShowBubbleWithTime("充放电MOS管1打开成功", 2000);
+                    }
+                    else
+                    {
+                        ShowBubbleWithTime("充放电MOS管1打开失败", 2000);
+                    }
+                });
+            }
+        }
+
+        /// <summary>
+        /// 充电MOS管1关闭
+        /// </summary>
+        public RelayCommand CloseChargeMOS1
+        {
+            get
+            {
+                return new RelayCommand(() =>
+                {
+                    bool isSuccess = OpenOrCloseChargeDischargeMosfetControl(1, false);
+                    if (isSuccess)
+                    {
+                        ShowBubbleWithTime("充放电MOS管1关闭成功", 2000);
+                    }
+                    else
+                    {
+                        ShowBubbleWithTime("充放电MOS管1关闭失败", 2000);
+                    }
+                });
+            }
+        }
+
+
+        /// <summary>
+        /// 充电MOS管2打开
+        /// </summary>
+        public RelayCommand OpenChargeMOS2
+        {
+            get
+            {
+                return new RelayCommand(() =>
+                {
+                    bool isSuccess = OpenOrCloseChargeDischargeMosfetControl(2, true);
+                    if (isSuccess)
+                    {
+                        ShowBubbleWithTime("充放电MOS管2打开成功", 2000);
+                    }
+                    else
+                    {
+                        ShowBubbleWithTime("充放电MOS管2打开失败", 2000);
+                    }
+                });
+            }
+        }
+
+        /// <summary>
+        /// 充电MOS管2关闭
+        /// </summary>
+        public RelayCommand CloseChargeMOS2
+        {
+            get
+            {
+                return new RelayCommand(() =>
+                {
+                    bool isSuccess = OpenOrCloseChargeDischargeMosfetControl(2, false);
+                    if (isSuccess)
+                    {
+                        ShowBubbleWithTime("充放电MOS管2关闭成功", 2000);
+                    }
+                    else
+                    {
+                        ShowBubbleWithTime("充放电MOS管2关闭失败", 2000);
+                    }
+                });
+            }
+        }
+
+        /// <summary>
+        /// 读取电流
+        /// </summary>
+        public RelayCommand ReadCurrentCmd
+        {
+            get
+            {
+                return new RelayCommand(() =>
+                {
+                    ushort sa = GetCurrentFormBMS();
+                    bool isSuccess = false;
+                    if (isSuccess)
+                    {
+                        ShowBubbleWithTime("充放电MOS管2关闭成功", 2000);
+                    }
+                    else
+                    {
+                        ShowBubbleWithTime("充放电MOS管2关闭失败", 2000);
+                    }
+                });
+            }
+        }
+
+        /// <summary>
+        /// 读取充电电流校准指数
+        /// </summary>
+        public RelayCommand ReadChargeCurrentAdjustParameterCmd
+        {
+            get
+            {
+                return new RelayCommand(() =>
+                {
+                    ushort sa = ReadChargeCurrentAdjustParameter();
+                    bool isSuccess = false;
+                    if (isSuccess)
+                    {
+                        ShowBubbleWithTime("充放电MOS管2关闭成功", 2000);
+                    }
+                    else
+                    {
+                        ShowBubbleWithTime("充放电MOS管2关闭失败", 2000);
+                    }
+                });
+            }
+        }
+
+        /// <summary>
+        /// 读取放电电流校准指数
+        /// </summary>
+        public RelayCommand ReadDischargeCurrentAdjustParameterCmd
+        {
+            get
+            {
+                return new RelayCommand(() =>
+                {
+                    ushort sa = ReadDischargeCurrentAdjustParameter();
+                    bool isSuccess = false;
+                    if (isSuccess)
+                    {
+                        ShowBubbleWithTime("充放电MOS管2关闭成功", 2000);
+                    }
+                    else
+                    {
+                        ShowBubbleWithTime("充放电MOS管2关闭失败", 2000);
+                    }
+                });
+            }
+        }
+
+        /// <summary>
+        /// 写入充电电流校准指数
+        /// </summary>
+        public RelayCommand WriteChargeCurrentAdjustParameterCmd
+        {
+            get
+            {
+                return new RelayCommand(() =>
+                {  
+                    bool isSuccess = WriteChargeCurrentAdjustParameter(21);
+                    if (isSuccess)
+                    {
+                        ShowBubbleWithTime("充放电MOS管2关闭成功", 2000);
+                    }
+                    else
+                    {
+                        ShowBubbleWithTime("充放电MOS管2关闭失败", 2000);
+                    }
+                });
+            }
+        }
+
+        /// <summary>
+        /// 写入放电电流校准指数
+        /// </summary>
+        public RelayCommand WriteDischargeCurrentAdjustParameterCmd
+        {
+            get
+            {
+                return new RelayCommand(() =>
+                {
+                    bool isSuccess = WriteDischargeCurrentAdjustParameter(21);
+                    if (isSuccess)
+                    {
+                        ShowBubbleWithTime("充放电MOS管2关闭成功", 2000);
+                    }
+                    else
+                    {
+                        ShowBubbleWithTime("充放电MOS管2关闭失败", 2000);
+                    }
+                });
+            }
+        }
+
+        /// <summary>
+        /// 开启限流开关
+        /// </summary>
+        public RelayCommand OpenLimitedCurrentCmd
+        {
+            get
+            {
+                return new RelayCommand(() =>
+                {
+                    bool isSuccess = OpenLimitedCurrent();
+                    if (isSuccess)
+                    {
+                        ShowBubbleWithTime("充放电MOS管2关闭成功", 2000);
+                    }
+                    else
+                    {
+                        ShowBubbleWithTime("充放电MOS管2关闭失败", 2000);
+                    }
+                });
+            }
+        }
+
+        /// <summary>
+        /// 关闭限流开关
+        /// </summary>
+        public RelayCommand CloseLimitedCurrentCmd
+        {
+            get
+            {
+                return new RelayCommand(() =>
+                {
+                    bool isSuccess = CloseLimitedCurrent();
+                    if (isSuccess)
+                    {
+                        ShowBubbleWithTime("充放电MOS管2关闭成功", 2000);
+                    }
+                    else
+                    {
+                        ShowBubbleWithTime("充放电MOS管2关闭失败", 2000);
+                    }
+                });
+            }
+        }
+
 
 
         #endregion
@@ -1646,7 +2390,21 @@ namespace WpfApp2.ViewModels
             }
         }
 
+        /// <summary>
+        /// 显示气泡消息(在线程安全的情况下)
+        /// </summary>
+        /// <param name="timeDelay">显示多长时间(不少于1秒)</param>
+        /// <param name="message"></param>
+        private void ShowBubbles(string message, int timeDelay)
+        {
+            Application.Current.Dispatcher.Invoke(() => ShowBubbleWithTime(message,timeDelay));
+        }
 
+
+        /// <summary>
+        /// 显示气泡消息
+        /// </summary>
+        /// <param name="message"></param>
         private async void ShowBubble(string message)
         {
 
@@ -1703,6 +2461,62 @@ namespace WpfApp2.ViewModels
 
         }
 
+
+        private async void ShowBubbleWithTime(string message, int timeDelay)
+        {
+
+
+            var bubbleControl = new BubbleControl();
+            Bubble = bubbleControl;
+
+
+            BubbleMesg = message;
+
+            //动画效果(由下而上)
+            //位移 移动时间
+            ThicknessAnimation thicknessAnimation = new ThicknessAnimation(new Thickness(0, 10, 0, -10), new Thickness(0, 0, 0, 0), new TimeSpan(0, 0, 0, 0, 200));
+
+            //透明度
+            DoubleAnimation doubleAnimation = new DoubleAnimation(0, 1, new TimeSpan(0, 0, 0, 0, 200));
+
+            Storyboard.SetTarget(thicknessAnimation, bubbleControl);
+            Storyboard.SetTarget(doubleAnimation, bubbleControl);
+
+            Storyboard.SetTargetProperty(thicknessAnimation, new PropertyPath("Margin"));
+            Storyboard.SetTargetProperty(doubleAnimation, new PropertyPath("Opacity"));
+
+            Storyboard storyboard = new Storyboard();
+            storyboard.Children.Add(thicknessAnimation);
+            storyboard.Children.Add(doubleAnimation);
+            storyboard.Begin();
+
+
+            await Task.Delay(timeDelay);
+
+            // 位移
+            ThicknessAnimation thicknessAnimation2 = new ThicknessAnimation(
+                new Thickness(0, 0, 0, 0), new Thickness(0, -10, 0, 10),
+                new TimeSpan(0, 0, 0, 0, 400));
+            // 透明度
+            DoubleAnimation doubleAnimation2 = new DoubleAnimation(1, 0, new TimeSpan(0, 0, 0, 0, 400));
+
+            Storyboard.SetTarget(thicknessAnimation2, bubbleControl);
+            Storyboard.SetTarget(doubleAnimation2, bubbleControl);
+            Storyboard.SetTargetProperty(thicknessAnimation2, new PropertyPath("Margin"));
+            Storyboard.SetTargetProperty(doubleAnimation2, new PropertyPath("Opacity"));
+
+            Storyboard storyboard2 = new Storyboard();
+            storyboard2.Children.Add(thicknessAnimation2);
+            storyboard2.Children.Add(doubleAnimation2);
+
+            //动画效果完了才关闭
+            storyboard2.Completed += (se, ev) =>
+            {
+                bubbleControl.Visibility = Visibility.Collapsed;
+            };
+            storyboard2.Begin();
+
+        }
 
         #endregion
     }

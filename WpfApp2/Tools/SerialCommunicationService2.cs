@@ -370,6 +370,101 @@ namespace WpfApp2.Tools
         }
 
         /// <summary>
+        /// 发送测试指令
+        /// </summary>
+        /// <param name="command">测试指令(字节数组)</param>
+        /// <param name="returnCount">返回字节长度</param>
+        /// <returns>提取的数据(或异常字节编码)</returns>
+        public static byte[] SendTestCommand(byte[] command, int returnCount)
+        {
+            _semaphore.Wait();
+            int totalBytesRead = 0;
+
+            //收报文
+            try
+            {
+                //在写命令之前先清空一下接受缓存
+                SerialPort.DiscardInBuffer();
+                SerialPort.WriteTimeout = 1000;
+                //写命令
+                byte[] Command = command;
+                SerialPort.Write(Command, 0, Command.Length);
+
+                // 设置读取超时时间【1s】
+                SerialPort.ReadTimeout = 1000;
+                // 需要读取的字节数
+                int bytesToRead = returnCount;
+                //读取输入缓冲区
+                byte[] buffer = new byte[bytesToRead];
+                totalBytesRead = 0;
+                //设置读取超时，1s内达不到所需字节就触发超时异常
+                while (totalBytesRead < bytesToRead)
+                {
+                    int bytesRead = SerialPort.Read(buffer, totalBytesRead, bytesToRead - totalBytesRead);
+                    totalBytesRead += bytesRead;
+                }
+
+                //进行CRC校验
+                bool CRC_CHECK = CheckReceive_CRC16(buffer);
+
+                if (CRC_CHECK)
+                {
+                    byte[] bms = new byte[returnCount - 5];
+                    Array.Copy(buffer, 3, bms, 0, returnCount - 5);
+                    return bms;
+                }
+                else
+                {
+                    return new byte[] { 0x01 };//CRC校验不通过
+                }
+
+
+            }
+            catch (TimeoutException ex)
+            {
+                // 超时未
+                //MessageBox.Show("超时未收到ACK");
+
+                return new byte[] { 0x02 };//超时
+            }
+            catch (Exception ex)
+            {
+                return Array.Empty<byte>();
+            }
+            finally
+            {
+                _semaphore.Release();
+            }
+        }
+
+        /// <summary>
+        /// CRC校验(无后缀)
+        /// </summary>
+        /// <param name="bytes"></param>
+        /// <returns></returns>
+        private static bool CheckReceive_CRC16(byte[] bytes)
+        {
+            if (bytes == null) return false;
+            int CRC_length = bytes.Length - 2;
+            // 创建新的字节数组进行 CRC 校验
+            byte[] buffer = new byte[CRC_length];
+            byte[] CRC_Receuve = new byte[2];
+
+            // 复制除 CRC 校验码外的数据到 buffer 数组
+            Array.Copy(bytes, 0, buffer, 0, CRC_length);
+
+            // 从 bytes 数组中提取接收到的 CRC 校验码到 CRC_Receuve 数组
+            Array.Copy(bytes, CRC_length, CRC_Receuve, 0, 2);
+
+            // 获取 CRC 校验码
+            byte[] CRC_Build = getCRC16(buffer);
+
+            // 判断两个校验码是否一致
+            bool isEqual = CRC_Build.SequenceEqual(CRC_Receuve);
+            return isEqual;
+        }
+
+        /// <summary>
         /// CRC校验
         /// </summary>
         /// <param name="bytes"></param>
@@ -410,6 +505,7 @@ namespace WpfApp2.Tools
         }
 
 
+
         #region CRC校验
 
         /**************************************校验*************************************************************/
@@ -433,6 +529,19 @@ namespace WpfApp2.Tools
             return checkSumResult;
         }
 
+        /// <summary>
+        /// 获取CRC16校验码(查表)
+        /// </summary>
+        /// <param name="data"></param>
+        /// <returns></returns>
+        public static byte[] getCRC16(byte[] data)
+        {
+            int value = RTU_CalCRC16(data, data.Length);
+            byte[] CRC = new byte[2];
+            CRC[1] = U16_MSB(value);//获取高位校验码
+            CRC[0] = U16_LSB(value);//获取地位校验码
+            return CRC;
+        }
 
         /// <summary>
         /// 获取CRC校验码
