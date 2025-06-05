@@ -15,6 +15,8 @@ namespace WpfApp2.Tools.ConvertTool
         public string TrueText { get; set; } = "合格";
         public string FalseText { get; set; } = "不合格";
         public string PendingText { get; set; } = "待测试";
+        public string LoadingText { get; set; } = "测试中";
+
 
         public object Convert(object[] values, Type targetType, object parameter, CultureInfo culture)
         {
@@ -24,12 +26,16 @@ namespace WpfApp2.Tools.ConvertTool
 
             // 检查 Flag 值
             if (values[1] is int flag && flag == 0)
-                return PendingText;
+            {
+                if (values[0] is bool isTesting)
+                return isTesting ? LoadingText : PendingText;
+            }
+               
 
             // 根据 IsImportant 返回对应文本
             if (values[0] is bool isImportant)
                 return isImportant ? TrueText : FalseText;
-
+            
             return DependencyProperty.UnsetValue;
         }
 

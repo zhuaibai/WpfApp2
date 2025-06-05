@@ -9,8 +9,9 @@
                 <ResourceDictionary Source="Dictionary/BtnStyleDic.xaml"></ResourceDictionary>
                 <ResourceDictionary Source="Dictionary/RadioButtonMachineSelected.xaml"/>
                 <ResourceDictionary Source="Dictionary/GroupBoxMachineTypeSty.xaml"></ResourceDictionary>
-                <ResourceDictionary Source="Dictionary\Lan-en-us.xaml"/>
-                <ResourceDictionary Source="Dictionary\Lan-zh-cn.xaml"/>
+                <ResourceDictionary Source="Dictionary/OperateBtnStyleDic.xaml"/>
+                <ResourceDictionary Source="Dictionary/Lan-en-us.xaml"/>
+                <ResourceDictionary Source="Dictionary/Lan-zh-cn.xaml"/>
             </ResourceDictionary.MergedDictionaries>
         </ResourceDictionary>
     </Application.Resources>

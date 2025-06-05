@@ -162,8 +162,7 @@ namespace WpfApp2.Models
             ChargeDischargeRelay2Control = 0;
             ChargeDischargeRelay3Control = 0;
             ChargeDischargeRelay4Control = 0;
-            ChargeDischargeRelay5Control = 0;
-                 
+            ChargeDischargeRelay5Control = 0;       
         }
         
         /// <summary>

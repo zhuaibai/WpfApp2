@@ -89,6 +89,8 @@
         <SolidColorBrush x:Key="ComboBox.Disabled.Editable.Border" Color="#FFBFBFBF" />
         <SolidColorBrush x:Key="ComboBox.Disabled.Editable.Button.Background" Color="Transparent" />
         <SolidColorBrush x:Key="ComboBox.Disabled.Editable.Button.Border" Color="Transparent" />
+
+
         <Style x:Key="ComboBoxToggleButton" TargetType="{x:Type ToggleButton}">
             <Setter Property="OverridesDefaultStyle" Value="true" />
             <Setter Property="IsTabStop" Value="false" />
@@ -417,13 +419,14 @@
             <ColumnDefinition Width="3*" />
         </Grid.ColumnDefinitions>
         <!--  标题  -->
-        <TextBlock
+        <!--<TextBlock
             Grid.ColumnSpan="2"
             HorizontalAlignment="Center"
             VerticalAlignment="Center"
             FontSize="30"
+            Margin="0,10,0,0"
             Foreground="White"
-            Text="配置界面" />
+            Text="配置界面" />-->
         <!--  串口配置  -->
         <Grid Grid.Row="1">
             <Grid.RowDefinitions>
@@ -684,24 +687,24 @@
                                 <ColumnDefinition Width="*" />
                             </Grid.ColumnDefinitions>
 
-                            <Label
+                            <TextBlock
                                 Grid.Row="0"
                                 Grid.Column="0"
                                 Margin="5"
-                                Content="机器"
+                                Text="机器"
                                 FontSize="40" />
 
-                            <Label
+                            <TextBlock
                                 Grid.Row="0"
                                 Grid.Column="1"
                                 Margin="5"
-                                Content="{Binding machineTypeVM_1.Machine}"
+                                Text="{Binding machineTypeVM_1.Machine}"
                                 FontSize="40" />
-                            <Label
+                            <TextBlock
                                 Grid.Row="1"
                                 Grid.Column="0"
                                 Margin="5"
-                                Content="功率"
+                                Text="功率"
                                 FontSize="15" />
                             <ComboBox
                                 Grid.Row="1"
@@ -710,11 +713,11 @@
                                 FontSize="15"
                                 ItemsSource="{Binding machineTypeVM_1.AvailableA_Hours}"
                                 SelectedItem="{Binding machineTypeVM_1.A_Hour}" />
-                            <Label
+                            <TextBlock
                                 Grid.Row="2"
                                 Grid.Column="0"
                                 Margin="5"
-                                Content="电池电压"
+                                Text="电池电压"
                                 FontSize="15" />
                             <ComboBox
                                 Grid.Row="2"
@@ -745,28 +748,31 @@
                                 <ColumnDefinition Width="*" />
                             </Grid.ColumnDefinitions>
 
-                            <Label
+                            <TextBlock
                                 Grid.Row="0"
                                 Grid.Column="0"
                                 Margin="5"
-                                Content="机器"
-                                FontSize="40" />
+                                Text="机器"
+                                FontSize="40"
+                                 />
 
-                            <Label
+                            <TextBlock
                                 Grid.Row="0"
                                 Grid.Column="1"
                                 Margin="5"
-                                Content="{Binding machineTypeVM_2.Machine}"
-                                FontSize="40" />
+                                Text="{Binding machineTypeVM_2.Machine}"
+                                FontSize="40"
+                                 />
 
 
 
-                            <Label
+                            <TextBlock
                                 Grid.Row="1"
                                 Grid.Column="0"
                                 Margin="5"
-                                Content="功率"
-                                FontSize="15" />
+                                Text="功率"
+                                FontSize="15"
+                                 />
                             <ComboBox
                                 Grid.Row="1"
                                 Grid.Column="1"
@@ -775,12 +781,13 @@
                                 ItemsSource="{Binding machineTypeVM_2.AvailableA_Hours}"
                                 SelectedItem="{Binding machineTypeVM_2.A_Hour}" />
 
-                            <Label
+                            <TextBlock
                                 Grid.Row="2"
                                 Grid.Column="0"
                                 Margin="5"
-                                Content="电池电压"
-                                FontSize="15" />
+                                Text="电池电压"
+                                FontSize="15"
+                                />
                             <ComboBox
                                 Grid.Row="2"
                                 Grid.Column="1"
@@ -810,28 +817,31 @@
                                 <ColumnDefinition Width="*" />
                             </Grid.ColumnDefinitions>
 
-                            <Label
+                            <TextBlock
                                 Grid.Row="0"
                                 Grid.Column="0"
                                 Margin="5"
-                                Content="机器"
-                                FontSize="40" />
+                                Text="机器"
+                                FontSize="40"
+                                 />
 
-                            <Label
+                            <TextBlock
                                 Grid.Row="0"
                                 Grid.Column="1"
                                 Margin="5"
-                                Content="{Binding machineTypeVM_3.Machine}"
-                                FontSize="40" />
+                                Text="{Binding machineTypeVM_3.Machine}"
+                                FontSize="40"
+                                />
 
 
 
-                            <Label
+                            <TextBlock
                                 Grid.Row="1"
                                 Grid.Column="0"
                                 Margin="5"
-                                Content="功率"
-                                FontSize="15" />
+                                Text="功率"
+                                FontSize="15"
+                               />
                             <ComboBox
                                 Grid.Row="1"
                                 Grid.Column="1"
@@ -840,12 +850,13 @@
                                 ItemsSource="{Binding machineTypeVM_3.AvailableA_Hours}"
                                 SelectedItem="{Binding machineTypeVM_3.A_Hour}" />
 
-                            <Label
+                            <TextBlock
                                 Grid.Row="2"
                                 Grid.Column="0"
                                 Margin="5"
-                                Content="电池电压"
-                                FontSize="15" />
+                                Text="电池电压"
+                                FontSize="15"
+                                 />
                             <ComboBox
                                 Grid.Row="2"
                                 Grid.Column="1"
@@ -874,26 +885,29 @@
                                 <ColumnDefinition Width="*" />
                             </Grid.ColumnDefinitions>
 
-                            <Label
+                            <TextBlock
                                 Grid.Row="0"
                                 Grid.Column="0"
                                 Margin="5"
-                                Content="机器"
-                                FontSize="40" />
+                                Text="机器"
+                                FontSize="40"
+                                 />
 
-                            <Label
+                            <TextBlock
                                 Grid.Row="0"
                                 Grid.Column="1"
                                 Margin="5"
-                                Content="{Binding machineTypeVM_4.Machine}"
-                                FontSize="40" />
+                                Text="{Binding machineTypeVM_4.Machine}"
+                                FontSize="40"
+                                 />
 
-                            <Label
+                            <TextBlock
                                 Grid.Row="1"
                                 Grid.Column="0"
                                 Margin="5"
-                                Content="功率"
-                                FontSize="15" />
+                                Text="功率"
+                                FontSize="15"
+                                 />
                             <ComboBox
                                 Grid.Row="1"
                                 Grid.Column="1"
@@ -901,12 +915,13 @@
                                 FontSize="15"
                                 ItemsSource="{Binding machineTypeVM_4.AvailableA_Hours}"
                                 SelectedItem="{Binding machineTypeVM_4.A_Hour}" />
-                            <Label
+                            <TextBlock
                                 Grid.Row="2"
                                 Grid.Column="0"
                                 Margin="5"
-                                Content="电池电压"
-                                FontSize="15" />
+                                Text="电池电压"
+                                FontSize="15"
+                                 />
                             <ComboBox
                                 Grid.Row="2"
                                 Grid.Column="1"

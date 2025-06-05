@@ -1,27 +1,106 @@
-﻿<Window x:Class="WpfApp2.MainWindow"
-        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
-        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
-        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
-        xmlns:local="clr-namespace:WpfApp2"
-        mc:Ignorable="d"
-        WindowStartupLocation="CenterScreen"
-        WindowState="Maximized"
-        Title="MainWindow" Height="800" Width="1294">
+﻿<Window
+    x:Class="WpfApp2.MainWindow"
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+    xmlns:local="clr-namespace:WpfApp2"
+    xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+    Title="MainWindow"
+    Width="1294"
+    Height="800"
+    WindowStartupLocation="CenterScreen"
+    WindowState="Maximized"
+    mc:Ignorable="d">
+    <WindowChrome.WindowChrome>
+        <WindowChrome GlassFrameThickness="0" />
+    </WindowChrome.WindowChrome>
     <Grid>
-            <!--  背景颜色渐变  -->
-            <Grid.Background>
-                <RadialGradientBrush>
+        <!--  背景颜色渐变  -->
+        <Grid.Background>
+            <RadialGradientBrush>
                 <!--<GradientStop Offset="0" Color="#FF83A813" />
                 <GradientStop Offset="0.5" Color="#FF749511" />
                 <GradientStop Offset="1" Color="#FFB5E61D" />-->
-                <GradientStop Color="#ff285173" Offset="0"></GradientStop>
-                <GradientStop Color="#ff244967" Offset="0.5"></GradientStop>
-                <GradientStop Color="#ff14273a" Offset="1"></GradientStop>
+                <GradientStop Offset="0" Color="#ff285173" />
+                <GradientStop Offset="0.5" Color="#ff244967" />
+                <GradientStop Offset="1" Color="#ff14273a" />
             </RadialGradientBrush>
-            </Grid.Background>
-            <ContentControl Content="{Binding ContentControl}">
-            
-            </ContentControl>
+        </Grid.Background>
+        <Grid.RowDefinitions>
+            <RowDefinition Height="40" />
+            <RowDefinition />
+        </Grid.RowDefinitions>
+        <Border BorderBrush="#5518aabd" BorderThickness="0,0,0,1">
+            <Grid>
+                <Grid.ColumnDefinitions>
+
+                    <ColumnDefinition Width="auto" />
+                    <ColumnDefinition />
+                </Grid.ColumnDefinitions>
+
+                <!--  第一列  -->
+                <TextBlock Margin="5,0,0,0" Grid.Column="0" Padding="0,0,0,0">
+                    <Run
+                        FontSize="18"
+                        Foreground="White"
+                        Text="BMS测试上位机" />
+                    <LineBreak />
+                    <Run
+                        FontSize="13"
+                        Foreground="White"
+                        Text="相信奇迹的人，本身就和奇迹一样了不起！" />
+                </TextBlock>
+                <!--  第二列  -->
+                <Grid Grid.Column="1">
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="25" />
+                        <RowDefinition />
+                    </Grid.RowDefinitions>
+                    <StackPanel
+                        HorizontalAlignment="Right"
+                        Background="Transparent"
+                        Orientation="Horizontal">
+                        <Button
+                            Command="{Binding MinimizeCommand}"
+                            CommandParameter="{Binding RelativeSource={RelativeSource AncestorType=Window}}"
+                            Content="&#xe676;"
+                            Style="{StaticResource OperateBtnStyle}" />
+                        <Button
+                            Command="{Binding MaximizeCommand}"
+                            CommandParameter="{Binding RelativeSource={RelativeSource AncestorType=Window}}"
+                            Content="&#xe651;"
+                            Style="{StaticResource OperateBtnStyle}" />
+                        <Button
+                            Background="DarkRed"
+                            Command="{Binding CloseCommand}"
+                            CommandParameter="{Binding RelativeSource={RelativeSource AncestorType=Window}}"
+                            Content="&#xe85d;"
+                            Style="{StaticResource OperateBtnStyle}" />
+                    </StackPanel>
+                    <Border
+                        Grid.Row="1"
+                        BorderBrush="#5518aabd"
+                        BorderThickness="0,1,0,0">
+                        <Border.Background>
+                            <VisualBrush
+                                TileMode="FlipX"
+                                Viewport="0,0,7,7"
+                                ViewportUnits="Absolute">
+                                <VisualBrush.Visual>
+                                    <Line
+                                        Stroke="Gray"
+                                        StrokeThickness="1"
+                                        X1="0"
+                                        X2="10"
+                                        Y1="10"
+                                        Y2="0" />
+                                </VisualBrush.Visual>
+                            </VisualBrush>
+                        </Border.Background>
+                    </Border>
+                </Grid>
+            </Grid>
+        </Border>
+        <ContentControl Grid.Row="1" Content="{Binding ContentControl}" />
     </Grid>
 </Window>

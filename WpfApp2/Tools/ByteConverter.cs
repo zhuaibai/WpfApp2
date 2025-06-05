@@ -27,6 +27,25 @@ namespace WpfApp2.Tools
             return (ushort)((bytes[1] << 8) | bytes[0]); // 高字节左移8位后与低字节相或
         }
 
+        // 把无符号数字转换为两个字节（大端在前）
+        public static byte[] NumberToBytesNormal(ushort number)
+        {
+            byte[] bytes = new byte[2];
+            bytes[1] = (byte)(number & 0xFF);       // 低字节（大端在前）
+            bytes[0] = (byte)((number >> 8) & 0xFF); // 高字节（大端在前）
+            return bytes;
+        }
+
+        // 把两个字节（大端在前）转换回无符号数字
+        public static ushort BytesToNumberNormal(byte[] bytes)
+        {
+            if (bytes.Length != 2)
+            {
+                throw new ArgumentException("字节数组的长度必须为2。");
+            }
+            return (ushort)((bytes[0] << 8) | bytes[1]); // 高字节左移8位后与低字节相或
+        }
+
 
     }
 }

@@ -11,35 +11,58 @@
     mc:Ignorable="d">
     <UserControl.Resources>
         <!--  注册布尔值到文本的转换器  -->
-        <convert:BooleanToTextConverter x:Key="BooleanToTextConverter" ></convert:BooleanToTextConverter>
+        <convert:BooleanToTextConverter x:Key="BooleanToTextConverter" />
         <convert:StringSubstringConverter x:Key="StringSubstringConverter" />
+        
         <!--  定义 ListViewItem 的样式  -->
         <Style x:Key="TestViewSty" TargetType="ListViewItem">
             <Setter Property="HorizontalContentAlignment" Value="Stretch" />
 
             <Style.Triggers>
-                <!-- Flag=0 且 IsImportant=True 时为绿色 -->
+                <!--  Flag=1 且 IsImportant=True 时为绿色  -->
                 <MultiDataTrigger>
                     <MultiDataTrigger.Conditions>
                         <Condition Binding="{Binding Flag}" Value="1" />
                         <Condition Binding="{Binding IsImportant}" Value="True" />
                     </MultiDataTrigger.Conditions>
                     <Setter Property="Background" Value="Green" />
+                    <Setter Property="Foreground" Value="White" />
                 </MultiDataTrigger>
 
-                <!-- Flag=0 且 IsImportant=False 时为红色 -->
+                <!--  Flag=1 且 IsImportant=False 时为红色  -->
                 <MultiDataTrigger>
                     <MultiDataTrigger.Conditions>
                         <Condition Binding="{Binding Flag}" Value="1" />
                         <Condition Binding="{Binding IsImportant}" Value="False" />
                     </MultiDataTrigger.Conditions>
-                    <Setter Property="Background" Value="#FFFF8080" />
+                    <Setter Property="Background" Value="Red" />
+                    <Setter Property="Foreground" Value="White" />
                 </MultiDataTrigger>
 
-                <!-- Flag=1 时无论 IsImportant 为何值都为黄色 -->
-                <DataTrigger Binding="{Binding Flag}" Value="0">
-                    <Setter Property="Background" Value="Orange" />
-                </DataTrigger>
+                <!--  Flag=0 时无论 IsImportantt=False 时为白色  -->
+                <MultiDataTrigger>
+                    <MultiDataTrigger.Conditions>
+                        <Condition Binding="{Binding Flag}" Value="0" />
+                        <Condition Binding="{Binding IsImportant}" Value="False" />
+                    </MultiDataTrigger.Conditions>
+                    <Setter Property="Background" Value="White" />
+                    <Setter Property="Foreground" Value="Black" />
+                </MultiDataTrigger>
+                <!--<DataTrigger Binding="{Binding Flag}" Value="0">
+                    <Setter Property="Background" Value="White" />
+                </DataTrigger>-->
+
+                <!--  Flag=0 时无论 IsImportantt=False 时为白色  -->
+                <MultiDataTrigger>
+                    <MultiDataTrigger.Conditions>
+                        <Condition Binding="{Binding Flag}" Value="0" />
+                        <Condition Binding="{Binding IsImportant}" Value="true" />
+                    </MultiDataTrigger.Conditions>
+                    <Setter Property="Background" Value="BlueViolet" />
+                    <Setter Property="Foreground" Value="White" />
+                </MultiDataTrigger>
+
+
             </Style.Triggers>
         </Style>
         <Style TargetType="GridViewColumnHeader">
@@ -64,9 +87,7 @@
             <Setter Property="BorderThickness" Value="0" />
 
         </Style>
-
-
-        <!--  定义 ListViewItem 的样式  -->
+                <!--  定义 ListViewItem 的样式  -->
         <Style x:Key="LogViewSty" TargetType="ListViewItem">
             <Setter Property="Margin" Value="5" />
             <Setter Property="Padding" Value="10" />
@@ -110,8 +131,14 @@
             <RowDefinition Height="auto" />
 
         </Grid.RowDefinitions>
-        <Grid Grid.ColumnSpan="4" Grid.RowSpan="4" Panel.ZIndex="3">
-            <UserControl VerticalAlignment="Center" HorizontalAlignment="Center" Content="{Binding Bubble}"></UserControl>
+        <Grid
+            Grid.RowSpan="4"
+            Grid.ColumnSpan="4"
+            Panel.ZIndex="3">
+            <UserControl
+                HorizontalAlignment="Center"
+                VerticalAlignment="Center"
+                Content="{Binding Bubble}" />
         </Grid>
         <Border
             Grid.ColumnSpan="4"
@@ -124,7 +151,7 @@
             Command="{Binding SwitchUC}"
             Content="主页"
             FontSize="35"
-            Style="{StaticResource BtnStyle}"
+            Style="{StaticResource BtnStyle4}"
             Tag="&#xe973;" />
 
         <!--  第一行 标题  -->
@@ -245,8 +272,8 @@
                                 Grid.Row="0"
                                 Grid.Column="1"
                                 HorizontalAlignment="Center"
-                                Foreground="#ff2bedf1"
                                 FontSize="30"
+                                Foreground="#ff2bedf1"
                                 Text="{Binding testMachine.MachineName}" />
                             <TextBlock
                                 Grid.Row="1"
@@ -266,8 +293,8 @@
                             <TextBlock
                                 Grid.Row="2"
                                 Grid.Column="1"
-                                FontSize="15"
                                 HorizontalAlignment="Center"
+                                FontSize="15"
                                 Foreground="#ff2bedf1"
                                 Text="{Binding testMachine.BatVol}" />
 
@@ -297,8 +324,6 @@
                                 FontSize="14"
                                 Foreground="#333333"
                                 Text="{Binding Message}" />
-
-
                         </StackPanel>
                     </DataTemplate>
                 </ListView.ItemTemplate>
@@ -353,7 +378,7 @@
                             </DataTemplate>
                         </GridViewColumn.CellTemplate>
                     </GridViewColumn>
-                    
+
                     <!--  设置第二列宽度为比例宽度 3*  -->
                     <GridViewColumn Width="{Binding ElementName=column2, Path=ActualWidth}" Header="测试项目">
                         <GridViewColumn.CellTemplate>
@@ -392,7 +417,7 @@
             </Grid.RowDefinitions>
             <Grid.ColumnDefinitions>
                 <ColumnDefinition />
-                
+
             </Grid.ColumnDefinitions>
             <Border
                 Grid.ColumnSpan="2"
@@ -402,67 +427,173 @@
             <!--  第二行 右侧属性显示  -->
             <Grid>
                 <Grid.RowDefinitions>
-                    <RowDefinition Height="1.5*"></RowDefinition>
-                    <RowDefinition></RowDefinition>
-                    
+                    <RowDefinition Height="1.5*" />
+                    <RowDefinition />
+
                 </Grid.RowDefinitions>
                 <GroupBox Margin="10,13,10,0" Style="{StaticResource GroupBoxMachineTypeSty}">
-                    <UniformGrid Columns="2" Margin="10">
-                        <Button Content="充电开启"  FontSize="17" Margin="4" Command="{Binding OpenCharge}"  Style="{StaticResource BtnStyle}"/>
-                        <Button Content="充电关闭" FontSize="17" Margin="4"  Command="{Binding CloseCharge}" Style="{StaticResource BtnStyle}"/>
-                        <Button Content="放电开启" FontSize="17" Margin="4" Command="{Binding OpenDisCharge}" Style="{StaticResource BtnStyle}"/>
-                        <Button Content="放电关闭" FontSize="17" Margin="4" Command="{Binding CloseDisCharge}" Style="{StaticResource BtnStyle}"/>
-                        <Button Content="一档电流开启" FontSize="17" Margin="4" Command="{Binding OpenLevel1Current}" Style="{StaticResource BtnStyle}"/>
-                        <Button Content="一档电流关闭" FontSize="17" Margin="4" Command="{Binding CloseLevel1Current}" Style="{StaticResource BtnStyle}"/>
-                        <Button Content="二档电流开启" FontSize="17" Margin="4" Command="{Binding OpenLevel2Current}" Style="{StaticResource BtnStyle}"/>
-                        <Button Content="二档电流关闭" FontSize="17" Margin="4" Command="{Binding CloseLevel2Current}" Style="{StaticResource BtnStyle}"/>
-                        <Button Content="三挡电流开启" FontSize="17" Margin="4" Command="{Binding OpenLevel3Current}" Style="{StaticResource BtnStyle}"/>
-                        <Button Content="三挡电流关闭" FontSize="17" Margin="4" Command="{Binding CloseLevel3Current}" Style="{StaticResource BtnStyle}"/>
-                        <Button Content="充放电MOS管1开启" FontSize="17" Margin="4" Command="{Binding OpenChargeMOS1}" Style="{StaticResource BtnStyle}"/>
-                        <Button Content="充放电MOS管1关闭" FontSize="17" Margin="4" Command="{Binding CloseChargeMOS1}" Style="{StaticResource BtnStyle}"/>
-                        <Button Content="开启充电MOS管2" FontSize="17" Margin="4" Command="{Binding OpenChargeMOS2}" Style="{StaticResource BtnStyle}"/>
-                        <Button Content="关闭充电MOS管2" FontSize="17" Margin="4" Command="{Binding CloseChargeMOS2}" Style="{StaticResource BtnStyle}"/>
-                        
+                    <UniformGrid Margin="10" Columns="2">
+                        <Button
+                            Margin="4"
+                            Command="{Binding OpenCharge}"
+                            Content="充电开启"
+                            FontSize="17"
+                            Style="{StaticResource BtnStyle}" />
+                        <Button
+                            Margin="4"
+                            Command="{Binding CloseCharge}"
+                            Content="充电关闭"
+                            FontSize="17"
+                            Style="{StaticResource BtnStyle}" />
+                        <Button
+                            Margin="4"
+                            Command="{Binding OpenDisCharge}"
+                            Content="放电开启"
+                            FontSize="17"
+                            Style="{StaticResource BtnStyle}" />
+                        <Button
+                            Margin="4"
+                            Command="{Binding CloseDisCharge}"
+                            Content="放电关闭"
+                            FontSize="17"
+                            Style="{StaticResource BtnStyle}" />
+                        <Button
+                            Margin="4"
+                            Command="{Binding OpenLevel1Current}"
+                            Content="一档电流开启"
+                            FontSize="17"
+                            Style="{StaticResource BtnStyle}" />
+                        <Button
+                            Margin="4"
+                            Command="{Binding CloseLevel1Current}"
+                            Content="一档电流关闭"
+                            FontSize="17"
+                            Style="{StaticResource BtnStyle}" />
+                        <Button
+                            Margin="4"
+                            Command="{Binding OpenLevel2Current}"
+                            Content="二档电流开启"
+                            FontSize="17"
+                            Style="{StaticResource BtnStyle}" />
+                        <Button
+                            Margin="4"
+                            Command="{Binding CloseLevel2Current}"
+                            Content="二档电流关闭"
+                            FontSize="17"
+                            Style="{StaticResource BtnStyle}" />
+                        <Button
+                            Margin="4"
+                            Command="{Binding OpenLevel3Current}"
+                            Content="三挡电流开启"
+                            FontSize="17"
+                            Style="{StaticResource BtnStyle}" />
+                        <Button
+                            Margin="4"
+                            Command="{Binding CloseLevel3Current}"
+                            Content="三挡电流关闭"
+                            FontSize="17"
+                            Style="{StaticResource BtnStyle}" />
+                        <Button
+                            Margin="4"
+                            Command="{Binding OpenChargeMOS1}"
+                            Content="充放电MOS管1开启"
+                            FontSize="17"
+                            Style="{StaticResource BtnStyle}" />
+                        <Button
+                            Margin="4"
+                            Command="{Binding CloseChargeMOS1}"
+                            Content="充放电MOS管1关闭"
+                            FontSize="17"
+                            Style="{StaticResource BtnStyle}" />
+                        <Button
+                            Margin="4"
+                            Command="{Binding OpenChargeMOS2}"
+                            Content="开启充电MOS管2"
+                            FontSize="17"
+                            Style="{StaticResource BtnStyle}" />
+                        <Button
+                            Margin="4"
+                            Command="{Binding CloseChargeMOS2}"
+                            Content="关闭充电MOS管2"
+                            FontSize="17"
+                            Style="{StaticResource BtnStyle}" />
                     </UniformGrid>
                 </GroupBox>
-                <GroupBox Grid.Row="1" Margin="10,10,10,15" Style="{StaticResource GroupBoxMachineTypeSty}">
-                    <UniformGrid Columns="2" Margin="10">
-                        <Button Content="读取充电校准系数" FontSize="17" Margin="4" Command="{Binding ReadChargeCurrentAdjustParameterCmd}" Style="{StaticResource BtnStyle}"/>
-                        <Button Content="读取放电校准系数" FontSize="17" Margin="4" Command="{Binding ReadDischargeCurrentAdjustParameterCmd}" Style="{StaticResource BtnStyle}"/>
-                        <Button Content="写入充电校准系数" FontSize="17" Margin="4" Command="{Binding WriteChargeCurrentAdjustParameterCmd}" Style="{StaticResource BtnStyle}"/>
-                        <Button Content="写入放电校准系数" FontSize="17" Margin="4" Command="{Binding WriteDischargeCurrentAdjustParameterCmd}" Style="{StaticResource BtnStyle}"/>
-                        <Button Content="开启限流开关" FontSize="17" Margin="4" Command="{Binding OpenLimitedCurrentCmd}" Style="{StaticResource BtnStyle}"/>
-                        <Button Content="关闭限流开关" FontSize="17" Margin="4" Command="{Binding CloseLimitedCurrentCmd}" Style="{StaticResource BtnStyle}"/>
-                        <Button Content="读取电流" FontSize="17" Margin="4" Command="{Binding ReadCurrentCmd}" Style="{StaticResource BtnStyle}"/>
+                <GroupBox
+                    Grid.Row="1"
+                    Margin="10,10,10,15"
+                    Style="{StaticResource GroupBoxMachineTypeSty}">
+                    <UniformGrid Margin="10" Columns="2">
+                        <Button
+                            Margin="4"
+                            Command="{Binding ReadChargeCurrentAdjustParameterCmd}"
+                            Content="读取充电校准系数"
+                            FontSize="17"
+                            Style="{StaticResource BtnStyle}" />
+                        <Button
+                            Margin="4"
+                            Command="{Binding ReadDischargeCurrentAdjustParameterCmd}"
+                            Content="读取放电校准系数"
+                            FontSize="17"
+                            Style="{StaticResource BtnStyle}" />
+                        <Button
+                            Margin="4"
+                            Command="{Binding WriteChargeCurrentAdjustParameterCmd}"
+                            Content="写入充电校准系数"
+                            FontSize="17"
+                            Style="{StaticResource BtnStyle}" />
+                        <Button
+                            Margin="4"
+                            Command="{Binding WriteDischargeCurrentAdjustParameterCmd}"
+                            Content="写入放电校准系数"
+                            FontSize="17"
+                            Style="{StaticResource BtnStyle}" />
+                        <Button
+                            Margin="4"
+                            Command="{Binding OpenLimitedCurrentCmd}"
+                            Content="开启限流开关"
+                            FontSize="17"
+                            Style="{StaticResource BtnStyle}" />
+                        <Button
+                            Margin="4"
+                            Command="{Binding CloseLimitedCurrentCmd}"
+                            Content="关闭限流开关"
+                            FontSize="17"
+                            Style="{StaticResource BtnStyle}" />
+                        <Button
+                            Margin="4"
+                            Command="{Binding ReadCurrentCmd}"
+                            Content="读取电流"
+                            FontSize="17"
+                            Style="{StaticResource BtnStyle}" />
                     </UniformGrid>
-                    
+
                 </GroupBox>
-                
+
             </Grid>
-            
+
             <Button
                 Grid.Row="1"
                 Margin="5"
-                
-                Visibility= "{Binding StartVisible}"
                 Command="{Binding StartCommand}"
                 Content="开始"
                 FontSize="45"
                 Style="{StaticResource BtnStyle2}"
-                Tag="&#xe622;" />
+                Tag="&#xe622;"
+                Visibility="{Binding StartVisible}" />
             <Button
                 Grid.Row="1"
-                
-                Visibility="{Binding StopVisible}"
                 Margin="5"
                 Command="{Binding StopCommand}"
                 Content="停止"
                 FontSize="45"
+                
                 Style="{StaticResource BtnStyle3}"
-                Tag="&#xe691;" />
+                Tag="&#xe691;"
+                Visibility="{Binding StopVisible}" />
 
         </Grid>
-        
+
 
 
         <!--  底边  -->
@@ -474,6 +605,7 @@
             Background="#1118aabd"
             CornerRadius="5" />
 
+       
 
 
 

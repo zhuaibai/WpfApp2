@@ -682,7 +682,10 @@ namespace WpfApp2.ViewModels
                    
                     for(i = 0; i < TestItems.Count;)
                     {
-                        
+                        //单独把合格设为true，界面显示正在测试颜色
+                        TestItems[i].IsImportant = true;
+                        //修改为正在测试
+                        TestItems[i].Flag = 0;
                         //逐项进行测试
                         flag = TestProgress(TestItems[i].Name);
                         if (token.IsCancellationRequested)
@@ -750,8 +753,6 @@ namespace WpfApp2.ViewModels
             }
             catch (OperationCanceledException)
             {
-
-               
 
             }
             catch (Exception ex)
@@ -1022,6 +1023,7 @@ namespace WpfApp2.ViewModels
         {
             foreach( TestItem item in TestItems ){
                 item.Flag = 0;
+                item.IsImportant = false;
             }
         }
 
@@ -1270,8 +1272,8 @@ namespace WpfApp2.ViewModels
             }
             else
             {
-                //判断拨码开关是否正常
-                if (bms.DIPSwitchValue == 1)
+                //判断拨码开关
+                if (bms.DIPSwitchValue == 15)
                 {
                     return true;
                 }
@@ -1570,7 +1572,7 @@ namespace WpfApp2.ViewModels
             switch (num)
             {
                 case 1:
-                    parametersSending.ReSetChargeDischargeRelayControlToZero();
+                    //parametersSending.ReSetChargeDischargeRelayControlToZero();
                     parametersSending.ChargeDischargeRelay1Control = (ushort)(open == true ? 1 : 0);
                     BmsSystemparametersReceive receive = SendPacked(parametersSending);
                     if(receive != null)
@@ -1579,7 +1581,7 @@ namespace WpfApp2.ViewModels
                     }else
                         return false;
                 case 2:
-                    parametersSending.ReSetChargeDischargeRelayControlToZero();
+                    //parametersSending.ReSetChargeDischargeRelayControlToZero();
                     parametersSending.ChargeDischargeRelay2Control = (ushort)(open == true ? 1 : 0);
                     receive = SendPacked(parametersSending);
                     if (receive != null)
@@ -1589,7 +1591,7 @@ namespace WpfApp2.ViewModels
                     else
                         return false;
                 case 3:
-                    parametersSending.ReSetChargeDischargeRelayControlToZero();
+                    //parametersSending.ReSetChargeDischargeRelayControlToZero();
                     parametersSending.ChargeDischargeRelay3Control = (ushort)(open == true ? 1 : 0);
                     receive = SendPacked(parametersSending);
                     if (receive != null)
@@ -1599,7 +1601,7 @@ namespace WpfApp2.ViewModels
                     else
                         return false;
                 case 4:
-                    parametersSending.ReSetChargeDischargeRelayControlToZero();
+                    //parametersSending.ReSetChargeDischargeRelayControlToZero();
                     parametersSending.ChargeDischargeRelay4Control = (ushort)(open == true ? 1 : 0);
                     receive = SendPacked(parametersSending);
                     if (receive != null)
@@ -1609,7 +1611,7 @@ namespace WpfApp2.ViewModels
                     else
                         return false;
                 case 5:
-                    parametersSending.ReSetChargeDischargeRelayControlToZero();
+                    //parametersSending.ReSetChargeDischargeRelayControlToZero();
                     parametersSending.ChargeDischargeRelay5Control = (ushort)(open == true ? 1 : 0);
                     receive = SendPacked(parametersSending);
                     if (receive != null)
@@ -1656,35 +1658,11 @@ namespace WpfApp2.ViewModels
                     }
                     else
                         return false;
+                default : return false;
 
             }
 
-            //拼接指令
-            byte[] sengdingPack = CommunicateTool.ConcatByteArrays(Head, parametersSending.ToByteArray());                   //帧头 + 数据
-            sengdingPack = CommunicateTool.ConcatByteArrays(sengdingPack, SerialCommunicationService.getCRC(sengdingPack));  //帧头 + 数据 + CRC
-
-            //发送指令
-            byte[] result = SerialCommunicationService.SendTestCommand(sengdingPack, 65);
-
-            //解析
-            BmsSystemparametersReceive bms = AnalyseBmsReceive(result);
-
-            //判断返回
-            if (bms == null)
-            {
-                return false;
-            }
-            else
-            {
-
-                if (bms.ChargeDischargeRelay1Control != 1)
-                {
-                    AddLog($"充放电MOS管{num}打开失败");
-                }
-                else
-                    AddLog($"充放电MOS管{num}打开成功");
-            }
-            return false;
+            
         }
 
 
