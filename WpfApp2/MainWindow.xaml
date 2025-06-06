@@ -8,12 +8,17 @@
     Title="MainWindow"
     Width="1294"
     Height="800"
+    WindowStyle="None"
     WindowStartupLocation="CenterScreen"
     WindowState="Maximized"
     mc:Ignorable="d">
-    <WindowChrome.WindowChrome>
-        <WindowChrome GlassFrameThickness="0" />
-    </WindowChrome.WindowChrome>
+    <!--<WindowChrome.WindowChrome>
+        <WindowChrome 
+        GlassFrameThickness="0"             
+        ResizeBorderThickness="0"
+        CaptionHeight="0"
+        />
+    </WindowChrome.WindowChrome>-->
     <Grid>
         <!--  背景颜色渐变  -->
         <Grid.Background>
@@ -27,8 +32,9 @@
             </RadialGradientBrush>
         </Grid.Background>
         <Grid.RowDefinitions>
-            <RowDefinition Height="40" />
+            <RowDefinition Height="50" />
             <RowDefinition />
+            <RowDefinition Height="auto" />
         </Grid.RowDefinitions>
         <Border BorderBrush="#5518aabd" BorderThickness="0,0,0,1">
             <Grid>
@@ -39,41 +45,43 @@
                 </Grid.ColumnDefinitions>
 
                 <!--  第一列  -->
-                <TextBlock Margin="5,0,0,0" Grid.Column="0" Padding="0,0,0,0">
+                <TextBlock
+                    Grid.Column="0"
+                    Margin="5,0,0,0"
+                    Padding="0,0,0,0"
+                    VerticalAlignment="Center">
                     <Run
-                        FontSize="18"
+                        FontSize="20"
                         Foreground="White"
                         Text="BMS测试上位机" />
                     <LineBreak />
                     <Run
                         FontSize="13"
                         Foreground="White"
-                        Text="相信奇迹的人，本身就和奇迹一样了不起！" />
+                        Text="让世界永不停电" />
                 </TextBlock>
                 <!--  第二列  -->
                 <Grid Grid.Column="1">
                     <Grid.RowDefinitions>
-                        <RowDefinition Height="25" />
                         <RowDefinition />
+                        <RowDefinition Height="17" />
                     </Grid.RowDefinitions>
                     <StackPanel
                         HorizontalAlignment="Right"
                         Background="Transparent"
-                        Orientation="Horizontal">
+                        Orientation="Horizontal"
+                        WindowChrome.IsHitTestVisibleInChrome="True">
                         <Button
-                            Command="{Binding MinimizeCommand}"
-                            CommandParameter="{Binding RelativeSource={RelativeSource AncestorType=Window}}"
+                            Click="BtnMin"
                             Content="&#xe676;"
                             Style="{StaticResource OperateBtnStyle}" />
                         <Button
-                            Command="{Binding MaximizeCommand}"
-                            CommandParameter="{Binding RelativeSource={RelativeSource AncestorType=Window}}"
+                            Click="BtnMaximize"
                             Content="&#xe651;"
                             Style="{StaticResource OperateBtnStyle}" />
                         <Button
                             Background="DarkRed"
-                            Command="{Binding CloseCommand}"
-                            CommandParameter="{Binding RelativeSource={RelativeSource AncestorType=Window}}"
+                            Click="BtnClose"
                             Content="&#xe85d;"
                             Style="{StaticResource OperateBtnStyle}" />
                     </StackPanel>
@@ -102,5 +110,42 @@
             </Grid>
         </Border>
         <ContentControl Grid.Row="1" Content="{Binding ContentControl}" />
+        <Border
+            Grid.Row="2"
+            BorderBrush="#5518aabd"
+            BorderThickness="0,1,0,0">
+            <Grid>
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition />
+                    <ColumnDefinition Width="auto" />
+                </Grid.ColumnDefinitions>
+                <!--  第一列  -->
+                <Border BorderBrush="#5518aabd" BorderThickness="0,1,0,0">
+                    <Border.Background>
+                        <VisualBrush
+                            TileMode="FlipX"
+                            Viewport="0,0,7,7"
+                            ViewportUnits="Absolute">
+                            <VisualBrush.Visual>
+                                <Line
+                                    Stroke="Gray"
+                                    StrokeThickness="1"
+                                    X1="0"
+                                    X2="10"
+                                    Y1="10"
+                                    Y2="0" />
+                            </VisualBrush.Visual>
+                        </VisualBrush>
+                    </Border.Background>
+                </Border>
+                <!--  第二列  -->
+                <TextBlock
+                    Grid.Column="1"
+                    Margin="0,0,5,0"
+                    FontSize="15"
+                    Foreground="White"
+                    Text="泰琪丰电子有限公司版权所有" />
+            </Grid>
+        </Border>
     </Grid>
 </Window>

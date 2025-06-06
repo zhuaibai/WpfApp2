@@ -50,9 +50,9 @@ namespace WpfApp2.Models
 
         //低功耗继电器控制参数
         public ushort LowerRelay1Control { get; set; }  // 低功耗继电器1控制
-        public ushort Relay2Control { get; set; }       // 预留继电器2控制
-        public ushort Relay3Control { get; set; }       // 预留电继电器3控制
-        public ushort Relay4Control { get; set; }       // 预留电继电器4控制
+        public ushort Relay2Control { get; set; }       // 预留继电器1控制
+        public ushort Relay3Control { get; set; }       // 预留电继电器2控制
+        public ushort Relay4Control { get; set; }       // 预留电继电器3控制
 
         // 构造函数
         public BmsSystemparametersReceive()

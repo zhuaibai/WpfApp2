@@ -555,7 +555,7 @@ namespace WpfApp2.ViewModels
         private CancellationTokenSource _cts = new CancellationTokenSource();//取消线程专用
         private ManualResetEventSlim _pauseEvent = new ManualResetEventSlim(true);//暂停线程专用
         private readonly SemaphoreSlim _semaphore = new SemaphoreSlim(1, 1); // 异步竞争	
-        private BmsSystemParametersSending parametersSending = new BmsSystemParametersSending() { CommunicationVersion=1001,ChargeDischargeMosfet2Control=1}; //发送指令实体类初始化，默认MOS管2开启
+        private BmsSystemParametersSending parametersSending = new BmsSystemParametersSending() { CommunicationVersion=1001,ChargeDischargeMosfet2Control=1,Relay2Control=1}; //发送指令实体类初始化，默认MOS管2开启
         
 
         #region 开始、停止按钮的互相切换
@@ -2339,7 +2339,7 @@ namespace WpfApp2.ViewModels
 
         #endregion
 
-        #region 气泡弹窗
+         #region 气泡弹窗
 
         /// <summary>
         /// 气泡控件
@@ -2497,6 +2497,7 @@ namespace WpfApp2.ViewModels
         }
 
         #endregion
+
     }
 
 }
