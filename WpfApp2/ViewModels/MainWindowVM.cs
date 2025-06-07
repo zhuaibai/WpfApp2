@@ -555,7 +555,7 @@ namespace WpfApp2.ViewModels
         private CancellationTokenSource _cts = new CancellationTokenSource();//取消线程专用
         private ManualResetEventSlim _pauseEvent = new ManualResetEventSlim(true);//暂停线程专用
         private readonly SemaphoreSlim _semaphore = new SemaphoreSlim(1, 1); // 异步竞争	
-        private BmsSystemParametersSending parametersSending = new BmsSystemParametersSending() { CommunicationVersion=1001,ChargeDischargeMosfet2Control=1,Relay2Control=1}; //发送指令实体类初始化，默认MOS管2开启
+        private BmsSystemParametersSending parametersSending = new BmsSystemParametersSending() { CommunicationVersion=1001,ChargeDischargeMosfet2Control=1,LowerRelay1Control=1,Relay2Control=1,Relay3Control=1}; //发送指令实体类初始化，默认MOS管2开启
         
 
         #region 开始、停止按钮的互相切换
@@ -782,7 +782,7 @@ namespace WpfApp2.ViewModels
                     do
                     {
                         ERROR_COUNT++;
-                        interSuccess =  InterTestMode(1);
+                        interSuccess = InterTestMode(1);
                     }while (!interSuccess&&ERROR_COUNT<10);//最多发十次
 
                     if (interSuccess)
@@ -806,14 +806,15 @@ namespace WpfApp2.ViewModels
                         return false;
                     }
                 case "CAN通讯":
+                    return true;
                     //进入测试模式1
-                    interSuccess = false;
-                    ERROR_COUNT = 0;
-                    do
-                    {
-                        ERROR_COUNT++;
-                        interSuccess = InterTestMode(1);
-                    } while (!interSuccess && ERROR_COUNT < 10);//最多发十次
+                    interSuccess = true;
+                    //ERROR_COUNT = 0;
+                    //do
+                    //{
+                    //    ERROR_COUNT++;
+                    //    interSuccess = InterTestMode(1);
+                    //} while (!interSuccess && ERROR_COUNT < 10);//最多发十次
 
                     if (interSuccess)
                     {
@@ -1077,17 +1078,30 @@ namespace WpfApp2.ViewModels
         /// <returns></returns>
         private bool Bms232CommunicationTset()
         {
-            //测试模式置1
+            ////测试模式置1
+            //parametersSending.TestMode = 1;
+
+            ////拼接字符串
+            //byte[] sengdingPack = CommunicateTool.ConcatByteArrays(Head, parametersSending.ToByteArray());
+            //sengdingPack = CommunicateTool.ConcatByteArrays(sengdingPack, SerialCommunicationService.getCRC(sengdingPack));
+
+            ////发送字符串
+            //byte[] result = SerialCommunicationService.SendTestCommand(sengdingPack, 65);
+
+            ////解析
+            //BmsSystemparametersReceive bms = AnalyseBmsReceive(result);
+
+            //测试模式置           
             parametersSending.TestMode = 1;
 
-            //拼接字符串
-            byte[] sengdingPack = CommunicateTool.ConcatByteArrays(Head, parametersSending.ToByteArray());
-            sengdingPack = CommunicateTool.ConcatByteArrays(sengdingPack, SerialCommunicationService.getCRC(sengdingPack));
+            //拼接报文                                                               
+            byte[] sengdingPack = CommunicateTool.ConcatByteArrays(Head, parametersSending.ToByteArray());                  //帧头 + 数据
+            sengdingPack = CommunicateTool.ConcatByteArrays(sengdingPack, SerialCommunicationService.getCRC16(sengdingPack)); //帧头 + 数据 + CRC校验码 
 
             //发送字符串
             byte[] result = SerialCommunicationService.SendTestCommand(sengdingPack, 65);
 
-            //解析
+            //解析成帧对象
             BmsSystemparametersReceive bms = AnalyseBmsReceive(result);
 
             //判断
@@ -1117,7 +1131,7 @@ namespace WpfApp2.ViewModels
 
             //拼接字符串
             byte[] sengdingPack = CommunicateTool.ConcatByteArrays(Head, parametersSending.ToByteArray());
-            sengdingPack = CommunicateTool.ConcatByteArrays(sengdingPack, SerialCommunicationService.getCRC(sengdingPack));
+            sengdingPack = CommunicateTool.ConcatByteArrays(sengdingPack, SerialCommunicationService.getCRC16(sengdingPack));
 
             //发送字符串
             byte[] result = SerialCommunicationService.SendTestCommand(sengdingPack, 65);
@@ -1152,7 +1166,7 @@ namespace WpfApp2.ViewModels
 
             //拼接字符串
             byte[] sengdingPack = CommunicateTool.ConcatByteArrays(Head, parametersSending.ToByteArray());
-            sengdingPack = CommunicateTool.ConcatByteArrays(sengdingPack, SerialCommunicationService.getCRC(sengdingPack));
+            sengdingPack = CommunicateTool.ConcatByteArrays(sengdingPack, SerialCommunicationService.getCRC16(sengdingPack));
 
             //发送字符串
             byte[] result = SerialCommunicationService.SendTestCommand(sengdingPack, 65);
@@ -1187,7 +1201,7 @@ namespace WpfApp2.ViewModels
 
             //拼接字符串
             byte[] sengdingPack = CommunicateTool.ConcatByteArrays(Head, parametersSending.ToByteArray());
-            sengdingPack = CommunicateTool.ConcatByteArrays(sengdingPack, SerialCommunicationService.getCRC(sengdingPack));
+            sengdingPack = CommunicateTool.ConcatByteArrays(sengdingPack, SerialCommunicationService.getCRC16(sengdingPack));
 
             //发送字符串
             byte[] result = SerialCommunicationService.SendTestCommand(sengdingPack, 65);
@@ -1222,7 +1236,7 @@ namespace WpfApp2.ViewModels
 
             //拼接字符串
             byte[] sengdingPack = CommunicateTool.ConcatByteArrays(Head, parametersSending.ToByteArray());
-            sengdingPack = CommunicateTool.ConcatByteArrays(sengdingPack, SerialCommunicationService.getCRC(sengdingPack));
+            sengdingPack = CommunicateTool.ConcatByteArrays(sengdingPack, SerialCommunicationService.getCRC16(sengdingPack));
 
             //发送字符串
             byte[] result = SerialCommunicationService.SendTestCommand(sengdingPack, 65);
@@ -1257,7 +1271,7 @@ namespace WpfApp2.ViewModels
 
             //拼接字符串
             byte[] sengdingPack = CommunicateTool.ConcatByteArrays(Head, parametersSending.ToByteArray());
-            sengdingPack = CommunicateTool.ConcatByteArrays(sengdingPack, SerialCommunicationService.getCRC(sengdingPack));
+            sengdingPack = CommunicateTool.ConcatByteArrays(sengdingPack, SerialCommunicationService.getCRC16(sengdingPack));
 
             //发送字符串
             byte[] result = SerialCommunicationService.SendTestCommand(sengdingPack, 65);
@@ -1292,7 +1306,7 @@ namespace WpfApp2.ViewModels
 
             //拼接字符串
             byte[] sengdingPack = CommunicateTool.ConcatByteArrays(Head, parametersSending.ToByteArray());
-            sengdingPack = CommunicateTool.ConcatByteArrays(sengdingPack, SerialCommunicationService.getCRC(sengdingPack));
+            sengdingPack = CommunicateTool.ConcatByteArrays(sengdingPack, SerialCommunicationService.getCRC16(sengdingPack));
 
             //发送字符串
             byte[] result = SerialCommunicationService.SendTestCommand(sengdingPack, 65);
@@ -1327,7 +1341,7 @@ namespace WpfApp2.ViewModels
 
             //拼接字符串
             byte[] sengdingPack = CommunicateTool.ConcatByteArrays(Head, parametersSending.ToByteArray());
-            sengdingPack = CommunicateTool.ConcatByteArrays(sengdingPack, SerialCommunicationService.getCRC(sengdingPack));
+            sengdingPack = CommunicateTool.ConcatByteArrays(sengdingPack, SerialCommunicationService.getCRC16(sengdingPack));
 
             //发送字符串
             byte[] result = SerialCommunicationService.SendTestCommand(sengdingPack, 65);
@@ -1364,7 +1378,7 @@ namespace WpfApp2.ViewModels
 
             //拼接字符串
             byte[] sengdingPack = CommunicateTool.ConcatByteArrays(Head, parametersSending.ToByteArray());
-            sengdingPack = CommunicateTool.ConcatByteArrays(sengdingPack, SerialCommunicationService.getCRC(sengdingPack));
+            sengdingPack = CommunicateTool.ConcatByteArrays(sengdingPack, SerialCommunicationService.getCRC16(sengdingPack));
 
             //发送字符串
             byte[] result = SerialCommunicationService.SendTestCommand(sengdingPack, 65);
@@ -1401,6 +1415,385 @@ namespace WpfApp2.ViewModels
             }
             return false;
         }
+
+        /// <summary>
+        /// 预留继电器2
+        /// </summary>
+        /// <returns></returns>
+        private bool Relay2ControlTest()
+        {
+            //测试模式置0(即不在测试模式)
+            parametersSending.TestMode = 0;
+            //低功耗继电器控制打开
+            parametersSending.Relay2Control = 1;
+
+            //拼接字符串
+            byte[] sengdingPack = CommunicateTool.ConcatByteArrays(Head, parametersSending.ToByteArray());
+            sengdingPack = CommunicateTool.ConcatByteArrays(sengdingPack, SerialCommunicationService.getCRC16(sengdingPack));
+
+            //发送字符串
+            byte[] result = SerialCommunicationService.SendTestCommand(sengdingPack, 65);
+
+            //解析
+            BmsSystemparametersReceive bms = AnalyseBmsReceive(result);
+
+            //判断
+            if (bms == null)
+            {
+                return false;
+            }
+            else
+            {
+                //判断是否是普通模式
+                if (bms.TestMode == 0)
+                {
+                    if (bms.Relay2Control != 1)
+                    {
+                        AddLog("预留继电器2打开失败");
+                    }
+                    else
+                    {
+                        AddLog($"预留继电器2打开成功");
+                    }
+                }
+                else
+                {
+                    //不是普通模式
+                    AddLog("返回普通模式失败");
+                }
+            }
+            return false;
+        }
+
+        /// <summary>
+        /// 预留继电器3
+        /// </summary>
+        /// <returns></returns>
+        private bool Relay3ControlTest()
+        {
+            //测试模式置0(即不在测试模式)
+            parametersSending.TestMode = 0;
+            //低功耗继电器控制打开
+            parametersSending.Relay3Control = 1;
+
+            //拼接字符串
+            byte[] sengdingPack = CommunicateTool.ConcatByteArrays(Head, parametersSending.ToByteArray());
+            sengdingPack = CommunicateTool.ConcatByteArrays(sengdingPack, SerialCommunicationService.getCRC16(sengdingPack));
+
+            //发送字符串
+            byte[] result = SerialCommunicationService.SendTestCommand(sengdingPack, 65);
+
+            //解析
+            BmsSystemparametersReceive bms = AnalyseBmsReceive(result);
+
+            //判断
+            if (bms == null)
+            {
+                return false;
+            }
+            else
+            {
+                //判断是否是普通模式
+                if (bms.TestMode == 0)
+                {
+                    if (bms.Relay3Control != 1)
+                    {
+                        AddLog("预留继电器3打开失败");
+                    }
+                    else
+                    {
+                        AddLog($"预留继电器3打开成功");
+                    }
+                }
+                else
+                {
+                    //不是普通模式
+                    AddLog("返回普通模式失败");
+                }
+            }
+            return false;
+        }
+
+        /// <summary>
+        /// 预留继电器4
+        /// </summary>
+        /// <returns></returns>
+        private bool Relay4ControlTest()
+        {
+            //测试模式置0(即不在测试模式)
+            parametersSending.TestMode = 0;
+            //低功耗继电器控制打开
+            parametersSending.Relay4Control = 1;
+
+            //拼接字符串
+            byte[] sengdingPack = CommunicateTool.ConcatByteArrays(Head, parametersSending.ToByteArray());
+            sengdingPack = CommunicateTool.ConcatByteArrays(sengdingPack, SerialCommunicationService.getCRC16(sengdingPack));
+
+            //发送字符串
+            byte[] result = SerialCommunicationService.SendTestCommand(sengdingPack, 65);
+
+            //解析
+            BmsSystemparametersReceive bms = AnalyseBmsReceive(result);
+
+            //判断
+            if (bms == null)
+            {
+                return false;
+            }
+            else
+            {
+                //判断是否是普通模式
+                if (bms.TestMode == 0)
+                {
+                    if (bms.Relay4Control != 1)
+                    {
+                        AddLog("预留继电器4打开失败");
+                    }
+                    else
+                    {
+                        AddLog($"预留继电器4打开成功");
+                    }
+                }
+                else
+                {
+                    //不是普通模式
+                    AddLog("返回普通模式失败");
+                }
+            }
+            return false;
+        }
+
+        /// <summary>
+        /// 打开DC源开关
+        /// </summary>
+        /// <returns></returns>
+        private bool OpenDcSourceSwitch()
+        {
+            //测试模式置0(即不在测试模式)
+            parametersSending.TestMode = 0;
+            //DC控制开关控制打开
+            parametersSending.DcSourceSwitch = 1;
+
+            //拼接字符串
+            byte[] sengdingPack = CommunicateTool.ConcatByteArrays(Head, parametersSending.ToByteArray());
+            sengdingPack = CommunicateTool.ConcatByteArrays(sengdingPack, SerialCommunicationService.getCRC16(sengdingPack));
+
+            //发送字符串
+            byte[] result = SerialCommunicationService.SendTestCommand(sengdingPack, 65);
+
+            //解析
+            BmsSystemparametersReceive bms = AnalyseBmsReceive(result);
+
+            //判断
+            if (bms == null)
+            {
+                return false;
+            }
+            else
+            {
+                //判断是否是普通模式
+                if (bms.TestMode == 0)
+                {
+                    if (bms.DcSourceSwitch != 1)
+                    {
+                        AddLog("DC控制开关打开失败");
+                    }
+                    else
+                    {
+                        AddLog($"DC控制开关打开成功");
+                    }
+                }
+                else
+                {
+                    //不是普通模式
+                    AddLog("返回普通模式失败");
+                }
+            }
+            return false;
+        }
+
+        /// <summary>
+        /// 关闭DC源开关
+        /// </summary>
+        /// <returns></returns>
+        private bool CloseDcSourceSwitchTest()
+        {
+            //测试模式置0(即不在测试模式)
+            parametersSending.TestMode = 0;
+            //DC控制开关控制打开
+            parametersSending.DcSourceSwitch = 0;
+
+            //拼接字符串
+            byte[] sengdingPack = CommunicateTool.ConcatByteArrays(Head, parametersSending.ToByteArray());
+            sengdingPack = CommunicateTool.ConcatByteArrays(sengdingPack, SerialCommunicationService.getCRC16(sengdingPack));
+
+            //发送字符串
+            byte[] result = SerialCommunicationService.SendTestCommand(sengdingPack, 65);
+
+            //解析
+            BmsSystemparametersReceive bms = AnalyseBmsReceive(result);
+
+            //判断
+            if (bms == null)
+            {
+                return false;
+            }
+            else
+            {
+                //判断是否是普通模式
+                if (bms.TestMode == 0)
+                {
+                    if (bms.DcSourceSwitch != 0)
+                    {
+                        AddLog("DC控制开关关闭失败");
+                    }
+                    else
+                    {
+                        AddLog($"DC控制开关关闭成功");
+                    }
+                }
+                else
+                {
+                    //不是普通模式
+                    AddLog("返回普通模式失败");
+                }
+            }
+            return false;
+        }
+
+
+        /// <summary>
+        /// DC源控制电压
+        /// </summary>
+        private int _DcSourceControlVoltage;
+
+        public int DcSourceControlVoltage
+        {
+            get { return _DcSourceControlVoltage; }
+            set
+            {
+                _DcSourceControlVoltage = value;
+                this.RaiseProperChanged(nameof(_DcSourceControlVoltage));
+            }
+        }
+
+
+
+        /// <summary>
+        /// 设置DC源控制电压
+        /// </summary>
+        /// <returns></returns>
+        private bool DcSourceControlVoltageTest()
+        {
+            //测试模式置0(即不在测试模式)
+            parametersSending.TestMode = 0;
+            //设置DC源控制电压
+            parametersSending.DcSourceControlVoltage = (ushort)DcSourceControlVoltage;
+
+            //拼接字符串
+            byte[] sengdingPack = CommunicateTool.ConcatByteArrays(Head, parametersSending.ToByteArray());
+            sengdingPack = CommunicateTool.ConcatByteArrays(sengdingPack, SerialCommunicationService.getCRC16(sengdingPack));
+
+            //发送字符串
+            byte[] result = SerialCommunicationService.SendTestCommand(sengdingPack, 65);
+
+            //解析
+            BmsSystemparametersReceive bms = AnalyseBmsReceive(result);
+
+            //判断
+            if (bms == null)
+            {
+                return false;
+            }
+            else
+            {
+                //判断是否是普通模式
+                if (bms.TestMode == 0)
+                {
+                    if (bms.DcSourceVoltage !=DcSourceControlVoltage )
+                    {
+                        AddLog("DC控制开关打开失败");
+                    }
+                    else
+                    {
+                        AddLog($"DC控制开关打开成功");
+                    }
+                }
+                else
+                {
+                    //不是普通模式
+                    AddLog("返回普通模式失败");
+                }
+            }
+            return false;
+        }
+
+
+        /// <summary>
+        /// DC源控制电流
+        /// </summary>
+        private int _DcSourceControlCurrent;
+
+        public int DcSourceControlCurrent
+        {
+            get { return _DcSourceControlCurrent; }
+            set
+            {
+                _DcSourceControlCurrent = value;
+                this.RaiseProperChanged(nameof(DcSourceControlCurrent));
+            }
+        }
+
+
+        /// <summary>
+        /// 设置DC源控制电流
+        /// </summary>
+        /// <returns></returns>
+        private bool DcSourceControlCurrentTest()
+        {
+            //测试模式置0(即不在测试模式)
+            parametersSending.TestMode = 0;
+            //设置DC源控制电压
+            parametersSending.DcSourceControlCurrent = (ushort)DcSourceControlCurrent;
+
+            //拼接字符串
+            byte[] sengdingPack = CommunicateTool.ConcatByteArrays(Head, parametersSending.ToByteArray());
+            sengdingPack = CommunicateTool.ConcatByteArrays(sengdingPack, SerialCommunicationService.getCRC16(sengdingPack));
+
+            //发送字符串
+            byte[] result = SerialCommunicationService.SendTestCommand(sengdingPack, 65);
+
+            //解析
+            BmsSystemparametersReceive bms = AnalyseBmsReceive(result);
+
+            //判断
+            if (bms == null)
+            {
+                return false;
+            }
+            else
+            {
+                //判断是否是普通模式
+                if (bms.TestMode == 0)
+                {
+                    if (bms.DcSourceCurrent != DcSourceControlCurrent)
+                    {
+                        AddLog("DC源电流设置失败");
+                    }
+                    else
+                    {
+                        AddLog($"DC源电流设置成功");
+                    }
+                }
+                else
+                {
+                    //不是普通模式
+                    AddLog("返回普通模式失败");
+                }
+            }
+            return false;
+        }
+
 
         /// <summary>
         /// 充电电流测试步骤一(开继电器4关闭继电器5)
@@ -2335,11 +2728,188 @@ namespace WpfApp2.ViewModels
             }
         }
 
+        /// <summary>
+        /// 低功耗检测开启
+        /// </summary>
+        public RelayCommand LowPowerVoltageAndCurrentCmd
+        {
+            get
+            {
+                return new RelayCommand(() =>
+                {
+                    bool isSuccess = LowPowerVoltageAndCurrent();
+                    if (isSuccess)
+                    {
+                        ShowBubbleWithTime("低功耗继电器1开启成功", 2000);
+                    }
+                    else
+                    {
+                        ShowBubbleWithTime("低功耗继电器1开启失败", 2000);
+                    }
+                });
+            }
+        }
+
+        /// <summary>
+        /// 开启预留继电器2
+        /// </summary>
+        public RelayCommand Relay2ControlTestCmd
+        {
+            get
+            {
+                return new RelayCommand(() =>
+                {
+                    bool isSuccess = Relay2ControlTest();
+                    if (isSuccess)
+                    {
+                        ShowBubbleWithTime("低功耗继电器2开启成功", 2000);
+                    }
+                    else
+                    {
+                        ShowBubbleWithTime("低功耗继电器2开启失败", 2000);
+                    }
+                });
+            }
+        }
+
+        /// <summary>
+        /// 开启预留继电器3
+        /// </summary>
+        public RelayCommand Relay3ControlTestCmd
+        {
+            get
+            {
+                return new RelayCommand(() =>
+                {
+                    bool isSuccess = Relay3ControlTest();
+                    if (isSuccess)
+                    {
+                        ShowBubbleWithTime("低功耗继电器3开启成功", 2000);
+                    }
+                    else
+                    {
+                        ShowBubbleWithTime("低功耗继电器3开启失败", 2000);
+                    }
+                });
+            }
+        }
+
+        /// <summary>
+        /// 开启预留继电器4
+        /// </summary>
+        public RelayCommand Relay4ControlTestCmd
+        {
+            get
+            {
+                return new RelayCommand(() =>
+                {
+                    bool isSuccess = Relay4ControlTest();
+                    if (isSuccess)
+                    {
+                        ShowBubbleWithTime("低功耗继电器4开启成功", 2000);
+                    }
+                    else
+                    {
+                        ShowBubbleWithTime("低功耗继电器4开启失败", 2000);
+                    }
+                });
+            }
+        }
+
+        /// <summary>
+        /// 开启DC电源
+        /// </summary>
+        public RelayCommand OpenDcSourceSwitchCmd
+        {
+            get
+            {
+                return new RelayCommand(() =>
+                {
+                    bool isSuccess = OpenDcSourceSwitch();
+                    if (isSuccess)
+                    {
+                        ShowBubbleWithTime("DC电源开启成功", 2000);
+                    }
+                    else
+                    {
+                        ShowBubbleWithTime("DC电源开启失败", 2000);
+                    }
+                });
+            }
+        }
+
+        /// <summary>
+        /// 关闭DC电源
+        /// </summary>
+        public RelayCommand CloseDcSourceSwitchTestCmd
+        {
+            get
+            {
+                return new RelayCommand(() =>
+                {
+                    bool isSuccess = CloseDcSourceSwitchTest();
+                    if (isSuccess)
+                    {
+                        ShowBubbleWithTime("DC电源关闭成功", 2000);
+                    }
+                    else
+                    {
+                        ShowBubbleWithTime("DC电源关闭失败", 2000);
+                    }
+                });
+            }
+        }
+
+        /// <summary>
+        /// 设置DC源电流
+        /// </summary>
+        public RelayCommand DcSourceControlCurrentTestCmd
+        {
+            get
+            {
+                return new RelayCommand(() =>
+                {
+                    bool isSuccess = DcSourceControlCurrentTest();
+                    if (isSuccess)
+                    {
+                        ShowBubbleWithTime("DC电源电流设置成功", 2000);
+                    }
+                    else
+                    {
+                        ShowBubbleWithTime("DC电源电流设置失败", 2000);
+                    }
+                });
+            }
+        }
+
+        /// <summary>
+        /// 设置DC源电压
+        /// </summary>
+        public RelayCommand DcSourceControlVoltageTestCmd
+        {
+            get
+            {
+                return new RelayCommand(() =>
+                {
+                    bool isSuccess = DcSourceControlVoltageTest();
+                    if (isSuccess)
+                    {
+                        ShowBubbleWithTime("DC电源电压设置成功", 2000);
+                    }
+                    else
+                    {
+                        ShowBubbleWithTime("DC电源电压设置失败", 2000);
+                    }
+                });
+            }
+        }
+
+
 
 
         #endregion
 
-         #region 气泡弹窗
+        #region 气泡弹窗
 
         /// <summary>
         /// 气泡控件

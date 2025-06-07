@@ -386,7 +386,7 @@ namespace WpfApp2.Tools
                 SerialPort.WriteTimeout = 1000;
                 //写命令
                 byte[] Command = command;
-                SerialPort.Write(Command, 0, Command.Length);
+                SerialPort.Write(Command, 0, command.Length);
                 
                 // 设置读取超时时间【1s】
                 SerialPort.ReadTimeout = 1000;
