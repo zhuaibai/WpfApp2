@@ -708,12 +708,13 @@ namespace WpfApp2.ViewModels
                         else
                         {
                             //测试合格，下一项
-                            i++;
+                            
                             AddLog($"{TestItems[i].Name}测试通过");
                             //修改测试结果(true = 通过, false = 失败)
                             TestItems[i].IsImportant = true;
                             //修改成已测试
                             TestItems[i].Flag = 1;
+                            i++;
                         }
                     }
                     Application.Current.Dispatcher.Invoke(() => ShowBubble("测试结束"));
@@ -852,6 +853,7 @@ namespace WpfApp2.ViewModels
                         //已进入测试模式
                         do
                         {
+                            ERROR_COUNT++;
                             interSuccess = BmsInverterCommunicationTset();//BMS逆变器通讯
                         } while (!interSuccess && ERROR_COUNT < 10);
                         if (!interSuccess)
@@ -884,6 +886,7 @@ namespace WpfApp2.ViewModels
                         //已进入测试模式
                         do
                         {
+                            ERROR_COUNT++;
                             interSuccess = BmsParallelCommunicationTset();//BMS并机通讯
                         } while (!interSuccess && ERROR_COUNT < 10);
                         if (!interSuccess)
@@ -915,6 +918,7 @@ namespace WpfApp2.ViewModels
                         //已进入测试模式
                         do
                         {
+                            ERROR_COUNT++;
                             interSuccess = ResetSwitchStatusTest();//复位开关
                         } while (!interSuccess && ERROR_COUNT < 10);
                         if (!interSuccess)
@@ -946,6 +950,7 @@ namespace WpfApp2.ViewModels
                         //已进入测试模式
                         do
                         {
+                            ERROR_COUNT++;
                             interSuccess = DIPSwitchValueTest();//拨码开关
                         } while (!interSuccess && ERROR_COUNT < 10);
                         if (!interSuccess)
@@ -956,18 +961,19 @@ namespace WpfApp2.ViewModels
                     }
                     else
                     {
+                        ERROR_COUNT++;
                         //进入测试模式失败
                         AddLog("进入测试模式异常");
                         return false;
                     }
-                case "干节点开关":
+                case "干节点功能":
                     //进入测试模式3
                     interSuccess = false;
                     ERROR_COUNT = 0;
                     do
                     {
                         ERROR_COUNT++;
-                        interSuccess = InterTestMode(3);
+                        interSuccess = InterTestMode(4);
                     } while (!interSuccess && ERROR_COUNT < 10);//最多发十次
 
                     if (interSuccess)
@@ -976,6 +982,7 @@ namespace WpfApp2.ViewModels
                         //已进入测试模式
                         do
                         {
+                            ERROR_COUNT++;
                             interSuccess = RelayStatus();//测试干节点开关
                         } while (!interSuccess && ERROR_COUNT < 10);
                         if (!interSuccess)
@@ -1001,6 +1008,7 @@ namespace WpfApp2.ViewModels
                     //低功耗检测
                     do
                     {
+                        ERROR_COUNT++;
                         interSuccess = LowPowerVoltageAndCurrent();//低功耗检测
                     } while (!interSuccess && ERROR_COUNT < 10);
                     if (!interSuccess)
@@ -1374,7 +1382,7 @@ namespace WpfApp2.ViewModels
             //测试模式置0(即不在测试模式)
             parametersSending.TestMode = 0;
             //低功耗继电器控制打开
-            parametersSending.LowerRelay1Control = 1;
+            parametersSending.LowerRelay1Control = 0;
 
             //拼接字符串
             byte[] sengdingPack = CommunicateTool.ConcatByteArrays(Head, parametersSending.ToByteArray());
@@ -1398,14 +1406,14 @@ namespace WpfApp2.ViewModels
                 {
                     if (bms.LowerRelay1Control != 1)
                     {
-                        AddLog("低功耗继电器打开失败");
+                        AddLog("低功耗继电器关闭成功");
                     }
-                    if (bms.LowPowerVoltage <= 300 & bms.LowPowerCurrent <= 300)
-                        return true;
-                    else
-                    {
-                        AddLog($"不合格 低功耗:电流 {bms.LowPowerCurrent}\r 电压 {bms.LowPowerVoltage}");
-                    }
+                    //if (bms.LowPowerVoltage <= 300 & bms.LowPowerCurrent <= 300)
+                    //    return true;
+                    //else
+                    //{
+                    //    AddLog($"不合格 低功耗:电流 {bms.LowPowerCurrent}\r 电压 {bms.LowPowerVoltage}");
+                    //}
                 }
                 else
                 {
@@ -1425,7 +1433,7 @@ namespace WpfApp2.ViewModels
             //测试模式置0(即不在测试模式)
             parametersSending.TestMode = 0;
             //低功耗继电器控制打开
-            parametersSending.Relay2Control = 1;
+            parametersSending.Relay2Control = 0;
 
             //拼接字符串
             byte[] sengdingPack = CommunicateTool.ConcatByteArrays(Head, parametersSending.ToByteArray());
@@ -1474,7 +1482,7 @@ namespace WpfApp2.ViewModels
             //测试模式置0(即不在测试模式)
             parametersSending.TestMode = 0;
             //低功耗继电器控制打开
-            parametersSending.Relay3Control = 1;
+            parametersSending.Relay3Control = 0;
 
             //拼接字符串
             byte[] sengdingPack = CommunicateTool.ConcatByteArrays(Head, parametersSending.ToByteArray());
@@ -1601,6 +1609,7 @@ namespace WpfApp2.ViewModels
                     else
                     {
                         AddLog($"DC控制开关打开成功");
+                        return true;
                     }
                 }
                 else
@@ -1710,13 +1719,14 @@ namespace WpfApp2.ViewModels
                 //判断是否是普通模式
                 if (bms.TestMode == 0)
                 {
-                    if (bms.DcSourceVoltage !=DcSourceControlVoltage )
+                    if (bms.DcSourceVoltage !=DcSourceControlVoltage/10 )//实际12，返回120
                     {
-                        AddLog("DC控制开关打开失败");
+                        AddLog("设置DC源控制电压失败");
                     }
                     else
                     {
-                        AddLog($"DC控制开关打开成功");
+                        AddLog($"设置DC源控制电压成功");
+                        return true;
                     }
                 }
                 else
@@ -1776,13 +1786,14 @@ namespace WpfApp2.ViewModels
                 //判断是否是普通模式
                 if (bms.TestMode == 0)
                 {
-                    if (bms.DcSourceCurrent != DcSourceControlCurrent)
+                    if (bms.DcSourceCurrent != DcSourceControlCurrent)//实际0.1，返回10
                     {
                         AddLog("DC源电流设置失败");
                     }
                     else
                     {
                         AddLog($"DC源电流设置成功");
+                        return true;
                     }
                 }
                 else
@@ -2068,7 +2079,7 @@ namespace WpfApp2.ViewModels
         {
             //拼接字符串
             byte[] sengdingPack = CommunicateTool.ConcatByteArrays(Head, bmsSending.ToByteArray());
-            sengdingPack = CommunicateTool.ConcatByteArrays(sengdingPack, SerialCommunicationService.getCRC(sengdingPack));
+            sengdingPack = CommunicateTool.ConcatByteArrays(sengdingPack, SerialCommunicationService.getCRC16(sengdingPack));
 
             //发送字符串
             byte[] result = SerialCommunicationService.SendTestCommand(sengdingPack, 65);
@@ -2905,6 +2916,7 @@ namespace WpfApp2.ViewModels
         }
 
 
+        
 
 
         #endregion
