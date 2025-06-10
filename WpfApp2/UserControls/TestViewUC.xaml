@@ -415,6 +415,8 @@
             <Grid.RowDefinitions>
                 <RowDefinition />
                 <RowDefinition Height="auto" />
+
+
             </Grid.RowDefinitions>
             <Grid.ColumnDefinitions>
                 <ColumnDefinition />
@@ -426,256 +428,295 @@
                 Background="#1118aabd"
                 CornerRadius="10" />
             <!--  第二行 右侧属性显示  -->
+
+            <ScrollViewer VerticalScrollBarVisibility="Hidden">
+                <StackPanel>
+                    <Expander>
+                        <!--  串口一  -->
+                        <GroupBox Margin="10,13,10,0" Style="{StaticResource GroupBoxMachineTypeSty}">
+                            <UniformGrid Margin="10" Columns="2">
+                                <Button
+                                    Height="40"
+                                    Margin="4"
+                                    Command="{Binding OpenCharge}"
+                                    Content="充电开启"
+                                    FontSize="17"
+                                    Style="{StaticResource BtnStyle}" />
+                                <Button
+                                    Margin="4"
+                                    Command="{Binding CloseCharge}"
+                                    Content="充电关闭"
+                                    FontSize="17"
+                                    Style="{StaticResource BtnStyle}" />
+                                <Button
+                                    Margin="4"
+                                    Command="{Binding OpenDisCharge}"
+                                    Content="放电开启"
+                                    FontSize="17"
+                                    Style="{StaticResource BtnStyle}" />
+                                <Button
+                                    Margin="4"
+                                    Command="{Binding CloseDisCharge}"
+                                    Content="放电关闭"
+                                    FontSize="17"
+                                    Style="{StaticResource BtnStyle}" />
+                                <Button
+                                    Margin="4"
+                                    Command="{Binding OpenLevel1Current}"
+                                    Content="一档电流开启"
+                                    FontSize="17"
+                                    Style="{StaticResource BtnStyle}" />
+                                <Button
+                                    Margin="4"
+                                    Command="{Binding CloseLevel1Current}"
+                                    Content="一档电流关闭"
+                                    FontSize="17"
+                                    Style="{StaticResource BtnStyle}" />
+                                <Button
+                                    Margin="4"
+                                    Command="{Binding OpenLevel2Current}"
+                                    Content="二档电流开启"
+                                    FontSize="17"
+                                    Style="{StaticResource BtnStyle}" />
+                                <Button
+                                    Margin="4"
+                                    Command="{Binding CloseLevel2Current}"
+                                    Content="二档电流关闭"
+                                    FontSize="17"
+                                    Style="{StaticResource BtnStyle}" />
+                                <Button
+                                    Margin="4"
+                                    Command="{Binding OpenLevel3Current}"
+                                    Content="三挡电流开启"
+                                    FontSize="17"
+                                    Style="{StaticResource BtnStyle}" />
+                                <Button
+                                    Margin="4"
+                                    Command="{Binding CloseLevel3Current}"
+                                    Content="三挡电流关闭"
+                                    FontSize="17"
+                                    Style="{StaticResource BtnStyle}" />
+                                <Button
+                                    Margin="4"
+                                    Command="{Binding OpenChargeMOS1}"
+                                    Content="放电MOS管1开启"
+                                    FontSize="17"
+                                    Style="{StaticResource BtnStyle}" />
+                                <Button
+                                    Margin="4"
+                                    Command="{Binding CloseChargeMOS1}"
+                                    Content="放电MOS管1关闭"
+                                    FontSize="17"
+                                    Style="{StaticResource BtnStyle}" />
+                                <Button
+                                    Margin="4"
+                                    Command="{Binding OpenChargeMOS2}"
+                                    Content="充电MOS管2开启"
+                                    FontSize="17"
+                                    Style="{StaticResource BtnStyle}" />
+                                <Button
+                                    Margin="4"
+                                    Command="{Binding CloseChargeMOS2}"
+                                    Content="充电MOS管2关闭"
+                                    FontSize="17"
+                                    Style="{StaticResource BtnStyle}" />
+                                <Button
+                                    Margin="4"
+                                    Command="{Binding LowPowerVoltageAndCurrentCmd}"
+                                    Content="预留继电器1开启"
+                                    FontSize="17"
+                                    Style="{StaticResource BtnStyle}" />
+                                <Button
+                                    Margin="4"
+                                    Command="{Binding CloseLowPowerVoltageAndCurrentCmd}"
+                                    Content="预留继电器1关闭"
+                                    FontSize="17"
+                                    Style="{StaticResource BtnStyle}" />
+                                <Button
+                                    Margin="4"
+                                    Command="{Binding Relay2ControlTestCmd}"
+                                    Content="预留继电器2开启"
+                                    FontSize="17"
+                                    Style="{StaticResource BtnStyle}" />
+                                <Button
+                                    Margin="4"
+                                    Command="{Binding CloseRelay2ControlTestCmd}"
+                                    Content="预留继电器2关闭"
+                                    FontSize="17"
+                                    Style="{StaticResource BtnStyle}" />
+                                <Button
+                                    Margin="4"
+                                    Command="{Binding Relay3ControlTestCmd}"
+                                    Content="预留继电器3开启"
+                                    FontSize="17"
+                                    Style="{StaticResource BtnStyle}" />
+                                <Button
+                                    Margin="4"
+                                    Command="{Binding CloseRelay3ControlTestCmd}"
+                                    Content="预留继电器3关闭"
+                                    FontSize="17"
+                                    Style="{StaticResource BtnStyle}" />
+                                <Button
+                                    Margin="4"
+                                    Command="{Binding Relay4ControlTestCmd}"
+                                    Content="预留继电器4开启"
+                                    FontSize="17"
+                                    Style="{StaticResource BtnStyle}" />
+                                <Button
+                                    Margin="4"
+                                    Command="{Binding CloseRelay4ControlTestCmd}"
+                                    Content="预留继电器4关闭"
+                                    FontSize="17"
+                                    Style="{StaticResource BtnStyle}" />
+                            </UniformGrid>
+                        </GroupBox>
+                    </Expander>
+                    <Expander>
+                        <!--  串口二  -->
+                        <GroupBox
+                            Grid.Row="1"
+                            Margin="10,10,10,15"
+                            Style="{StaticResource GroupBoxMachineTypeSty}">
+                            <UniformGrid Margin="10" Columns="2">
+                                <Button
+                                    Height="40"
+                                    Margin="4"
+                                    Command="{Binding ReadChargeCurrentAdjustParameterCmd}"
+                                    Content="读取充电校准系数"
+                                    FontSize="17"
+                                    Style="{StaticResource BtnStyle}" />
+                                <Button
+                                    Margin="4"
+                                    Command="{Binding ReadDischargeCurrentAdjustParameterCmd}"
+                                    Content="读取放电校准系数"
+                                    FontSize="17"
+                                    Style="{StaticResource BtnStyle}" />
+                                <Button
+                                    Margin="4"
+                                    Command="{Binding WriteChargeCurrentAdjustParameterCmd}"
+                                    Content="写入充电校准系数"
+                                    FontSize="17"
+                                    Style="{StaticResource BtnStyle}" />
+                                <Button
+                                    Margin="4"
+                                    Command="{Binding WriteDischargeCurrentAdjustParameterCmd}"
+                                    Content="写入放电校准系数"
+                                    FontSize="17"
+                                    Style="{StaticResource BtnStyle}" />
+                                <Button
+                                    Margin="4"
+                                    Command="{Binding OpenLimitedCurrentCmd}"
+                                    Content="开启限流开关"
+                                    FontSize="17"
+                                    Style="{StaticResource BtnStyle}" />
+                                <Button
+                                    Margin="4"
+                                    Command="{Binding CloseLimitedCurrentCmd}"
+                                    Content="关闭限流开关"
+                                    FontSize="17"
+                                    Style="{StaticResource BtnStyle}" />
+                                <Button
+                                    Margin="4"
+                                    Command="{Binding ReadCurrentCmd}"
+                                    Content="读取电流"
+                                    FontSize="17"
+                                    Style="{StaticResource BtnStyle}" />
+                                <Button
+                                    Margin="4"
+                                    Content=""
+                                    FontSize="17"
+                                    Style="{StaticResource BtnStyle}" />
+                                <Button
+                                    Margin="4"
+                                    Command="{Binding OpenDcSourceSwitchCmd}"
+                                    Content="开启DC电源"
+                                    FontSize="17"
+                                    Style="{StaticResource BtnStyle}" />
+                                <Button
+                                    Margin="4"
+                                    Command="{Binding CloseDcSourceSwitchTestCmd}"
+                                    Content="关闭DC电源"
+                                    FontSize="17"
+                                    Style="{StaticResource BtnStyle}" />
+                                <Border BorderThickness="1" CornerRadius="5">
+                                    <Border.BorderBrush>
+                                        <LinearGradientBrush StartPoint="0,0" EndPoint="1,0">
+                                            <GradientStop Offset="0" Color="#22ffffff" />
+                                            <GradientStop Offset="0.5" Color="#77ffffff" />
+                                            <GradientStop Offset="1" Color="#22ffffff" />
+                                        </LinearGradientBrush>
+                                    </Border.BorderBrush>
+                                    <StackPanel HorizontalAlignment="Center" Orientation="Horizontal">
+                                        <TextBlock
+                                            Margin="3"
+                                            FontSize="17"
+                                            Foreground="#aaa"
+                                            Text="DC电压"
+                                            TextAlignment="Center" />
+                                        <TextBox
+                                            MinWidth="80"
+                                            Margin="3"
+                                            BorderThickness="2"
+                                            FontSize="16"
+                                            Text="{Binding DcSourceControlVoltage}"
+                                            TextAlignment="Center" />
+                                    </StackPanel>
+                                </Border>
+                                <Button
+                                    Margin="4"
+                                    Command="{Binding DcSourceControlVoltageTestCmd}"
+                                    Content="设置电压"
+                                    FontSize="17"
+                                    Style="{StaticResource BtnStyle}" />
+                                <Border BorderThickness="1" CornerRadius="5">
+                                    <Border.BorderBrush>
+                                        <LinearGradientBrush StartPoint="0,0" EndPoint="1,0">
+                                            <GradientStop Offset="0" Color="#22ffffff" />
+                                            <GradientStop Offset="0.5" Color="#77ffffff" />
+                                            <GradientStop Offset="1" Color="#22ffffff" />
+                                        </LinearGradientBrush>
+                                    </Border.BorderBrush>
+                                    <StackPanel HorizontalAlignment="Center" Orientation="Horizontal">
+                                        <TextBlock
+                                            Margin="3"
+                                            FontSize="17"
+                                            Foreground="#aaa"
+                                            Text="DC电流"
+                                            TextAlignment="Center" />
+                                        <TextBox
+                                            MinWidth="80"
+                                            Margin="3"
+                                            BorderThickness="2"
+                                            FontSize="16"
+                                            Text="{Binding DcSourceControlCurrent}"
+                                            TextAlignment="Center" />
+                                    </StackPanel>
+                                </Border>
+                                <Button
+                                    Margin="4"
+                                    Command="{Binding DcSourceControlCurrentTestCmd}"
+                                    Content="设置电流"
+                                    FontSize="17"
+                                    Style="{StaticResource BtnStyle}" />
+                            </UniformGrid>
+
+                        </GroupBox>
+                    </Expander>
+                </StackPanel>
+
+            </ScrollViewer>
+
             <Grid>
                 <Grid.RowDefinitions>
                     <RowDefinition Height="1.5*" />
                     <RowDefinition />
 
                 </Grid.RowDefinitions>
-                <!--  串口一  -->
-                <GroupBox Margin="10,13,10,0" Style="{StaticResource GroupBoxMachineTypeSty}">
-                    <UniformGrid Margin="10" Columns="2">
-                        <Button
-                            Margin="4"
-                            Command="{Binding OpenCharge}"
-                            Content="充电开启"
-                            FontSize="17"
-                            Style="{StaticResource BtnStyle}" />
-                        <Button
-                            Margin="4"
-                            Command="{Binding CloseCharge}"
-                            Content="充电关闭"
-                            FontSize="17"
-                            Style="{StaticResource BtnStyle}" />
-                        <Button
-                            Margin="4"
-                            Command="{Binding OpenDisCharge}"
-                            Content="放电开启"
-                            FontSize="17"
-                            Style="{StaticResource BtnStyle}" />
-                        <Button
-                            Margin="4"
-                            Command="{Binding CloseDisCharge}"
-                            Content="放电关闭"
-                            FontSize="17"
-                            Style="{StaticResource BtnStyle}" />
-                        <Button
-                            Margin="4"
-                            Command="{Binding OpenLevel1Current}"
-                            Content="一档电流开启"
-                            FontSize="17"
-                            Style="{StaticResource BtnStyle}" />
-                        <Button
-                            Margin="4"
-                            Command="{Binding CloseLevel1Current}"
-                            Content="一档电流关闭"
-                            FontSize="17"
-                            Style="{StaticResource BtnStyle}" />
-                        <Button
-                            Margin="4"
-                            Command="{Binding OpenLevel2Current}"
-                            Content="二档电流开启"
-                            FontSize="17"
-                            Style="{StaticResource BtnStyle}" />
-                        <Button
-                            Margin="4"
-                            Command="{Binding CloseLevel2Current}"
-                            Content="二档电流关闭"
-                            FontSize="17"
-                            Style="{StaticResource BtnStyle}" />
-                        <Button
-                            Margin="4"
-                            Command="{Binding OpenLevel3Current}"
-                            Content="三挡电流开启"
-                            FontSize="17"
-                            Style="{StaticResource BtnStyle}" />
-                        <Button
-                            Margin="4"
-                            Command="{Binding CloseLevel3Current}"
-                            Content="三挡电流关闭"
-                            FontSize="17"
-                            Style="{StaticResource BtnStyle}" />
-                        <Button
-                            Margin="4"
-                            Command="{Binding OpenChargeMOS1}"
-                            Content="充放电MOS管1开启"
-                            FontSize="17"
-                            Style="{StaticResource BtnStyle}" />
-                        <Button
-                            Margin="4"
-                            Command="{Binding CloseChargeMOS1}"
-                            Content="充放电MOS管1关闭"
-                            FontSize="17"
-                            Style="{StaticResource BtnStyle}" />
-                        <Button
-                            Margin="4"
-                            Command="{Binding OpenChargeMOS2}"
-                            Content="开启充电MOS管2"
-                            FontSize="17"
-                            Style="{StaticResource BtnStyle}" />
-                        <Button
-                            Margin="4"
-                            Command="{Binding CloseChargeMOS2}"
-                            Content="关闭充电MOS管2"
-                            FontSize="17"
-                            Style="{StaticResource BtnStyle}" />
-                        <Button
-                            Margin="4"
-                            Command="{Binding LowPowerVoltageAndCurrentCmd}"
-                            Content="开启预留继电器1"
-                            FontSize="17"
-                            Style="{StaticResource BtnStyle}" />
-                        <Button
-                            Margin="4"
-                            Command="{Binding Relay2ControlTestCmd}"
-                            Content="开启预留继电器2"
-                            FontSize="17"
-                            Style="{StaticResource BtnStyle}" />
-                        <Button
-                            Margin="4"
-                            Command="{Binding Relay3ControlTestCmd}"
-                            Content="开启预留继电器3"
-                            FontSize="17"
-                            Style="{StaticResource BtnStyle}" />
-                        <Button
-                            Margin="4"
-                            Command="{Binding Relay4ControlTestCmd}"
-                            Content="开启预留继电器4"
-                            FontSize="17"
-                            Style="{StaticResource BtnStyle}" />
-                    </UniformGrid>
-                </GroupBox>
-                <!--  串口二  -->
-                <GroupBox
-                    Grid.Row="1"
-                    Margin="10,10,10,15"
-                    Style="{StaticResource GroupBoxMachineTypeSty}">
-                    <UniformGrid Margin="10" Columns="2">
-                        <Button
-                            Margin="4"
-                            Command="{Binding ReadChargeCurrentAdjustParameterCmd}"
-                            Content="读取充电校准系数"
-                            FontSize="17"
-                            Style="{StaticResource BtnStyle}" />
-                        <Button
-                            Margin="4"
-                            Command="{Binding ReadDischargeCurrentAdjustParameterCmd}"
-                            Content="读取放电校准系数"
-                            FontSize="17"
-                            Style="{StaticResource BtnStyle}" />
-                        <Button
-                            Margin="4"
-                            Command="{Binding WriteChargeCurrentAdjustParameterCmd}"
-                            Content="写入充电校准系数"
-                            FontSize="17"
-                            Style="{StaticResource BtnStyle}" />
-                        <Button
-                            Margin="4"
-                            Command="{Binding WriteDischargeCurrentAdjustParameterCmd}"
-                            Content="写入放电校准系数"
-                            FontSize="17"
-                            Style="{StaticResource BtnStyle}" />
-                        <Button
-                            Margin="4"
-                            Command="{Binding OpenLimitedCurrentCmd}"
-                            Content="开启限流开关"
-                            FontSize="17"
-                            Style="{StaticResource BtnStyle}" />
-                        <Button
-                            Margin="4"
-                            Command="{Binding CloseLimitedCurrentCmd}"
-                            Content="关闭限流开关"
-                            FontSize="17"
-                            Style="{StaticResource BtnStyle}" />
-                        <Button
-                            Margin="4"
-                            Command="{Binding ReadCurrentCmd}"
-                            Content="读取电流"
-                            FontSize="17"
-                            Style="{StaticResource BtnStyle}" />
-                        <Button
-                            Margin="4"
-                            Content=""
-                            FontSize="17"
-                            Style="{StaticResource BtnStyle}" />
-                        <Button
-                            Margin="4"
-                            Command="{Binding OpenDcSourceSwitchCmd}"
-                            Content="开启DC电源"
-                            FontSize="17"
-                            Style="{StaticResource BtnStyle}" />
-                        <Button
-                            Margin="4"
-                            Command="{Binding CloseDcSourceSwitchTestCmd}"
-                            Content="关闭DC电源"
-                            FontSize="17"
-                            Style="{StaticResource BtnStyle}" />
-                        <Border BorderThickness="1" CornerRadius="5">
-                            <Border.BorderBrush>
-                                <LinearGradientBrush StartPoint="0,0" EndPoint="1,0">
-                                    <GradientStop Offset="0" Color="#22ffffff" />
-                                    <GradientStop Offset="0.5" Color="#77ffffff" />
-                                    <GradientStop Offset="1" Color="#22ffffff" />
-                                </LinearGradientBrush>
-                            </Border.BorderBrush>
-                            <StackPanel HorizontalAlignment="Center" Orientation="Horizontal">
-                                <TextBlock
-                                    Margin="3"
-                                    FontSize="17"
-                                    Foreground="#aaa"
-                                    Text="DC电压"
-                                    TextAlignment="Center" />
-                                <TextBox
-                                    MinWidth="80"
-                                    Margin="3"
-                                    BorderThickness="2"
-                                    FontSize="16"
-                                    Text="{Binding DcSourceControlVoltage}"
-                                    TextAlignment="Center" />
-                            </StackPanel>
-                        </Border>
-                        <Button
-                            Margin="4"
-                            Command="{Binding DcSourceControlVoltageTestCmd}"
-                            Content="设置电压"
-                            FontSize="17"
-                            Style="{StaticResource BtnStyle}" />
-                        <Border BorderThickness="1" CornerRadius="5">
-                            <Border.BorderBrush>
-                                <LinearGradientBrush StartPoint="0,0" EndPoint="1,0">
-                                    <GradientStop Offset="0" Color="#22ffffff" />
-                                    <GradientStop Offset="0.5" Color="#77ffffff" />
-                                    <GradientStop Offset="1" Color="#22ffffff" />
-                                </LinearGradientBrush>
-                            </Border.BorderBrush>
-                            <StackPanel HorizontalAlignment="Center" Orientation="Horizontal">
-                                <TextBlock
-                                    Margin="3"
-                                    FontSize="17"
-                                    Foreground="#aaa"
-                                    Text="DC电流"
-                                    TextAlignment="Center" />
-                                <TextBox
-                                    MinWidth="80"
-                                    Margin="3"
-                                    BorderThickness="2"
-                                    FontSize="16"
-                                    Text="{Binding DcSourceControlCurrent}"
-                                    TextAlignment="Center" />
-                            </StackPanel>
-                        </Border>
-                        <Button
-                            Margin="4"
-                            Command="{Binding DcSourceControlCurrentTestCmd}"
-                            Content="设置电流"
-                            FontSize="17"
-                            Style="{StaticResource BtnStyle}" />
-                    </UniformGrid>
 
-                </GroupBox>
+
+
 
             </Grid>
-
             <Button
                 Grid.Row="1"
                 Margin="5"
@@ -695,10 +736,10 @@
                 Tag="&#xe691;"
                 Visibility="{Binding StopVisible}" />
 
+
+
+
         </Grid>
-
-
-
         <!--  底边  -->
         <Border
             Grid.Row="2"
@@ -707,11 +748,5 @@
             Margin="5"
             Background="#1118aabd"
             CornerRadius="5" />
-
-
-
-
-
-
     </Grid>
 </UserControl>

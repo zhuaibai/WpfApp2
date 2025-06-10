@@ -8,7 +8,11 @@ namespace WpfApp2.Tools
 {
     public class ByteConverter
     {
-        // 把无符号数字转换为两个字节（大端在后）
+        /// <summary>
+        /// 把无符号数字转换为两个字节（大端在后）
+        /// </summary>
+        /// <param name="number"></param>
+        /// <returns></returns>
         public static byte[] NumberToBytes(ushort number)
         {
             byte[] bytes = new byte[2];
@@ -17,7 +21,12 @@ namespace WpfApp2.Tools
             return bytes;
         }
 
-        // 把两个字节（大端在后）转换回无符号数字
+        /// <summary>
+        /// 把两个字节（大端在后）转换回无符号数字
+        /// </summary>
+        /// <param name="bytes"></param>
+        /// <returns></returns>
+        /// <exception cref="ArgumentException"></exception>
         public static ushort BytesToNumber(byte[] bytes)
         {
             if (bytes.Length != 2)
@@ -27,7 +36,11 @@ namespace WpfApp2.Tools
             return (ushort)((bytes[1] << 8) | bytes[0]); // 高字节左移8位后与低字节相或
         }
 
-        // 把无符号数字转换为两个字节（大端在前）
+        /// <summary>
+        /// 把无符号数字转换为两个字节（大端在前）
+        /// </summary>
+        /// <param name="number"></param>
+        /// <returns></returns>
         public static byte[] NumberToBytesNormal(ushort number)
         {
             byte[] bytes = new byte[2];

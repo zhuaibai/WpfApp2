@@ -409,9 +409,87 @@ namespace WpfApp2.Tools
 
                 if (CRC_CHECK)
                 {
-                    byte[] bms = new byte[returnCount - 5];
-                    Array.Copy(buffer, 3, bms, 0, returnCount - 5);
+                    byte[] bms = new byte[2];
+                    if (returnCount == 8)
+                    {
+                         bms = new byte[returnCount - 6];
+                        Array.Copy(buffer, 4, bms, 0, returnCount - 6);
+                    }
+                    else if(returnCount == 7)
+                    {
+                        bms = new byte[returnCount - 5];
+                        Array.Copy(buffer, 3, bms, 0, returnCount - 5);
+                    }
+                    
                     return bms;
+                }
+                else
+                {
+                    return new byte[] { 0x01 };//CRC校验不通过
+                }
+
+
+            }
+            catch (TimeoutException ex)
+            {
+                // 超时未
+                //MessageBox.Show("超时未收到ACK");
+
+                return new byte[] { 0x02 };//超时
+            }
+            catch (Exception ex)
+            {
+                return Array.Empty<byte>();
+            }
+            finally
+            {
+                _semaphore.Release();
+            }
+        }
+
+
+        /// <summary>
+        /// 发送测试指令
+        /// </summary>
+        /// <param name="command">测试指令(字节数组)</param>
+        /// <param name="returnCount">返回字节长度</param>
+        /// <returns>提取的数据(或异常字节编码)</returns>
+        public static byte[] SendTestCommand2(byte[] command, int returnCount)
+        {
+            _semaphore.Wait();
+            int totalBytesRead = 0;
+
+            //收报文
+            try
+            {
+                //在写命令之前先清空一下接受缓存
+                SerialPort.DiscardInBuffer();
+                SerialPort.WriteTimeout = 1000;
+                //写命令
+                byte[] Command = command;
+                SerialPort.Write(Command, 0, Command.Length);
+
+                // 设置读取超时时间【1s】
+                SerialPort.ReadTimeout = 1000;
+                // 需要读取的字节数
+                int bytesToRead = returnCount;
+                //读取输入缓冲区
+                byte[] buffer = new byte[bytesToRead];
+                totalBytesRead = 0;
+                //设置读取超时，1s内达不到所需字节就触发超时异常
+                while (totalBytesRead < bytesToRead)
+                {
+                    int bytesRead = SerialPort.Read(buffer, totalBytesRead, bytesToRead - totalBytesRead);
+                    totalBytesRead += bytesRead;
+                }
+
+                //进行CRC校验
+                bool CRC_CHECK = CheckReceive_CRC16(buffer);
+
+                if (CRC_CHECK)
+                {
+                    
+                    return buffer;
                 }
                 else
                 {

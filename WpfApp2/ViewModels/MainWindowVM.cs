@@ -19,33 +19,33 @@ using WpfApp2.UserControls;
 
 namespace WpfApp2.ViewModels
 {
-    public class MainWindowVM:BaseViewModel
+    public class MainWindowVM : BaseViewModel
     {
-		public MainWindowVM()
-		{
-			//初始化
-			Init();
-		}
+        public MainWindowVM()
+        {
+            //初始化
+            Init();
+        }
 
         #region 初始化
         /// <summary>
         /// 初始化
         /// </summary>
         private void Init()
-		{
-           
+        {
+
             //数据库路径
             SQLiteHelper.ConnectionString = "Data Source=MyDatabase.db;Version=3;";
             InitTestItems();
 
-             //初始化串口通讯设置
+            //初始化串口通讯设置
             SerialPort1 = new SerialPortSettingViewModel();
-			SerialPort2 = new SerialPortSettingViewModel_2();
+            SerialPort2 = new SerialPortSettingViewModel_2();
 
-			//初始化UC
-			TestUC = new TestViewUC();
-			TestUC.DataContext = this;
-			SetViewUC = new SetProtolViewUC();
+            //初始化UC
+            TestUC = new TestViewUC();
+            TestUC.DataContext = this;
+            SetViewUC = new SetProtolViewUC();
 
             //初始化命令
             StartCommand = new RelayCommand(StartBackgroundThread);
@@ -55,7 +55,7 @@ namespace WpfApp2.ViewModels
 
             //添加自动滚动功能
             TestUC.SetupScrolling();    //日志自动滚动
-           
+
         }
         #endregion
 
@@ -63,12 +63,12 @@ namespace WpfApp2.ViewModels
 
         //地址
         static string MachineCfgPath = "MachineTypes/";
-        private bool _isOption1Selected =true;
+        private bool _isOption1Selected = true;
         private bool _isOption2Selected;
         private bool _isOption3Selected;
         private bool _isOption4Selected;
         //选择的机型
-        private string SelectedValue="选项1";
+        private string SelectedValue = "选项1";
 
         public bool IsOption1Selected
         {
@@ -111,7 +111,7 @@ namespace WpfApp2.ViewModels
                     SelectedValue = "选项3";
                 }
             }
-        } 
+        }
         public bool IsOption4Selected
         {
             get => _isOption4Selected;
@@ -127,12 +127,13 @@ namespace WpfApp2.ViewModels
             }
         }
 
-       
+
 
         //测试机器
         private MachineType _testMachine;
         public MachineType testMachine
-        { get
+        {
+            get
             {
                 return _testMachine;
             }
@@ -140,17 +141,17 @@ namespace WpfApp2.ViewModels
             {
                 _testMachine = value;
                 OnPropertyChanged();
-            }           
+            }
         }
 
         //机器类型一
         public MachineTypeVM machineTypeVM_1 { get; set; } = new MachineTypeVM(MachineCfgPath + "machine1.xml");
         //机器类型二
-        public MachineTypeVM machineTypeVM_2 { get; set; } = new MachineTypeVM(MachineCfgPath+ "machine2.xml");
+        public MachineTypeVM machineTypeVM_2 { get; set; } = new MachineTypeVM(MachineCfgPath + "machine2.xml");
         //机器类型三
-        public MachineTypeVM machineTypeVM_3 { get; set; } = new MachineTypeVM(MachineCfgPath+ "machine3.xml");
+        public MachineTypeVM machineTypeVM_3 { get; set; } = new MachineTypeVM(MachineCfgPath + "machine3.xml");
         //机器类型四
-        public MachineTypeVM machineTypeVM_4 { get; set; } = new MachineTypeVM(MachineCfgPath+"machine4.xml");
+        public MachineTypeVM machineTypeVM_4 { get; set; } = new MachineTypeVM(MachineCfgPath + "machine4.xml");
 
         public ICommand SelectedMachine { get; set; }
 
@@ -164,7 +165,7 @@ namespace WpfApp2.ViewModels
             switch (parameter)
             {
                 case "选项1":
-                    
+
                     //测试机器类型实例化
                     testMachine = new MachineType
                     {
@@ -267,17 +268,17 @@ namespace WpfApp2.ViewModels
         #region 测试项目显示
         public ObservableCollection<TestItem> TestItems { get; set; }
 
-        private  TestItemService _service;
+        private TestItemService _service;
 
         /// <summary>
         /// 加载对应数据库项目项目显示
         /// </summary>
         /// <param name="sql">创建数据库表的指令</param>
         private void InitTestItems(string table)
-		{
+        {
             //加载新的数据表
             _service = new TestItemService(table);
-            
+
 
             // 初始化数据库表
             _service.CreateTable();
@@ -286,7 +287,7 @@ namespace WpfApp2.ViewModels
             LoadTestItems();
 
             //测试项自动滚动
-            TestUC.SetupScrolling2();   
+            TestUC.SetupScrolling2();
         }
 
         /// <summary>
@@ -316,19 +317,19 @@ namespace WpfApp2.ViewModels
                 TestItems.Add(item);
             }
         }
-		
-		/// <summary>
-		/// 添加项目到数据库
-		/// </summary>
-		/// <param name="item"></param>
-		private void AddTestItem(TestItem item)
-		{
-			if (item != null)
-			{
-				_service.AddTestItem(item);
-			}
-			LoadTestItems();
-		}
+
+        /// <summary>
+        /// 添加项目到数据库
+        /// </summary>
+        /// <param name="item"></param>
+        private void AddTestItem(TestItem item)
+        {
+            if (item != null)
+            {
+                _service.AddTestItem(item);
+            }
+            LoadTestItems();
+        }
 
         #endregion
 
@@ -354,7 +355,7 @@ namespace WpfApp2.ViewModels
                 LogEntries.Add(logEntry);
                 if (LogEntries.Count > 100) LogEntries.RemoveAt(0);
             });
-           SaveLogToFile($"【{logEntry.Time}】  {log}");
+            SaveLogToFile($"【{logEntry.Time}】  {log}");
         }
 
         /// <summary>
@@ -364,7 +365,7 @@ namespace WpfApp2.ViewModels
         {
             LogEntries.Clear();
         }
-       
+
         /// <summary>
         /// 保存一条日志到本地
         /// </summary>
@@ -397,7 +398,7 @@ namespace WpfApp2.ViewModels
                 AddLog($"写入日志文件时出错: {ex.Message}");
             }
         }
-        
+
 
 
 
@@ -406,39 +407,41 @@ namespace WpfApp2.ViewModels
         #region 主体界面
 
         SetProtolViewUC SetViewUC;
-		TestViewUC TestUC;
+        TestViewUC TestUC;
 
         private UserControl _ContentControl;
 
-		public UserControl ContentControl
-		{
-			get {
-				if(_ContentControl == null)
-				{
-					_ContentControl = SetViewUC;
-				}
-				return _ContentControl; }
-			set
-			{
-				_ContentControl = value;
-				this.RaiseProperChanged(nameof(ContentControl));
-			}
-		}
+        public UserControl ContentControl
+        {
+            get
+            {
+                if (_ContentControl == null)
+                {
+                    _ContentControl = SetViewUC;
+                }
+                return _ContentControl;
+            }
+            set
+            {
+                _ContentControl = value;
+                this.RaiseProperChanged(nameof(ContentControl));
+            }
+        }
 
         public ICommand SwitchUC
         {
             get
-			{
-				return new RelayCommand(SwitchContentUC);
-			} 
-		}
+            {
+                return new RelayCommand(SwitchContentUC);
+            }
+        }
 
-		private bool UC_Tga = false;
-		private void SwitchContentUC()
-		{
-			
-			if (UC_Tga)
-			{
+        private bool UC_Tga = false;
+        private void SwitchContentUC()
+        {
+
+            if (UC_Tga)
+            {
                 //测试界面跳转配置界面
 
                 //关闭串口
@@ -451,10 +454,10 @@ namespace WpfApp2.ViewModels
                 {
                     MessageBox.Show("关闭串口失败");
                 }
-				
-			}
-			else
-			{
+
+            }
+            else
+            {
                 //配置界面跳转测试界面
 
                 //更新串口信息
@@ -468,9 +471,9 @@ namespace WpfApp2.ViewModels
                     ContentControl = TestUC;
                     UC_Tga = true;
                 }
-               
-			}
-		}
+
+            }
+        }
 
         #endregion
 
@@ -516,6 +519,10 @@ namespace WpfApp2.ViewModels
             }
         }
 
+        /// <summary>
+        /// 关闭串口
+        /// </summary>
+        /// <returns></returns>
         private bool CloseCom()
         {
             return SerialCommunicationService.CloseCom() && SerialCommunicationService2.CloseCom();
@@ -524,28 +531,42 @@ namespace WpfApp2.ViewModels
         //串口通讯设置一
         private SerialPortSettingViewModel _serialPort1;
 
-		public SerialPortSettingViewModel SerialPort1	
-		{
-			get { return _serialPort1; }
-			set
-			{
+        public SerialPortSettingViewModel SerialPort1
+        {
+            get { return _serialPort1; }
+            set
+            {
                 _serialPort1 = value;
-				this.RaiseProperChanged(nameof(SerialPort1));
-			}
-		}
+                this.RaiseProperChanged(nameof(SerialPort1));
+            }
+        }
 
-		//串口通讯设置二
-		private SerialPortSettingViewModel_2 _serialPort2;
+        //串口通讯设置二
+        private SerialPortSettingViewModel_2 _serialPort2;
 
-		public SerialPortSettingViewModel_2 SerialPort2
-		{
-			get { return _serialPort2; }
-			set
-			{
-				_serialPort2 = value;
-				this.RaiseProperChanged(nameof(SerialPort2));
-			}
-		}
+        public SerialPortSettingViewModel_2 SerialPort2
+        {
+            get { return _serialPort2; }
+            set
+            {
+                _serialPort2 = value;
+                this.RaiseProperChanged(nameof(SerialPort2));
+            }
+        }
+
+        //全局接收的状态显示
+        private BmsSystemparametersReceive _BMS_Receive;
+
+        public BmsSystemparametersReceive BMS_Receive
+        {
+            get { return _BMS_Receive; }
+            set
+            {
+                _BMS_Receive = value;
+                this.RaiseProperChanged(nameof(BMS_Receive));
+            }
+        }
+
 
 
         #endregion
@@ -555,19 +576,20 @@ namespace WpfApp2.ViewModels
         private CancellationTokenSource _cts = new CancellationTokenSource();//取消线程专用
         private ManualResetEventSlim _pauseEvent = new ManualResetEventSlim(true);//暂停线程专用
         private readonly SemaphoreSlim _semaphore = new SemaphoreSlim(1, 1); // 异步竞争	
-        private BmsSystemParametersSending parametersSending = new BmsSystemParametersSending() { CommunicationVersion=1001,ChargeDischargeMosfet2Control=1,LowerRelay1Control=1,Relay2Control=1,Relay3Control=1}; //发送指令实体类初始化，默认MOS管2开启
-        
+        private BmsSystemParametersSending parametersSending = new BmsSystemParametersSending() { CommunicationVersion = 1001, ChargeDischargeMosfet2Control = 1, LowerRelay1Control = 1, Relay2Control = 1, Relay3Control = 1 }; //发送指令实体类初始化，默认MOS管2开启
+
 
         #region 开始、停止按钮的互相切换
-        private Visibility _visibility=Visibility.Visible;
+        private Visibility _visibility = Visibility.Visible;
 
         //开始按钮可视
-        public Visibility StartVisible { 
+        public Visibility StartVisible
+        {
             get
             {
                 return _visibility;
             }
-            set 
+            set
             {
                 _visibility = value;
                 OnPropertyChanged();
@@ -577,16 +599,17 @@ namespace WpfApp2.ViewModels
         private Visibility _visibility2 = Visibility.Collapsed;
 
         //停止按钮可视化
-        public Visibility StopVisible {
+        public Visibility StopVisible
+        {
             get
             {
                 return _visibility2;
             }
-            set 
+            set
             {
-                _visibility2=value;
+                _visibility2 = value;
                 OnPropertyChanged();
-            } 
+            }
         }
 
         /// <summary>
@@ -676,11 +699,11 @@ namespace WpfApp2.ViewModels
             bool flag = false;//测试成功与否
             try
             {
-               
+
                 while (!token.IsCancellationRequested)
                 {
-                   
-                    for(i = 0; i < TestItems.Count;)
+
+                    for (i = 0; i < TestItems.Count;)
                     {
                         //单独把合格设为true，界面显示正在测试颜色
                         TestItems[i].IsImportant = true;
@@ -698,58 +721,25 @@ namespace WpfApp2.ViewModels
                             //修改成已测试
                             TestItems[i].Flag = 1;
                             //测试不合格
-                            MessageBoxResult boxResult = MessageBox.Show("是否继续？", "测试暂停", MessageBoxButton.YesNo,MessageBoxImage.Question);
-                            if(boxResult == MessageBoxResult.No)
+                            MessageBoxResult boxResult = MessageBox.Show("是否继续？", "测试暂停", MessageBoxButton.YesNo, MessageBoxImage.Question);
+                            if (boxResult == MessageBoxResult.No)
                             {
-                                StopBackgroundThread();                               
+                                StopBackgroundThread();
                                 break;
                             }
                         }
                         else
                         {
-                            //测试合格，下一项
-                            
                             AddLog($"{TestItems[i].Name}测试通过");
                             //修改测试结果(true = 通过, false = 失败)
                             TestItems[i].IsImportant = true;
                             //修改成已测试
                             TestItems[i].Flag = 1;
+                            //测试合格，下一项
                             i++;
                         }
                     }
                     Application.Current.Dispatcher.Invoke(() => ShowBubble("测试结束"));
-                   
-                    //if (i++ < 10)
-                    //{
-                    //    //修改测试结果(true = 通过, false = 失败)
-                    //    TestItems[i].IsImportant = flag;
-                    //    //修改成已测试
-                    //    TestItems[i].Flag = 1;
-                    //    if (i == 3)
-                    //    {
-                    //        MessageBoxResult boxResult = MessageBox.Show("是否继续？", "测试暂停", MessageBoxButton.OKCancel);
-                    //        if (boxResult == MessageBoxResult.OK)
-                    //        {
-
-                    //        }
-                    //        else
-                    //        {
-                    //            StopBackgroundThread();
-                    //        }
-                    //    }
-                    //}
-                    //else
-                    //{
-                    //    Application.Current.Dispatcher.Invoke(() => ShowBubble("一次测试完成"));
-                        
-                    //    ReSetTestItems();
-                    //    i=-1;
-                    //    flag = !flag;
-                    //}
-                    // 模拟常规通信
-                    // await Task.Delay(1000, token);
-
-                    //AddLog($"[后台] 常规通信: {DateTime.Now:HH:mm:ss.fff}");
                 }
             }
             catch (OperationCanceledException)
@@ -757,18 +747,18 @@ namespace WpfApp2.ViewModels
 
             }
             catch (Exception ex)
-            {             
+            {
                 AddLog(ex.ToString());
             }
             finally
             {
                 IsRunning = false;
                 AddLog("已停止");
-            } 
+            }
         }
 
         /// <summary>
-        /// 测试流程
+        /// 测试项目
         /// </summary>
         /// <returns></returns>
         private bool TestProgress(string progressName)
@@ -778,13 +768,13 @@ namespace WpfApp2.ViewModels
                 case "BMS232通讯":
                     AddLog("正在测试BMS232通讯");
                     //进入测试模式1
-                    bool interSuccess= false;
+                    bool interSuccess = false;
                     int ERROR_COUNT = 0;
                     do
                     {
                         ERROR_COUNT++;
                         interSuccess = InterTestMode(1);
-                    }while (!interSuccess&&ERROR_COUNT<10);//最多发十次
+                    } while (!interSuccess && ERROR_COUNT < 10);//最多发十次
 
                     if (interSuccess)
                     {
@@ -793,7 +783,7 @@ namespace WpfApp2.ViewModels
                         do
                         {
                             interSuccess = Bms232CommunicationTset();//BMS232通讯
-                        }while(!interSuccess && ERROR_COUNT<10);
+                        } while (!interSuccess && ERROR_COUNT < 10);
                         if (!interSuccess)
                         {
                             AddLog("测试异常过多");
@@ -869,7 +859,7 @@ namespace WpfApp2.ViewModels
                         return false;
                     }
                 case "BMS并机通讯":
-                    MessageBoxResult boxResult = MessageBox.Show("准备测试BMS并机通讯，请把最左边的拨码打开，确保拨码值为1！", "测试暂停", MessageBoxButton.OK,MessageBoxImage.Warning);
+                    MessageBoxResult boxResult = MessageBox.Show("准备测试BMS并机通讯，请把最左边的拨码打开，确保拨码值为1！", "测试暂停", MessageBoxButton.OK, MessageBoxImage.Warning);
 
                     //进入测试模式1
                     interSuccess = false;
@@ -988,7 +978,7 @@ namespace WpfApp2.ViewModels
                         if (!interSuccess)
                         {
                             AddLog("测试异常");
-                            return false ;
+                            return false;
                         }
                         //干节点测试成功，退出测试模式
                         AddLog("干节点测试合格，即将退出测试模式");
@@ -1004,12 +994,12 @@ namespace WpfApp2.ViewModels
                 case "低功耗检测":
                     boxResult = MessageBox.Show("准备测试低功耗检测，请按下低功耗开关！", "测试暂停", MessageBoxButton.OK, MessageBoxImage.Warning);
                     ERROR_COUNT = 0;
-     
+
                     //低功耗检测
                     do
                     {
                         ERROR_COUNT++;
-                        interSuccess = LowPowerVoltageAndCurrent();//低功耗检测
+                        interSuccess = LowPowerVoltageAndCurrent(1);//低功耗检测
                     } while (!interSuccess && ERROR_COUNT < 10);
                     if (!interSuccess)
                     {
@@ -1030,7 +1020,8 @@ namespace WpfApp2.ViewModels
         /// </summary>
         private void ReSetTestItems()
         {
-            foreach( TestItem item in TestItems ){
+            foreach (TestItem item in TestItems)
+            {
                 item.Flag = 0;
                 item.IsImportant = false;
             }
@@ -1062,16 +1053,16 @@ namespace WpfApp2.ViewModels
             byte[] result = SerialCommunicationService.SendTestCommand(sengdingPack, 65);
 
             //解析成帧对象
-            BmsSystemparametersReceive bms = AnalyseBmsReceive(result);
+            BMS_Receive = AnalyseBmsReceive(result);
 
             //判断
-            if (bms == null)
+            if (BMS_Receive == null)
             {
                 return false;
             }
             else
             {
-                if (bms.TestMode == testNum)
+                if (BMS_Receive.TestMode == testNum)
                 {
                     return true;
                 }
@@ -1110,17 +1101,17 @@ namespace WpfApp2.ViewModels
             byte[] result = SerialCommunicationService.SendTestCommand(sengdingPack, 65);
 
             //解析成帧对象
-            BmsSystemparametersReceive bms = AnalyseBmsReceive(result);
+            BMS_Receive = AnalyseBmsReceive(result);
 
             //判断
-            if (bms == null)
+            if (BMS_Receive == null)
             {
                 return false;
             }
             else
             {
                 //判断BMS232通讯是否正常
-                if (bms.Bms232Communication == 1)
+                if (BMS_Receive.Bms232Communication == 1)
                 {
                     return true;
                 }
@@ -1145,17 +1136,17 @@ namespace WpfApp2.ViewModels
             byte[] result = SerialCommunicationService.SendTestCommand(sengdingPack, 65);
 
             //解析
-            BmsSystemparametersReceive bms = AnalyseBmsReceive(result);
+            BMS_Receive = AnalyseBmsReceive(result);
 
             //判断
-            if (bms == null)
+            if (BMS_Receive == null)
             {
                 return false;
             }
             else
             {
                 //判断CAN通讯是否正常
-                if (bms.CanCommunication == 1)
+                if (BMS_Receive.CanCommunication == 1)
                 {
                     return true;
                 }
@@ -1180,17 +1171,17 @@ namespace WpfApp2.ViewModels
             byte[] result = SerialCommunicationService.SendTestCommand(sengdingPack, 65);
 
             //解析
-            BmsSystemparametersReceive bms = AnalyseBmsReceive(result);
+            BMS_Receive = AnalyseBmsReceive(result);
 
             //判断
-            if (bms == null)
+            if (BMS_Receive == null)
             {
                 return false;
             }
             else
             {
                 //判断BMS逆变器通讯是否正常
-                if (bms.BmsInverterCommunication == 1)
+                if (BMS_Receive.BmsInverterCommunication == 1)
                 {
                     return true;
                 }
@@ -1215,17 +1206,17 @@ namespace WpfApp2.ViewModels
             byte[] result = SerialCommunicationService.SendTestCommand(sengdingPack, 65);
 
             //解析
-            BmsSystemparametersReceive bms = AnalyseBmsReceive(result);
+            BMS_Receive = AnalyseBmsReceive(result);
 
             //判断
-            if (bms == null)
+            if (BMS_Receive == null)
             {
                 return false;
             }
             else
             {
                 //判断BMS逆变器通讯是否正常
-                if (bms.BmsParallelCommunication == 1)
+                if (BMS_Receive.BmsParallelCommunication == 1)
                 {
                     return true;
                 }
@@ -1250,17 +1241,17 @@ namespace WpfApp2.ViewModels
             byte[] result = SerialCommunicationService.SendTestCommand(sengdingPack, 65);
 
             //解析
-            BmsSystemparametersReceive bms = AnalyseBmsReceive(result);
+            BMS_Receive = AnalyseBmsReceive(result);
 
             //判断
-            if (bms == null)
+            if (BMS_Receive == null)
             {
                 return false;
             }
             else
             {
                 //判断复位开关是否正常
-                if (bms.ResetSwitchStatus == 1)
+                if (BMS_Receive.ResetSwitchStatus == 1)
                 {
                     return true;
                 }
@@ -1285,17 +1276,17 @@ namespace WpfApp2.ViewModels
             byte[] result = SerialCommunicationService.SendTestCommand(sengdingPack, 65);
 
             //解析
-            BmsSystemparametersReceive bms = AnalyseBmsReceive(result);
+            BMS_Receive = AnalyseBmsReceive(result);
 
             //判断
-            if (bms == null)
+            if (BMS_Receive == null)
             {
                 return false;
             }
             else
             {
                 //判断拨码开关
-                if (bms.DIPSwitchValue == 15)
+                if (BMS_Receive.DIPSwitchValue == 15)
                 {
                     return true;
                 }
@@ -1320,17 +1311,17 @@ namespace WpfApp2.ViewModels
             byte[] result = SerialCommunicationService.SendTestCommand(sengdingPack, 65);
 
             //解析
-            BmsSystemparametersReceive bms = AnalyseBmsReceive(result);
+            BMS_Receive = AnalyseBmsReceive(result);
 
             //判断
-            if (bms == null)
+            if (BMS_Receive == null)
             {
                 return false;
             }
             else
             {
                 //判断干节点开关是否正常
-                if (bms.Relay1Status == 1 && bms.Relay2Status == 1)
+                if (BMS_Receive.Relay1Status == 1 && BMS_Receive.Relay2Status == 1)
                 {
                     return true;
                 }
@@ -1355,17 +1346,17 @@ namespace WpfApp2.ViewModels
             byte[] result = SerialCommunicationService.SendTestCommand(sengdingPack, 65);
 
             //解析
-            BmsSystemparametersReceive bms = AnalyseBmsReceive(result);
+            BMS_Receive = AnalyseBmsReceive(result);
 
             //判断
-            if (bms == null)
+            if (BMS_Receive == null)
             {
                 return false;
             }
             else
             {
                 //判断是否退出测试模式
-                if (bms.TestMode == 0)
+                if (BMS_Receive.TestMode == 0)
                 {
                     return true;
                 }
@@ -1377,12 +1368,12 @@ namespace WpfApp2.ViewModels
         /// 低功耗检测
         /// </summary>
         /// <returns></returns>
-        private bool LowPowerVoltageAndCurrent()
+        private bool LowPowerVoltageAndCurrent(ushort open)
         {
             //测试模式置0(即不在测试模式)
             parametersSending.TestMode = 0;
             //低功耗继电器控制打开
-            parametersSending.LowerRelay1Control = 0;
+            parametersSending.LowerRelay1Control = open;
 
             //拼接字符串
             byte[] sengdingPack = CommunicateTool.ConcatByteArrays(Head, parametersSending.ToByteArray());
@@ -1392,21 +1383,22 @@ namespace WpfApp2.ViewModels
             byte[] result = SerialCommunicationService.SendTestCommand(sengdingPack, 65);
 
             //解析
-            BmsSystemparametersReceive bms = AnalyseBmsReceive(result);
+            BMS_Receive = AnalyseBmsReceive(result);
 
             //判断
-            if (bms == null)
+            if (BMS_Receive == null)
             {
                 return false;
             }
             else
             {
                 //判断是否是普通模式
-                if (bms.TestMode == 0)
+                if (BMS_Receive.TestMode == 0)
                 {
-                    if (bms.LowerRelay1Control != 1)
+                    if (BMS_Receive.LowerRelay1Control == open)
                     {
-                        AddLog("低功耗继电器关闭成功");
+                        AddLog("低功耗继电器操作成功");
+                        return true;
                     }
                     //if (bms.LowPowerVoltage <= 300 & bms.LowPowerCurrent <= 300)
                     //    return true;
@@ -1428,12 +1420,12 @@ namespace WpfApp2.ViewModels
         /// 预留继电器2
         /// </summary>
         /// <returns></returns>
-        private bool Relay2ControlTest()
+        private bool Relay2ControlTest(ushort open)
         {
             //测试模式置0(即不在测试模式)
             parametersSending.TestMode = 0;
             //低功耗继电器控制打开
-            parametersSending.Relay2Control = 0;
+            parametersSending.LowerRelay1Control = open;
 
             //拼接字符串
             byte[] sengdingPack = CommunicateTool.ConcatByteArrays(Head, parametersSending.ToByteArray());
@@ -1443,25 +1435,26 @@ namespace WpfApp2.ViewModels
             byte[] result = SerialCommunicationService.SendTestCommand(sengdingPack, 65);
 
             //解析
-            BmsSystemparametersReceive bms = AnalyseBmsReceive(result);
+            BMS_Receive = AnalyseBmsReceive(result);
 
             //判断
-            if (bms == null)
+            if (BMS_Receive == null)
             {
                 return false;
             }
             else
             {
                 //判断是否是普通模式
-                if (bms.TestMode == 0)
+                if (BMS_Receive.TestMode == open)
                 {
-                    if (bms.Relay2Control != 1)
+                    if (BMS_Receive.LowerRelay1Control != open)
                     {
-                        AddLog("预留继电器2打开失败");
+                        AddLog("预留继电器2操作失败");
                     }
                     else
                     {
-                        AddLog($"预留继电器2打开成功");
+                        AddLog($"预留继电器2操作成功");
+                        return true;
                     }
                 }
                 else
@@ -1477,12 +1470,12 @@ namespace WpfApp2.ViewModels
         /// 预留继电器3
         /// </summary>
         /// <returns></returns>
-        private bool Relay3ControlTest()
+        private bool Relay3ControlTest(ushort open)
         {
             //测试模式置0(即不在测试模式)
             parametersSending.TestMode = 0;
             //低功耗继电器控制打开
-            parametersSending.Relay3Control = 0;
+            parametersSending.Relay3Control = open;
 
             //拼接字符串
             byte[] sengdingPack = CommunicateTool.ConcatByteArrays(Head, parametersSending.ToByteArray());
@@ -1492,25 +1485,26 @@ namespace WpfApp2.ViewModels
             byte[] result = SerialCommunicationService.SendTestCommand(sengdingPack, 65);
 
             //解析
-            BmsSystemparametersReceive bms = AnalyseBmsReceive(result);
+            BMS_Receive = AnalyseBmsReceive(result);
 
             //判断
-            if (bms == null)
+            if (BMS_Receive == null)
             {
                 return false;
             }
             else
             {
                 //判断是否是普通模式
-                if (bms.TestMode == 0)
+                if (BMS_Receive.TestMode == 0)
                 {
-                    if (bms.Relay3Control != 1)
+                    if (BMS_Receive.Relay3Control != open)
                     {
-                        AddLog("预留继电器3打开失败");
+                        AddLog("预留继电器3操作失败");
                     }
                     else
                     {
-                        AddLog($"预留继电器3打开成功");
+                        AddLog($"预留继电器3操作成功");
+                        return true;
                     }
                 }
                 else
@@ -1526,12 +1520,12 @@ namespace WpfApp2.ViewModels
         /// 预留继电器4
         /// </summary>
         /// <returns></returns>
-        private bool Relay4ControlTest()
+        private bool Relay4ControlTest(ushort open)
         {
             //测试模式置0(即不在测试模式)
             parametersSending.TestMode = 0;
             //低功耗继电器控制打开
-            parametersSending.Relay4Control = 1;
+            parametersSending.Relay4Control = open;
 
             //拼接字符串
             byte[] sengdingPack = CommunicateTool.ConcatByteArrays(Head, parametersSending.ToByteArray());
@@ -1541,25 +1535,26 @@ namespace WpfApp2.ViewModels
             byte[] result = SerialCommunicationService.SendTestCommand(sengdingPack, 65);
 
             //解析
-            BmsSystemparametersReceive bms = AnalyseBmsReceive(result);
+            BMS_Receive = AnalyseBmsReceive(result);
 
             //判断
-            if (bms == null)
+            if (BMS_Receive == null)
             {
                 return false;
             }
             else
             {
                 //判断是否是普通模式
-                if (bms.TestMode == 0)
+                if (BMS_Receive.TestMode == 0)
                 {
-                    if (bms.Relay4Control != 1)
+                    if (BMS_Receive.Relay4Control != open)
                     {
-                        AddLog("预留继电器4打开失败");
+                        AddLog("预留继电器4操作失败");
                     }
                     else
                     {
-                        AddLog($"预留继电器4打开成功");
+                        AddLog($"预留继电器4操作成功");
+                        return true;
                     }
                 }
                 else
@@ -1590,19 +1585,19 @@ namespace WpfApp2.ViewModels
             byte[] result = SerialCommunicationService.SendTestCommand(sengdingPack, 65);
 
             //解析
-            BmsSystemparametersReceive bms = AnalyseBmsReceive(result);
+            BMS_Receive = AnalyseBmsReceive(result);
 
             //判断
-            if (bms == null)
+            if (BMS_Receive == null)
             {
                 return false;
             }
             else
             {
                 //判断是否是普通模式
-                if (bms.TestMode == 0)
+                if (BMS_Receive.TestMode == 0)
                 {
-                    if (bms.DcSourceSwitch != 1)
+                    if (BMS_Receive .DcSourceSwitch != 1)
                     {
                         AddLog("DC控制开关打开失败");
                     }
@@ -1640,19 +1635,19 @@ namespace WpfApp2.ViewModels
             byte[] result = SerialCommunicationService.SendTestCommand(sengdingPack, 65);
 
             //解析
-            BmsSystemparametersReceive bms = AnalyseBmsReceive(result);
+            BMS_Receive = AnalyseBmsReceive(result);
 
             //判断
-            if (bms == null)
+            if (BMS_Receive == null)
             {
                 return false;
             }
             else
             {
                 //判断是否是普通模式
-                if (bms.TestMode == 0)
+                if (BMS_Receive.TestMode == 0)
                 {
-                    if (bms.DcSourceSwitch != 0)
+                    if (BMS_Receive.DcSourceSwitch != 0)
                     {
                         AddLog("DC控制开关关闭失败");
                     }
@@ -1707,19 +1702,19 @@ namespace WpfApp2.ViewModels
             byte[] result = SerialCommunicationService.SendTestCommand(sengdingPack, 65);
 
             //解析
-            BmsSystemparametersReceive bms = AnalyseBmsReceive(result);
+            BMS_Receive = AnalyseBmsReceive(result);
 
             //判断
-            if (bms == null)
+            if (BMS_Receive == null)
             {
                 return false;
             }
             else
             {
                 //判断是否是普通模式
-                if (bms.TestMode == 0)
+                if (BMS_Receive.TestMode == 0)
                 {
-                    if (bms.DcSourceVoltage !=DcSourceControlVoltage/10 )//实际12，返回120
+                    if (BMS_Receive.DcSourceVoltage != DcSourceControlVoltage / 10)//发1200，实际12，返回120
                     {
                         AddLog("设置DC源控制电压失败");
                     }
@@ -1774,19 +1769,19 @@ namespace WpfApp2.ViewModels
             byte[] result = SerialCommunicationService.SendTestCommand(sengdingPack, 65);
 
             //解析
-            BmsSystemparametersReceive bms = AnalyseBmsReceive(result);
+            BMS_Receive = AnalyseBmsReceive(result);
 
             //判断
-            if (bms == null)
+            if (BMS_Receive == null)
             {
                 return false;
             }
             else
             {
                 //判断是否是普通模式
-                if (bms.TestMode == 0)
+                if (BMS_Receive.TestMode == 0)
                 {
-                    if (bms.DcSourceCurrent != DcSourceControlCurrent)//实际0.1，返回10
+                    if (BMS_Receive.DcSourceCurrent != DcSourceControlCurrent)//实际0.1，返回10
                     {
                         AddLog("DC源电流设置失败");
                     }
@@ -1819,7 +1814,7 @@ namespace WpfApp2.ViewModels
                 //打开继电器4
                 IsSuccess = OpenOrCloseChargeDischargeRelayControl(4, true);
                 failCount++;
-            } while (!IsSuccess && failCount<=10);
+            } while (!IsSuccess && failCount <= 10);
             if (!IsSuccess)
             {
                 AddLog("打开继电器4失败");
@@ -1830,9 +1825,9 @@ namespace WpfApp2.ViewModels
             failCount = 0;
             do
             {
-                IsSuccess = OpenOrCloseChargeDischargeRelayControl(5,false);
+                IsSuccess = OpenOrCloseChargeDischargeRelayControl(5, false);
                 failCount += 1;
-            }while (!IsSuccess && failCount<=10);
+            } while (!IsSuccess && failCount <= 10);
             if (!IsSuccess)
             {
                 AddLog("关闭继电器5失败");
@@ -1846,7 +1841,7 @@ namespace WpfApp2.ViewModels
         /// </summary>
         /// <param name="level">电流档位</param>
         /// <returns></returns>
-        private bool OpenOrCloseCurrentLevel(int level,bool open)
+        private bool OpenOrCloseCurrentLevel(int level, bool open)
         {
             int failCount = 0;
             bool IsSuccess = false;
@@ -1866,7 +1861,8 @@ namespace WpfApp2.ViewModels
                     IsSuccess = OpenOrCloseChargeDischargeRelayControl(2, open);
                     failCount++;
                 } while (!IsSuccess && failCount <= 10);
-            }else if (level == 3)
+            }
+            else if (level == 3)
             {
                 do
                 {
@@ -1874,7 +1870,7 @@ namespace WpfApp2.ViewModels
                     failCount++;
                 } while (!IsSuccess && failCount <= 10);
             }
-            
+
             if (!IsSuccess)
             {
                 string msg = open ? "开启" : "关闭";
@@ -1887,7 +1883,7 @@ namespace WpfApp2.ViewModels
                 AddLog($"{msg}{level}档电流成功");
                 return true;
             }
-                
+
         }
 
         /// <summary>
@@ -1900,22 +1896,24 @@ namespace WpfApp2.ViewModels
             bool IsSuccess = false;
             do
             {
-                IsSuccess = OpenOrCloseChargeDischargeMosfetControl(1,true);
-                failCount ++ ;
-            }while (!IsSuccess && failCount<=10);
+                IsSuccess = OpenOrCloseChargeDischargeMosfetControl(1, true);
+                failCount++;
+            } while (!IsSuccess && failCount <= 10);
             if (!IsSuccess)
             {
                 AddLog("打开MOS管1失败");
                 return false;
-            }else {
+            }
+            else
+            {
                 AddLog("打开MOS管1成功");
             };
 
             do
             {
-                IsSuccess = OpenOrCloseChargeDischargeMosfetControl(2,false);
+                IsSuccess = OpenOrCloseChargeDischargeMosfetControl(2, false);
                 failCount++;
-            }while (!IsSuccess && failCount<=10);
+            } while (!IsSuccess && failCount <= 10);
             if (!IsSuccess)
             {
                 AddLog("关闭MOS管2失败");
@@ -1978,49 +1976,50 @@ namespace WpfApp2.ViewModels
                 case 1:
                     //parametersSending.ReSetChargeDischargeRelayControlToZero();
                     parametersSending.ChargeDischargeRelay1Control = (ushort)(open == true ? 1 : 0);
-                    BmsSystemparametersReceive receive = SendPacked(parametersSending);
-                    if(receive != null)
+                    BMS_Receive = SendPacked(parametersSending);
+                    if (BMS_Receive != null)
                     {
-                        return receive.ChargeDischargeRelay1Control == (ushort)(open ? 1 : 0);
-                    }else
+                        return BMS_Receive.ChargeDischargeRelay1Control == (ushort)(open ? 1 : 0);
+                    }
+                    else
                         return false;
                 case 2:
                     //parametersSending.ReSetChargeDischargeRelayControlToZero();
                     parametersSending.ChargeDischargeRelay2Control = (ushort)(open == true ? 1 : 0);
-                    receive = SendPacked(parametersSending);
-                    if (receive != null)
+                    BMS_Receive = SendPacked(parametersSending);
+                    if (BMS_Receive != null)
                     {
-                        return receive.ChargeDischargeRelay2Control == (ushort)(open ? 1 : 0);
+                        return BMS_Receive.ChargeDischargeRelay2Control == (ushort)(open ? 1 : 0);
                     }
                     else
                         return false;
                 case 3:
                     //parametersSending.ReSetChargeDischargeRelayControlToZero();
                     parametersSending.ChargeDischargeRelay3Control = (ushort)(open == true ? 1 : 0);
-                    receive = SendPacked(parametersSending);
-                    if (receive != null)
+                    BMS_Receive = SendPacked(parametersSending);
+                    if (BMS_Receive != null)
                     {
-                        return receive.ChargeDischargeRelay3Control == (ushort)(open ? 1 : 0);
+                        return BMS_Receive.ChargeDischargeRelay3Control == (ushort)(open ? 1 : 0);
                     }
                     else
                         return false;
                 case 4:
                     //parametersSending.ReSetChargeDischargeRelayControlToZero();
                     parametersSending.ChargeDischargeRelay4Control = (ushort)(open == true ? 1 : 0);
-                    receive = SendPacked(parametersSending);
-                    if (receive != null)
+                    BMS_Receive = SendPacked(parametersSending);
+                    if (BMS_Receive != null)
                     {
-                        return receive.ChargeDischargeRelay4Control == (ushort)(open ? 1 : 0);
+                        return BMS_Receive.ChargeDischargeRelay4Control == (ushort)(open ? 1 : 0);
                     }
                     else
                         return false;
                 case 5:
                     //parametersSending.ReSetChargeDischargeRelayControlToZero();
                     parametersSending.ChargeDischargeRelay5Control = (ushort)(open == true ? 1 : 0);
-                    receive = SendPacked(parametersSending);
-                    if (receive != null)
+                    BMS_Receive = SendPacked(parametersSending);
+                    if (BMS_Receive != null)
                     {
-                        return receive.ChargeDischargeRelay5Control == (ushort)(open ? 1 : 0);
+                        return BMS_Receive.ChargeDischargeRelay5Control == (ushort)(open ? 1 : 0);
                     }
                     else
                         return false;
@@ -2028,8 +2027,9 @@ namespace WpfApp2.ViewModels
                     return false;
             }
 
-           
-        } 
+
+        }
+
 
         /// <summary>
         /// 打开或关闭充放电MOS管(n)
@@ -2045,28 +2045,28 @@ namespace WpfApp2.ViewModels
                 case 1:
                     parametersSending.ReSetChargeDischargeMosfetControl();
                     parametersSending.ChargeDischargeMosfet1Control = (ushort)(open == true ? 1 : 0);
-                    BmsSystemparametersReceive receive = SendPacked(parametersSending);
-                    if (receive != null)
+                    BMS_Receive = SendPacked(parametersSending);
+                    if (BMS_Receive != null)
                     {
-                        return receive.ChargeDischargeMosfet1Control == (ushort)(open ? 1 : 0);
+                        return BMS_Receive.ChargeDischargeMosfet1Control == (ushort)(open ? 1 : 0);
                     }
                     else
                         return false;
                 case 2:
                     parametersSending.ReSetChargeDischargeMosfetControl();
                     parametersSending.ChargeDischargeMosfet2Control = (ushort)(open == true ? 1 : 0);
-                    receive = SendPacked(parametersSending);
-                    if (receive != null)
+                    BMS_Receive = SendPacked(parametersSending);
+                    if (BMS_Receive != null)
                     {
-                        return receive.ChargeDischargeRelay2Control == (ushort)(open ? 1 : 0);
+                        return BMS_Receive.ChargeDischargeRelay2Control == (ushort)(open ? 1 : 0);
                     }
                     else
                         return false;
-                default : return false;
+                default: return false;
 
             }
 
-            
+
         }
 
 
@@ -2139,17 +2139,37 @@ namespace WpfApp2.ViewModels
             {
                 0x01,0x03,0x00,0x17,0x00,0x01
             };
-            byte[] sendPack = CommunicateTool.ConcatByteArrays(command,SerialCommunicationService2.getCRC16(command));
+            byte[] sendPack = CommunicateTool.ConcatByteArrays(command, SerialCommunicationService2.getCRC16(command));
 
             //发送指令
-            byte[] receive = SerialCommunicationService2.SendTestCommand(sendPack,sendPack.Length);
+            byte[] receive = SerialCommunicationService2.SendTestCommand(sendPack, 7);
 
-            //解析出读取的电流
+            //解析
+            ushort current = 0;
+            if (receive.Length == 2)
+            {
+                //解析出读取的电流
+                current = ByteConverter.BytesToNumberNormal(receive);
+            }
+            else if (receive.Length == 1)
+            {
+                if (receive[0] == 0x01)
+                {
+                    ShowBubbles("读取电流失败", 2000);
+                    AddLog("读取电流返回CRC校验失败");
+                }
+                else if (receive[0] == 0x02)
+                {
+                    AddLog("读取电流返回超时");
+                    ShowBubbles("读取电流失败", 2000);
+                }
+            }
 
-            return 0;
+
+            return current;
 
         }
-        
+
         /// <summary>
         /// 读取充电电流校准系数
         /// </summary>
@@ -2164,10 +2184,29 @@ namespace WpfApp2.ViewModels
             byte[] sendPack = CommunicateTool.ConcatByteArrays(command, SerialCommunicationService2.getCRC16(command));
 
             //发送指令
-            byte[] receive = SerialCommunicationService2.SendTestCommand(sendPack, sendPack.Length);
+            byte[] receive = SerialCommunicationService2.SendTestCommand(sendPack, 7);
 
-            //
-            return 0;
+            //解析出读取的电流
+            ushort current = 0;
+            if (receive.Length == 2)
+            {
+                //解析出读取的电流
+                current = ByteConverter.BytesToNumber(receive);
+            }
+            else if (receive.Length == 1)
+            {
+                if (receive[0] == 0x01)
+                {
+                    ShowBubbles("读取电流失败", 2000);
+                    AddLog("读取电流返回CRC校验失败");
+                }
+                else if (receive[0] == 0x02)
+                {
+                    AddLog("读取电流返回超时");
+                    ShowBubbles("读取电流失败", 2000);
+                }
+            }
+            return current;
         }
 
         /// <summary>
@@ -2184,9 +2223,29 @@ namespace WpfApp2.ViewModels
             byte[] sendPack = CommunicateTool.ConcatByteArrays(command, SerialCommunicationService2.getCRC16(command));
 
             //发送指令
-            byte[] receive = SerialCommunicationService2.SendTestCommand(sendPack, sendPack.Length);
+            byte[] receive = SerialCommunicationService2.SendTestCommand(sendPack, 7);
 
-            return 0;
+            //解析出读取的电流
+            ushort current = 0;
+            if (receive.Length == 2)
+            {
+                //解析出读取的电流
+                current = ByteConverter.BytesToNumber(receive);
+            }
+            else if (receive.Length == 1)
+            {
+                if (receive[0] == 0x01)
+                {
+                    ShowBubbles("读取电流失败", 2000);
+                    AddLog("读取电流返回CRC校验失败");
+                }
+                else if (receive[0] == 0x02)
+                {
+                    AddLog("读取电流返回超时");
+                    ShowBubbles("读取电流失败", 2000);
+                }
+            }
+            return current;
         }
 
         /// <summary>
@@ -2199,14 +2258,31 @@ namespace WpfApp2.ViewModels
             //拼接指令
             byte[] command = new byte[]
             {
-                0x01,0x06,0x01,0x11,0x00,0x01,0x00,0x65
+                0x01,0x06,0x01,0x11
             };
-            byte[] sendPack = CommunicateTool.ConcatByteArrays(command, SerialCommunicationService2.getCRC16(command));
+            byte[] adj = CommunicateTool.ConcatByteArrays(command, ByteConverter.NumberToBytes(value));
+            byte[] sendPack = CommunicateTool.ConcatByteArrays(adj, SerialCommunicationService2.getCRC16(adj));
 
             //发送指令
-            byte[] receive = SerialCommunicationService2.SendTestCommand(sendPack, sendPack.Length);
+            byte[] receive = SerialCommunicationService2.SendTestCommand2(sendPack, 8);
 
-            return true;
+            if (receive.Equals(sendPack))
+            {
+                return true;
+            }
+            else if (receive.Length == 1)
+            {
+                if (receive[0] == 0x01)
+                {
+                    AddLog("写入充电校准系数没通过");
+                }
+                else if (receive[0] == 0x02)
+                {
+                    AddLog("写入充电校准系数超时");
+                }
+            }
+
+            return false;
         }
 
         /// <summary>
@@ -2219,12 +2295,29 @@ namespace WpfApp2.ViewModels
             //拼接指令
             byte[] command = new byte[]
             {
-                0x01,0x06,0x01,0x12,0x00,0x01,0x00,0x65
+                0x01,0x06,0x01,0x12
             };
-            byte[] sendPack = CommunicateTool.ConcatByteArrays(command, SerialCommunicationService2.getCRC16(command));
+            byte[] adj = CommunicateTool.ConcatByteArrays(command, ByteConverter.NumberToBytes(value));
+            byte[] sendPack = CommunicateTool.ConcatByteArrays(adj, SerialCommunicationService2.getCRC16(adj));
 
             //发送指令
-            byte[] receive = SerialCommunicationService2.SendTestCommand(sendPack, sendPack.Length);
+            byte[] receive = SerialCommunicationService2.SendTestCommand2(sendPack, 8);
+
+            if (receive.Equals(adj))
+            {
+                return true;
+            }
+            else if (receive.Length == 1)
+            {
+                if (receive[0] == 0x01)
+                {
+                    AddLog("写入充电校准系数没通过");
+                }
+                else if (receive[0] == 0x02)
+                {
+                    AddLog("写入充电校准系数超时");
+                }
+            }
 
             return false;
         }
@@ -2279,7 +2372,9 @@ namespace WpfApp2.ViewModels
         /// <summary>
         /// 充电开启
         /// </summary>
-        public RelayCommand OpenCharge { get
+        public RelayCommand OpenCharge
+        {
+            get
             {
                 return new RelayCommand(() =>
                 {
@@ -2293,7 +2388,8 @@ namespace WpfApp2.ViewModels
                         ShowBubbleWithTime("充电开启失败", 2000);
                     }
                 });
-            } }
+            }
+        }
 
         /// <summary>
         /// 关闭充电
@@ -2595,15 +2691,47 @@ namespace WpfApp2.ViewModels
                     bool isSuccess = false;
                     if (isSuccess)
                     {
-                        ShowBubbleWithTime("充放电MOS管2关闭成功", 2000);
+                        ShowBubbleWithTime(sa.ToString(), 2000);
                     }
                     else
                     {
-                        ShowBubbleWithTime("充放电MOS管2关闭失败", 2000);
+                        ShowBubbleWithTime(sa.ToString(), 2000);
                     }
                 });
             }
         }
+
+        /// <summary>
+        /// 充电指数
+        /// </summary>
+        private ushort chargeCurrentAdj;
+
+        public ushort ChargeCurrentAdj
+        {
+            get { return chargeCurrentAdj; }
+            set
+            {
+                chargeCurrentAdj = value;
+                this.RaiseProperChanged(nameof(ChargeCurrentAdj));
+            }
+        }
+
+        /// <summary>
+        /// 放电指数
+        /// </summary>
+        private ushort dischargeCurrentAdj;
+
+        public ushort DischargeCurrentAdj
+        {
+            get { return dischargeCurrentAdj; }
+            set
+            {
+                dischargeCurrentAdj = value;
+                this.RaiseProperChanged(nameof(DischargeCurrentAdj));
+            }
+        }
+
+
 
         /// <summary>
         /// 读取充电电流校准指数
@@ -2615,14 +2743,16 @@ namespace WpfApp2.ViewModels
                 return new RelayCommand(() =>
                 {
                     ushort sa = ReadChargeCurrentAdjustParameter();
+                    ChargeCurrentAdj = sa;
                     bool isSuccess = false;
+                    AddLog($"充电校准指数{ChargeCurrentAdj}");
                     if (isSuccess)
                     {
                         ShowBubbleWithTime("充放电MOS管2关闭成功", 2000);
                     }
                     else
                     {
-                        ShowBubbleWithTime("充放电MOS管2关闭失败", 2000);
+                        ShowBubbleWithTime(sa.ToString(), 2000);
                     }
                 });
             }
@@ -2639,17 +2769,21 @@ namespace WpfApp2.ViewModels
                 {
                     ushort sa = ReadDischargeCurrentAdjustParameter();
                     bool isSuccess = false;
+                    DischargeCurrentAdj = sa;
+                    AddLog($"放电校准指数{DischargeCurrentAdj}");
                     if (isSuccess)
                     {
                         ShowBubbleWithTime("充放电MOS管2关闭成功", 2000);
                     }
                     else
                     {
-                        ShowBubbleWithTime("充放电MOS管2关闭失败", 2000);
+                        ShowBubbleWithTime(sa.ToString(), 2000);
                     }
                 });
             }
         }
+
+
 
         /// <summary>
         /// 写入充电电流校准指数
@@ -2659,8 +2793,8 @@ namespace WpfApp2.ViewModels
             get
             {
                 return new RelayCommand(() =>
-                {  
-                    bool isSuccess = WriteChargeCurrentAdjustParameter(21);
+                {
+                    bool isSuccess = WriteChargeCurrentAdjustParameter(ChargeCurrentAdj);
                     if (isSuccess)
                     {
                         ShowBubbleWithTime("充放电MOS管2关闭成功", 2000);
@@ -2682,7 +2816,7 @@ namespace WpfApp2.ViewModels
             {
                 return new RelayCommand(() =>
                 {
-                    bool isSuccess = WriteDischargeCurrentAdjustParameter(21);
+                    bool isSuccess = WriteDischargeCurrentAdjustParameter(DischargeCurrentAdj);
                     if (isSuccess)
                     {
                         ShowBubbleWithTime("充放电MOS管2关闭成功", 2000);
@@ -2748,7 +2882,7 @@ namespace WpfApp2.ViewModels
             {
                 return new RelayCommand(() =>
                 {
-                    bool isSuccess = LowPowerVoltageAndCurrent();
+                    bool isSuccess = LowPowerVoltageAndCurrent(1);
                     if (isSuccess)
                     {
                         ShowBubbleWithTime("低功耗继电器1开启成功", 2000);
@@ -2756,6 +2890,28 @@ namespace WpfApp2.ViewModels
                     else
                     {
                         ShowBubbleWithTime("低功耗继电器1开启失败", 2000);
+                    }
+                });
+            }
+        }
+
+        /// <summary>
+        /// 低功耗检测关闭
+        /// </summary>
+        public RelayCommand CloseLowPowerVoltageAndCurrentCmd
+        {
+            get
+            {
+                return new RelayCommand(() =>
+                {
+                    bool isSuccess = LowPowerVoltageAndCurrent(0);
+                    if (isSuccess)
+                    {
+                        ShowBubbleWithTime("低功耗继电器1关闭成功", 2000);
+                    }
+                    else
+                    {
+                        ShowBubbleWithTime("低功耗继电器1关闭失败", 2000);
                     }
                 });
             }
@@ -2770,7 +2926,7 @@ namespace WpfApp2.ViewModels
             {
                 return new RelayCommand(() =>
                 {
-                    bool isSuccess = Relay2ControlTest();
+                    bool isSuccess = Relay2ControlTest(1);
                     if (isSuccess)
                     {
                         ShowBubbleWithTime("低功耗继电器2开启成功", 2000);
@@ -2778,6 +2934,28 @@ namespace WpfApp2.ViewModels
                     else
                     {
                         ShowBubbleWithTime("低功耗继电器2开启失败", 2000);
+                    }
+                });
+            }
+        }
+
+        /// <summary>
+        /// 关闭预留继电器2
+        /// </summary>
+        public RelayCommand CloseRelay2ControlTestCmd
+        {
+            get
+            {
+                return new RelayCommand(() =>
+                {
+                    bool isSuccess = Relay2ControlTest(0);
+                    if (isSuccess)
+                    {
+                        ShowBubbleWithTime("低功耗继电器2关闭成功", 2000);
+                    }
+                    else
+                    {
+                        ShowBubbleWithTime("低功耗继电器2关闭失败", 2000);
                     }
                 });
             }
@@ -2792,7 +2970,7 @@ namespace WpfApp2.ViewModels
             {
                 return new RelayCommand(() =>
                 {
-                    bool isSuccess = Relay3ControlTest();
+                    bool isSuccess = Relay3ControlTest(1);
                     if (isSuccess)
                     {
                         ShowBubbleWithTime("低功耗继电器3开启成功", 2000);
@@ -2800,6 +2978,28 @@ namespace WpfApp2.ViewModels
                     else
                     {
                         ShowBubbleWithTime("低功耗继电器3开启失败", 2000);
+                    }
+                });
+            }
+        }
+
+        /// <summary>
+        /// 关闭预留继电器3
+        /// </summary>
+        public RelayCommand CloseRelay3ControlTestCmd
+        {
+            get
+            {
+                return new RelayCommand(() =>
+                {
+                    bool isSuccess = Relay3ControlTest(0);
+                    if (isSuccess)
+                    {
+                        ShowBubbleWithTime("低功耗继电器3关闭成功", 2000);
+                    }
+                    else
+                    {
+                        ShowBubbleWithTime("低功耗继电器3关闭失败", 2000);
                     }
                 });
             }
@@ -2814,7 +3014,7 @@ namespace WpfApp2.ViewModels
             {
                 return new RelayCommand(() =>
                 {
-                    bool isSuccess = Relay4ControlTest();
+                    bool isSuccess = Relay4ControlTest(1);
                     if (isSuccess)
                     {
                         ShowBubbleWithTime("低功耗继电器4开启成功", 2000);
@@ -2822,6 +3022,28 @@ namespace WpfApp2.ViewModels
                     else
                     {
                         ShowBubbleWithTime("低功耗继电器4开启失败", 2000);
+                    }
+                });
+            }
+        }
+
+        /// <summary>
+        /// 关闭预留继电器4
+        /// </summary>
+        public RelayCommand CloseRelay4ControlTestCmd
+        {
+            get
+            {
+                return new RelayCommand(() =>
+                {
+                    bool isSuccess = Relay4ControlTest(0);
+                    if (isSuccess)
+                    {
+                        ShowBubbleWithTime("低功耗继电器4关闭成功", 2000);
+                    }
+                    else
+                    {
+                        ShowBubbleWithTime("低功耗继电器4关闭失败", 2000);
                     }
                 });
             }
@@ -2916,7 +3138,7 @@ namespace WpfApp2.ViewModels
         }
 
 
-        
+
 
 
         #endregion
@@ -2957,7 +3179,7 @@ namespace WpfApp2.ViewModels
         /// <param name="message"></param>
         private void ShowBubbles(string message, int timeDelay)
         {
-            Application.Current.Dispatcher.Invoke(() => ShowBubbleWithTime(message,timeDelay));
+            Application.Current.Dispatcher.Invoke(() => ShowBubbleWithTime(message, timeDelay));
         }
 
 

@@ -8,7 +8,11 @@ namespace WpfApp2.Tools
 {
     public class CommunicateTool
     {
-        // 拼接多个字节数组的方法
+        /// <summary>
+        /// 拼接多个字节数组的方法
+        /// </summary>
+        /// <param name="arrays"></param>
+        /// <returns></returns>
         public static byte[] ConcatByteArrays(params byte[][] arrays)
         {
             // 计算所有数组的总长度
