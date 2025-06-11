@@ -60,6 +60,57 @@ namespace WpfApp2.Tools
             return (ushort)((bytes[1] << 8) | bytes[0]); // 高字节左移8位后与低字节相或
         }
 
-       
+
+        /// <summary>
+        /// 判断两个值的差值是否小于5
+        /// </summary>
+        /// <param name="a"></param>
+        /// <param name="b"></param>
+        /// <returns></returns>
+        public static bool AreWithinFive(int a, int b)
+        {
+            // 计算两个数的差值的绝对值
+            int difference = Math.Abs(a - b);
+
+            // 判断差值是否小于5
+            return difference <= 5;
+        }
+
+        /// <summary>
+        /// 将short转换为两个字节    
+        /// </summary>
+        /// <param name="value"></param>
+        /// <returns></returns>
+        public static byte[] ShortToBytes(short value)
+        {
+            // 方法1：使用BitConverter（平台相关的字节序）        
+            return BitConverter.GetBytes(value);
+            // 方法2：手动转换（小端字节序）        
+            // byte[] bytes = new byte[2];        
+            // bytes[0] = (byte)(value & 0xFF);        
+            // bytes[1] = (byte)((value >> 8) & 0xFF);        
+            // return bytes;
+        }
+
+        /// <summary>
+        /// 将两个字节转换为short    
+        /// </summary>
+        /// <param name="bytes"></param>
+        /// <param name="startIndex"></param>
+        /// <returns></returns>
+        /// <exception cref="ArgumentException"></exception>
+        public static short BytesToShort(byte[] bytes, int startIndex = 0)
+        {
+            // 确保字节数组长度足够        
+            if (bytes == null || bytes.Length < startIndex + 2)
+            {
+                throw new ArgumentException("字节数组长度不足");
+            }
+            // 方法1：使用BitConverter（平台相关的字节序）        
+            //return BitConverter.ToInt16(bytes, startIndex);
+            // 方法2：手动转换（小端字节序）        
+            return (short)((bytes[startIndex + 1] << 8) | bytes[startIndex]);
+        }
+
     }
 }
