@@ -119,6 +119,41 @@
             </Setter.Value>
         </Setter>
     </Style>
+
+    <Style TargetType="Button" x:Key="BtnStyle5">
+        <Setter Property="Foreground" Value="#aaa"/>
+        <Setter Property="Template">
+            <Setter.Value>
+                <ControlTemplate TargetType="Button">
+                    <Border BorderThickness="1" CornerRadius="5" Background="Transparent" x:Name="border">
+                        <!--渐变色-->
+                        <Border.BorderBrush>
+                            <LinearGradientBrush StartPoint="0,0" EndPoint="1,0">
+                                <GradientStop Color="#22ffffff" Offset="0"></GradientStop>
+                                <GradientStop Color="#77ffffff" Offset="0.5"></GradientStop>
+                                <GradientStop Color="#22ffffff" Offset="1"></GradientStop>
+                            </LinearGradientBrush>
+                        </Border.BorderBrush>
+                        <StackPanel Orientation="Horizontal" HorizontalAlignment="Center" VerticalAlignment="Center">
+                            <StackPanel Orientation="Horizontal" HorizontalAlignment="Center" VerticalAlignment="Center">
+                                <TextBlock Text="{TemplateBinding Tag}" FontFamily="../Resource/Fonts/#iconfont" Margin="0,2,5,0"></TextBlock>
+                                <TextBlock Text="{TemplateBinding Content}" Foreground="{TemplateBinding Foreground}"  VerticalAlignment="Center"></TextBlock>
+                            </StackPanel>
+                        </StackPanel>
+                    </Border>
+                    <ControlTemplate.Triggers>
+                        <Trigger Property="IsMouseOver" Value="True">
+                            <Setter TargetName="border" Property="Background" Value="#11ffffff"></Setter>
+                            <Setter Property="BorderThickness" Value="1"></Setter>
+                            <Setter Property="Cursor" Value="Hand"></Setter>
+                        </Trigger>
+                    </ControlTemplate.Triggers>
+                </ControlTemplate>
+            </Setter.Value>
+        </Setter>
+    </Style>
+
+
     <!--<GradientStop Color="#22ffffff" Offset="0"></GradientStop>
     <GradientStop Color="#77ffffff" Offset="0.5"></GradientStop>
     <GradientStop Color="#22ffffff" Offset="1"></GradientStop>-->

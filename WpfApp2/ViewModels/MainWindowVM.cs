@@ -57,6 +57,8 @@ namespace WpfApp2.ViewModels
             //添加自动滚动功能
             TestUC.SetupScrolling();    //日志自动滚动
 
+            BMS_Receive = new BmsSystemparametersReceive();
+
         }
         #endregion
 
@@ -1076,12 +1078,13 @@ namespace WpfApp2.ViewModels
                         //关闭继电器1
                         parametersSending.LowerRelay1Control = 0;
                         BMS_Receive = SendPacked(parametersSending);
-                        if ((BMS_Receive.LowPowerVoltage * 1000000 / 450000) <= 400)
+                        BMS_Receive.LowPowerCurrent = (ushort)(BMS_Receive.LowPowerVoltage * 1000000 / 450000);
+                        if (BMS_Receive.LowPowerCurrent <= 400)
                         {
                             interSuccess = true;
                             
                         }
-                        AddLog($"电流为{BMS_Receive.LowPowerVoltage * 1000000 / 450000}");
+                        AddLog($"电流为{BMS_Receive.LowPowerCurrent}");
                     } while (!interSuccess && ERROR_COUNT < 10);
                     if (!interSuccess)
                     {
@@ -1758,7 +1761,7 @@ namespace WpfApp2.ViewModels
         }
 
         /// <summary>
-        /// 充电电流校准
+        /// 放电电流校准
         /// </summary>
         /// <param name="level">等级</param>
         /// <returns></returns>
@@ -2219,6 +2222,23 @@ namespace WpfApp2.ViewModels
             return false;
         }
 
+
+        /// <summary>
+        /// DC电源开关
+        /// </summary>
+        private ushort dcSourceSwitch;
+
+        public ushort DcSourceSwitch
+        {
+            get { return dcSourceSwitch; }
+            set
+            {
+                dcSourceSwitch = value;
+                this.RaiseProperChanged(nameof(DcSourceSwitch));
+            }
+        }
+
+
         /// <summary>
         /// 打开DC源开关
         /// </summary>
@@ -2256,6 +2276,7 @@ namespace WpfApp2.ViewModels
                     }
                     else
                     {
+                        DcSourceSwitch = 1;
                         AddLog($"DC控制开关打开成功");
                         return true;
                     }
@@ -2306,6 +2327,7 @@ namespace WpfApp2.ViewModels
                     }
                     else
                     {
+                        DcSourceSwitch = 0;
                         AddLog($"DC控制开关关闭成功");
                     }
                 }
@@ -2781,6 +2803,9 @@ namespace WpfApp2.ViewModels
 
         #region 串口二(bms板)
 
+        
+
+
         /// <summary>
         /// 读取电流
         /// </summary>
@@ -2845,7 +2870,7 @@ namespace WpfApp2.ViewModels
             if (receive.Length == 2)
             {
                 //解析出读取的电流
-                current = ByteConverter.BytesToNumber(receive);
+                current = ByteConverter.BytesToNumberNormal(receive);
             }
             else if (receive.Length == 1)
             {
@@ -2884,7 +2909,7 @@ namespace WpfApp2.ViewModels
             if (receive.Length == 2)
             {
                 //解析出读取的电流
-                current = ByteConverter.BytesToNumber(receive);
+                current = ByteConverter.BytesToNumberNormal(receive);
             }
             else if (receive.Length == 1)
             {
@@ -2914,7 +2939,7 @@ namespace WpfApp2.ViewModels
             {
                 0x01,0x06,0x01,0x11
             };
-            byte[] adj = CommunicateTool.ConcatByteArrays(command, ByteConverter.NumberToBytes(value));
+            byte[] adj = CommunicateTool.ConcatByteArrays(command, ByteConverter.NumberToBytesNormal(value));
             byte[] sendPack = CommunicateTool.ConcatByteArrays(adj, SerialCommunicationService2.getCRC16(adj));
 
             //发送指令
@@ -2951,7 +2976,7 @@ namespace WpfApp2.ViewModels
             {
                 0x01,0x06,0x01,0x12
             };
-            byte[] adj = CommunicateTool.ConcatByteArrays(command, ByteConverter.NumberToBytes(value));
+            byte[] adj = CommunicateTool.ConcatByteArrays(command, ByteConverter.NumberToBytesNormal(value));
             byte[] sendPack = CommunicateTool.ConcatByteArrays(adj, SerialCommunicationService2.getCRC16(adj));
 
             //发送指令
@@ -3341,22 +3366,37 @@ namespace WpfApp2.ViewModels
             {
                 return new RelayCommand(() =>
                 {
-                    ushort sa = GetCurrentFormBMS();
+                    BMSCurrent = GetCurrentFormBMS();
                     bool isSuccess = false;
                     if (isSuccess)
                     {
-                        ShowBubbleWithTime(sa.ToString(), 2000);
+                        ShowBubbleWithTime(BMSCurrent.ToString(), 2000);
                     }
                     else
                     {
-                        ShowBubbleWithTime(sa.ToString(), 2000);
+                        ShowBubbleWithTime(BMSCurrent.ToString(), 2000);
                     }
                 });
             }
         }
 
         /// <summary>
-        /// 充电指数
+        /// BMS电流
+        /// </summary>
+        private ushort bmsCurrent;
+
+        public ushort BMSCurrent
+        {
+            get { return bmsCurrent; }
+            set
+            {
+                bmsCurrent = value;
+                this.RaiseProperChanged(nameof(BMSCurrent));
+            }
+        }
+
+        /// <summary>
+        /// 充电校准系数
         /// </summary>
         private ushort chargeCurrentAdj;
 
@@ -3371,7 +3411,22 @@ namespace WpfApp2.ViewModels
         }
 
         /// <summary>
-        /// 放电指数
+        /// 设置充电校准系数
+        /// </summary>
+        private ushort setChargeCurrentAdj;
+
+        public ushort SetChargeCurrentAdj
+        {
+            get { return setChargeCurrentAdj; }
+            set
+            {
+                setChargeCurrentAdj = value;
+                this.RaiseProperChanged(nameof(SetChargeCurrentAdj));
+            }
+        }
+
+        /// <summary>
+        /// 放电校准系数
         /// </summary>
         private ushort dischargeCurrentAdj;
 
@@ -3384,6 +3439,22 @@ namespace WpfApp2.ViewModels
                 this.RaiseProperChanged(nameof(DischargeCurrentAdj));
             }
         }
+
+        /// <summary>
+        /// 设置放电校准系数
+        /// </summary>
+        private ushort setDischargeCurrentAdj;
+
+        public ushort SetDischargeCurrentAdj
+        {
+            get { return setDischargeCurrentAdj; }
+            set
+            {
+                setDischargeCurrentAdj = value;
+                this.RaiseProperChanged(nameof(SetDischargeCurrentAdj));
+            }
+        }
+
 
 
 
@@ -3470,7 +3541,7 @@ namespace WpfApp2.ViewModels
             {
                 return new RelayCommand(() =>
                 {
-                    bool isSuccess = WriteDischargeCurrentAdjustParameter(DischargeCurrentAdj);
+                    bool isSuccess = WriteDischargeCurrentAdjustParameter(SetDischargeCurrentAdj);
                     if (isSuccess)
                     {
                         ShowBubbleWithTime("充放电MOS管2关闭成功", 2000);

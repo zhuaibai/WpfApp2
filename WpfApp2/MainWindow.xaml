@@ -8,13 +8,13 @@
     Title="MainWindow"
     Width="1294"
     Height="800"
-    WindowStyle="None"
     WindowStartupLocation="CenterScreen"
     WindowState="Maximized"
+    WindowStyle="None"
     mc:Ignorable="d">
     <!--<WindowChrome.WindowChrome>
-        <WindowChrome 
-        GlassFrameThickness="0"             
+        <WindowChrome
+        GlassFrameThickness="0"
         ResizeBorderThickness="0"
         CaptionHeight="0"
         />
@@ -43,23 +43,35 @@
                     <ColumnDefinition Width="auto" />
                     <ColumnDefinition />
                 </Grid.ColumnDefinitions>
-
                 <!--  第一列  -->
-                <TextBlock
-                    Grid.Column="0"
-                    Margin="5,0,0,0"
-                    Padding="0,0,0,0"
-                    VerticalAlignment="Center">
-                    <Run
-                        FontSize="20"
-                        Foreground="White"
-                        Text="BMS测试上位机" />
-                    <LineBreak />
-                    <Run
-                        FontSize="13"
-                        Foreground="White"
-                        Text="让世界永不停电" />
-                </TextBlock>
+                <StackPanel>
+                    <Border>
+                        <Border.Effect>
+                            <DropShadowEffect
+                                BlurRadius="10"
+                                Direction="230"
+                                ShadowDepth="5" />
+                        </Border.Effect>
+                        <TextBlock
+                            Grid.Column="0"
+                            Margin="5,0,0,0"
+                            Padding="0,0,0,0"
+                            VerticalAlignment="Center">
+                            <Run
+                                FontSize="20"
+                                Foreground="White"
+                                Text="BMS测试上位机" />
+                            <LineBreak />
+                            <Run
+                                FontSize="13"
+                                Foreground="White"
+                                Text="让世界永不停电" />
+                        </TextBlock>
+                    </Border>
+                </StackPanel>
+
+                
+
                 <!--  第二列  -->
                 <Grid Grid.Column="1">
                     <Grid.RowDefinitions>
