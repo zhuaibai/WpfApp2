@@ -705,7 +705,7 @@
                                 Grid.Column="0"
                                 Margin="5"
                                 Text="功率"
-                                FontSize="15" />
+                                FontSize="20" />
                             <ComboBox
                                 Grid.Row="1"
                                 Grid.Column="1"
@@ -718,7 +718,7 @@
                                 Grid.Column="0"
                                 Margin="5"
                                 Text="电池电压"
-                                FontSize="15" />
+                                FontSize="20" />
                             <ComboBox
                                 Grid.Row="2"
                                 Grid.Column="1"
@@ -771,7 +771,7 @@
                                 Grid.Column="0"
                                 Margin="5"
                                 Text="功率"
-                                FontSize="15"
+                                FontSize="20"
                                  />
                             <ComboBox
                                 Grid.Row="1"
@@ -786,7 +786,7 @@
                                 Grid.Column="0"
                                 Margin="5"
                                 Text="电池电压"
-                                FontSize="15"
+                                FontSize="20"
                                 />
                             <ComboBox
                                 Grid.Row="2"

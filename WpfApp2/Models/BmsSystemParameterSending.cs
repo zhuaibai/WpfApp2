@@ -31,24 +31,53 @@ namespace WpfApp2.Models
         public ushort DcSourceControlVoltage { get; set; }   // DC源控制电压
         public ushort DcSourceControlCurrent { get; set; }   // DC源控制电流
 
-        // MOS管控制参数
-        public ushort ChargeDischargeMosfet1Control { get; set; } // 充放电MOS管1控制
-        public ushort ReservedMosfetControl1 { get; set; }        // 预留MOS管控制
-        public ushort ReservedMosfetControl2 { get; set; }        // 预留MOS管控制
-        public ushort ChargeDischargeMosfet2Control { get; set; } // 充放电MOS管2控制
+        // DC源1参数
+        public ushort DcSource1Switch { get; set; }        // 直流源1开关
+        public ushort DcSource1Voltage { get; set; }       // 直流源1电压
+        public ushort DcSource1Current { get; set; }       // 直流源1电流
 
-        // 继电器控制参数
-        public ushort ChargeDischargeRelay1Control { get; set; } // 充放电继电器1控制
-        public ushort ChargeDischargeRelay2Control { get; set; } // 充放电继电器2控制
-        public ushort ChargeDischargeRelay3Control { get; set; } // 充放电继电器3控制
-        public ushort ChargeDischargeRelay4Control { get; set; } // 充放电继电器4控制
-        public ushort ChargeDischargeRelay5Control { get; set; } // 充放电继电器5控制
+        // DC源2参数
+        public ushort DcSource2Switch { get; set; }        // 直流源2开关
+        public ushort DcSource2Voltage { get; set; }       // 直流源2电压
+        public ushort DcSource2Current { get; set; }       // 直流源2电流
 
-        //低功耗继电器控制参数
-        public ushort LowerRelay1Control { get; set; }  // 低功耗继电器1控制
-        public ushort Relay2Control { get; set; }       // 预留继电器2控制
-        public ushort Relay3Control { get; set; }       // 预留电继电器3控制
-        public ushort Relay4Control { get; set; }       // 预留电继电器4控制
+        // 电子负载参数
+        public ushort ElectronicLoadMode { get; set; }     // 电子负载模式
+        public ushort ElectronicLoadCurrent { get; set; }  // 电子负载电流
+
+        // 预留参数
+        public ushort Reserved1 { get; set; }              // 预留1
+        public ushort Reserved2 { get; set; }              // 预留2
+        public ushort Reserved3 { get; set; }              // 预留3
+
+        // 设备状态参数
+        public ushort ResistorBankMosfetStatus { get; set; }   // 电阻帮MOS状态
+        public ushort ChargeRelayStatus { get; set; }          // 充电继电器状态
+        public ushort DischargeRelayStatus { get; set; }       // 放电继电器状态
+        public ushort ChargeCurrentLimitNegativeRelayStatus { get; set; }  // 充电限流负极继电器状态
+        public ushort LowPowerRelayStatus { get; set; }        // 低功耗继电器状态
+        public ushort Reserved1RelayStatus { get; set; }       // 预留1继电器状态
+        public ushort Reserved2RelayStatus { get; set; }       // 预留2继电器状态
+        public ushort Reserved3RelayStatus { get; set; }       // 预留3继电器状态
+
+        //// MOS管控制参数
+        //public ushort ChargeDischargeMosfet1Control { get; set; } // 充放电MOS管1控制
+        //public ushort ReservedMosfetControl1 { get; set; }        // 预留MOS管控制
+        //public ushort ReservedMosfetControl2 { get; set; }        // 预留MOS管控制
+        //public ushort ChargeDischargeMosfet2Control { get; set; } // 充放电MOS管2控制
+
+        //// 继电器控制参数
+        //public ushort ChargeDischargeRelay1Control { get; set; } // 充放电继电器1控制
+        //public ushort ChargeDischargeRelay2Control { get; set; } // 充放电继电器2控制
+        //public ushort ChargeDischargeRelay3Control { get; set; } // 充放电继电器3控制
+        //public ushort ChargeDischargeRelay4Control { get; set; } // 充放电继电器4控制
+        //public ushort ChargeDischargeRelay5Control { get; set; } // 充放电继电器5控制
+
+        ////低功耗继电器控制参数
+        //public ushort LowerRelay1Control { get; set; }  // 低功耗继电器1控制
+        //public ushort Relay2Control { get; set; }       // 预留继电器2控制
+        //public ushort Relay3Control { get; set; }       // 预留电继电器3控制
+        //public ushort Relay4Control { get; set; }       // 预留电继电器4控制
 
         // 构造函数
         public BmsSystemParametersSending()
@@ -59,7 +88,7 @@ namespace WpfApp2.Models
         // 转换为大端在后的字节数组
         public byte[] ToByteArray()
         {
-            byte[] result = new byte[56]; // 28个ushort，每个2字节
+            byte[] result = new byte[68]; // 34个ushort，每个2字节
             int offset = 0;
 
             WriteUShort(CommunicationVersion, result, offset); offset += 2;
@@ -81,21 +110,29 @@ namespace WpfApp2.Models
             WriteUShort(DcSourceControlVoltage, result, offset); offset += 2;
             WriteUShort(DcSourceControlCurrent, result, offset); offset += 2;
 
-            WriteUShort(ChargeDischargeMosfet1Control, result, offset); offset += 2;
-            WriteUShort(ReservedMosfetControl1, result, offset); offset += 2;
-            WriteUShort(ReservedMosfetControl2, result, offset); offset += 2;
-            WriteUShort(ChargeDischargeMosfet2Control, result, offset); offset += 2;
+            WriteUShort(DcSource1Switch, result, offset); offset += 2;
+            WriteUShort(DcSource1Voltage, result, offset); offset += 2;
+            WriteUShort(DcSource1Current, result, offset); offset += 2;
 
-            WriteUShort(ChargeDischargeRelay1Control, result, offset); offset += 2;
-            WriteUShort(ChargeDischargeRelay2Control, result, offset); offset += 2;
-            WriteUShort(ChargeDischargeRelay3Control, result, offset); offset += 2;
-            WriteUShort(ChargeDischargeRelay4Control, result, offset); offset += 2;
-            WriteUShort(ChargeDischargeRelay5Control, result, offset); offset += 2;
+            WriteUShort(DcSource2Switch, result, offset); offset += 2;
+            WriteUShort(DcSource2Voltage, result, offset); offset += 2;
+            WriteUShort(DcSource2Current, result, offset); offset += 2;
 
-            WriteUShort(LowerRelay1Control, result, offset); offset += 2;
-            WriteUShort(Relay2Control, result, offset); offset += 2;
-            WriteUShort(Relay3Control, result, offset); offset += 2;
-            WriteUShort(Relay4Control, result, offset); offset += 2;
+            WriteUShort(ElectronicLoadMode, result, offset); offset += 2;
+            WriteUShort(ElectronicLoadCurrent, result, offset); offset += 2;
+
+            WriteUShort(Reserved1, result, offset); offset += 2;
+            WriteUShort(Reserved2, result, offset); offset += 2;
+            WriteUShort(Reserved3, result, offset); offset += 2;
+
+            WriteUShort(ResistorBankMosfetStatus, result, offset); offset += 2;
+            WriteUShort(ChargeRelayStatus, result, offset); offset += 2;
+            WriteUShort(DischargeRelayStatus, result, offset); offset += 2;
+            WriteUShort(ChargeCurrentLimitNegativeRelayStatus, result, offset); offset += 2;
+            WriteUShort(LowPowerRelayStatus, result, offset); offset += 2;
+            WriteUShort(Reserved1RelayStatus, result, offset); offset += 2;
+            WriteUShort(Reserved2RelayStatus, result, offset); offset += 2;
+            WriteUShort(Reserved3RelayStatus, result, offset); offset += 2;
 
             return result;
         }
@@ -103,8 +140,8 @@ namespace WpfApp2.Models
         // 从大端在后的字节数组创建对象
         public static BmsSystemParametersSending FromByteArray(byte[] data)
         {
-            if (data == null || data.Length < 56)
-                throw new ArgumentException("数据长度不足56字节");
+            if (data == null || data.Length < 68)
+                throw new ArgumentException("数据长度不足68字节");
 
             BmsSystemParametersSending result = new BmsSystemParametersSending();
             int offset = 0;
@@ -128,21 +165,29 @@ namespace WpfApp2.Models
             result.DcSourceControlVoltage = ReadUShort(data, offset); offset += 2;
             result.DcSourceControlCurrent = ReadUShort(data, offset); offset += 2;
 
-            result.ChargeDischargeMosfet1Control = ReadUShort(data, offset); offset += 2;
-            result.ReservedMosfetControl1 = ReadUShort(data, offset); offset += 2;
-            result.ReservedMosfetControl2 = ReadUShort(data, offset); offset += 2;
-            result.ChargeDischargeMosfet2Control = ReadUShort(data, offset); offset += 2;
+            result.DcSource1Switch = ReadUShort(data, offset); offset += 2;
+            result.DcSource1Voltage = ReadUShort(data, offset); offset += 2;
+            result.DcSource1Current = ReadUShort(data, offset); offset += 2;
 
-            result.ChargeDischargeRelay1Control = ReadUShort(data, offset); offset += 2;
-            result.ChargeDischargeRelay2Control = ReadUShort(data, offset); offset += 2;
-            result.ChargeDischargeRelay3Control = ReadUShort(data, offset); offset += 2;
-            result.ChargeDischargeRelay4Control = ReadUShort(data, offset); offset += 2;
-            result.ChargeDischargeRelay5Control = ReadUShort(data, offset); offset += 2;
+            result.DcSource2Switch = ReadUShort(data, offset); offset += 2;
+            result.DcSource2Voltage = ReadUShort(data, offset); offset += 2;
+            result.DcSource2Current = ReadUShort(data, offset); offset += 2;
 
-            result.LowerRelay1Control = ReadUShort(data, offset); offset += 2;
-            result.Relay2Control = ReadUShort(data, offset); offset += 2;
-            result.Relay3Control = ReadUShort(data, offset); offset += 2;
-            result.Relay4Control = ReadUShort(data, offset); offset += 2;
+            result.ElectronicLoadMode = ReadUShort(data, offset); offset += 2;
+            result.ElectronicLoadCurrent = ReadUShort(data, offset); offset += 2;
+
+            result.Reserved1 = ReadUShort(data, offset); offset += 2;
+            result.Reserved2 = ReadUShort(data, offset); offset += 2;
+            result.Reserved3 = ReadUShort(data, offset); offset += 2;
+
+            result.ResistorBankMosfetStatus = ReadUShort(data, offset); offset += 2;
+            result.ChargeRelayStatus = ReadUShort(data, offset); offset += 2;
+            result.DischargeRelayStatus = ReadUShort(data, offset); offset += 2;
+            result.ChargeCurrentLimitNegativeRelayStatus = ReadUShort(data, offset); offset += 2;
+            result.LowPowerRelayStatus = ReadUShort(data, offset); offset += 2;
+            result.Reserved1RelayStatus = ReadUShort(data, offset); offset += 2;
+            result.Reserved2RelayStatus = ReadUShort(data, offset); offset += 2;
+            result.Reserved3RelayStatus = ReadUShort(data, offset); offset += 2;
             return result;
         }
 
@@ -158,11 +203,11 @@ namespace WpfApp2.Models
         /// </summary>
         public void ReSetChargeDischargeRelayControlToZero()
         {
-            ChargeDischargeRelay1Control = 0;
-            ChargeDischargeRelay2Control = 0;
-            ChargeDischargeRelay3Control = 0;
-            ChargeDischargeRelay4Control = 0;
-            ChargeDischargeRelay5Control = 0;       
+            //ChargeDischargeRelay1Control = 0;
+            //ChargeDischargeRelay2Control = 0;
+            //ChargeDischargeRelay3Control = 0;
+            //ChargeDischargeRelay4Control = 0;
+            //ChargeDischargeRelay5Control = 0;       
         }
         
         /// <summary>
@@ -170,8 +215,8 @@ namespace WpfApp2.Models
         /// </summary>
         public void ReSetChargeDischargeMosfetControl()
         {
-            ChargeDischargeMosfet1Control = 0;
-            ChargeDischargeMosfet2Control = 0;
+            //ChargeDischargeMosfet1Control = 0;
+            //ChargeDischargeMosfet2Control = 0;
         }
         // 辅助方法：以大端在后方式读取ushort（低字节在前）
         private static ushort ReadUShort(byte[] buffer, int offset)

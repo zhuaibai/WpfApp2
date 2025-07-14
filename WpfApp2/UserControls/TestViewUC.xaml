@@ -439,8 +439,8 @@
                             Style="{StaticResource GroupBoxMachineTypeSty}">
                             <Grid Margin="0">
                                 <Grid.ColumnDefinitions>
-                                    <ColumnDefinition  Width="1.5*"/>
-                                    <ColumnDefinition Width="0.7*"/>
+                                    <ColumnDefinition Width="1.5*" />
+                                    <ColumnDefinition Width="0.7*" />
                                     <ColumnDefinition Width="1*" />
                                     <ColumnDefinition Width="1*" />
                                 </Grid.ColumnDefinitions>
@@ -455,30 +455,30 @@
                                 </Grid.RowDefinitions>
                                 <!--  DC电压  -->
                                 <TextBlock
-                                    Margin="0,12,0,0"
                                     Grid.Column="0"
-                                    VerticalAlignment="Center"
+                                    Margin="0,12,0,0"
                                     HorizontalAlignment="Center"
+                                    VerticalAlignment="Center"
                                     FontSize="15"
                                     Foreground="White"
                                     Text="DC当前电压:" />
                                 <TextBlock
                                     Grid.Column="1"
-                                     Margin="0,12,0,0"
+                                    Margin="0,12,0,0"
                                     VerticalAlignment="Center"
                                     FontSize="17"
                                     Foreground="#ff2bedf1"
                                     Text="{Binding BMS_Receive.DcSourceVoltage}" />
                                 <TextBlock
                                     Grid.Column="2"
-                                     Margin="0,12,0,0"
+                                    Margin="0,12,0,0"
                                     VerticalAlignment="Center"
                                     FontSize="15"
                                     Foreground="White"
                                     Text="DC设置电压:" />
                                 <TextBox
                                     Grid.Column="3"
-                                     Margin="0,12,0,0"
+                                    Margin="0,12,0,0"
                                     VerticalAlignment="Center"
                                     Background="#33ffffff"
                                     FontSize="17"
@@ -486,12 +486,12 @@
                                     Text="{Binding DcSourceControlVoltage}" />
                                 <!--  DC电流  -->
                                 <TextBlock
-                                    Margin="5"
                                     Grid.Row="1"
                                     Grid.Column="0"
+                                    Margin="5"
+                                    HorizontalAlignment="Center"
                                     VerticalAlignment="Center"
                                     FontSize="15"
-                                    HorizontalAlignment="Center"
                                     Foreground="White"
                                     Text="DC当前电流:" />
                                 <TextBlock
@@ -518,13 +518,13 @@
                                     Text="{Binding DcSourceControlCurrent}" />
                                 <!--  BMS电流 & 低功耗电流  -->
                                 <TextBlock
-                                    Margin="5"
                                     Grid.Row="2"
                                     Grid.Column="0"
+                                    Margin="5"
+                                    HorizontalAlignment="Center"
                                     VerticalAlignment="Center"
                                     FontSize="15"
                                     Foreground="White"
-                                    HorizontalAlignment="Center"
                                     Text="BMS电流:" />
                                 <TextBlock
                                     Grid.Row="2"
@@ -551,12 +551,12 @@
                                 <!--  充电电流校准系数  -->
                                 <TextBlock
                                     Grid.Row="3"
-                                    Margin="5"
                                     Grid.Column="0"
+                                    Margin="5"
+                                    HorizontalAlignment="Center"
                                     VerticalAlignment="Center"
                                     FontSize="15"
                                     Foreground="White"
-                                    HorizontalAlignment="Center"
                                     Text="充电校准系数:" />
                                 <TextBlock
                                     Grid.Row="3"
@@ -585,8 +585,8 @@
                                 <TextBlock
                                     Grid.Row="4"
                                     Grid.Column="0"
-                                    VerticalAlignment="Center"
                                     HorizontalAlignment="Center"
+                                    VerticalAlignment="Center"
                                     FontSize="15"
                                     Foreground="White"
                                     Text="放电校准系数:" />
@@ -612,7 +612,11 @@
                                     FontSize="17"
                                     Foreground="White"
                                     Text="{Binding SetDischargeCurrentAdj}" />
-                                <UniformGrid Margin="10" Grid.ColumnSpan="4" Grid.Row="5" Columns="2">
+                                <UniformGrid
+                                    Grid.Row="5"
+                                    Grid.ColumnSpan="4"
+                                    Margin="10"
+                                    Columns="2">
                                     <Button
                                         Height="40"
                                         Margin="4"
@@ -666,18 +670,18 @@
                                         Command="{Binding OpenDcSourceSwitchCmd}"
                                         Content="DC电源开"
                                         FontSize="17"
-                                        Style="{StaticResource BtnStyle5}" 
-                                        Foreground="{Binding DcSourceSwitch,Converter={StaticResource ColorConverter}}"/>
+                                        Foreground="{Binding DcSourceSwitch, Converter={StaticResource ColorConverter}}"
+                                        Style="{StaticResource BtnStyle5}" />
                                     <Button
                                         Margin="4"
                                         Command="{Binding CloseDcSourceSwitchTestCmd}"
                                         Content="DC电源关"
                                         FontSize="17"
-                                        Style="{StaticResource BtnStyle5}"
-                                        Foreground="{Binding DcSourceSwitch,Converter={StaticResource ColorConverter2}}"/>
-                                   
+                                        Foreground="{Binding DcSourceSwitch, Converter={StaticResource ColorConverter2}}"
+                                        Style="{StaticResource BtnStyle5}" />
+
                                 </UniformGrid>
-        
+
                             </Grid>
                         </GroupBox>
                     </Expander>
@@ -689,156 +693,200 @@
                                     Height="40"
                                     Margin="4"
                                     Command="{Binding OpenCharge}"
-                                    Content="充电开启"
+                                    Content="直流源1开启"
                                     FontSize="17"
-                                    Foreground="{Binding BMS_Receive.ChargeDischargeRelay4Control, Converter={StaticResource ColorConverter}}"
+                                    Foreground="{Binding BMS_Receive.DcSource1Switch, Converter={StaticResource ColorConverter}}"
                                     Style="{StaticResource BtnStyle5}" />
                                 <Button
                                     Margin="4"
                                     Command="{Binding CloseCharge}"
-                                    Content="充电关闭"
+                                    Content="直流源1关闭"
                                     FontSize="17"
-                                    Foreground="{Binding BMS_Receive.ChargeDischargeRelay4Control, Converter={StaticResource ColorConverter2}}"
+                                    Foreground="{Binding BMS_Receive.DcSource1Switch, Converter={StaticResource ColorConverter2}}"
                                     Style="{StaticResource BtnStyle5}" />
                                 <Button
                                     Margin="4"
                                     Command="{Binding OpenDisCharge}"
-                                    Content="放电开启"
+                                    Content="直流源2开启"
                                     FontSize="17"
-                                    Foreground="{Binding BMS_Receive.ChargeDischargeRelay5Control, Converter={StaticResource ColorConverter}}"
+                                    Foreground="{Binding BMS_Receive.DcSource2Switch, Converter={StaticResource ColorConverter}}"
                                     Style="{StaticResource BtnStyle5}" />
                                 <Button
                                     Margin="4"
                                     Command="{Binding CloseDisCharge}"
-                                    Content="放电关闭"
+                                    Content="直流源2关闭"
                                     FontSize="17"
-                                    Foreground="{Binding BMS_Receive.ChargeDischargeRelay5Control, Converter={StaticResource ColorConverter2}}"
+                                    Foreground="{Binding BMS_Receive.DcSource2Switch, Converter={StaticResource ColorConverter2}}"
                                     Style="{StaticResource BtnStyle5}" />
                                 <Button
                                     Margin="4"
-                                    Command="{Binding OpenLevel1Current}"
-                                    Content="一档电流开启"
+                                    Command="{Binding OpenElectronicLoadModeCom}"
+                                    Content="电子负载开启"
                                     FontSize="17"
-                                    Foreground="{Binding BMS_Receive.ChargeDischargeRelay3Control, Converter={StaticResource ColorConverter}}"
+                                    Foreground="{Binding BMS_Receive.ElectronicLoadMode, Converter={StaticResource ColorConverter}}"
                                     Style="{StaticResource BtnStyle5}" />
                                 <Button
                                     Margin="4"
-                                    Command="{Binding CloseLevel1Current}"
-                                    Content="一档电流关闭"
+                                    Command="{Binding CloseElectronicLoadModeCom}"
+                                    Content="电子负载关闭"
                                     FontSize="17"
-                                    Foreground="{Binding BMS_Receive.ChargeDischargeRelay3Control, Converter={StaticResource ColorConverter2}}"
+                                    Foreground="{Binding BMS_Receive.ElectronicLoadMode, Converter={StaticResource ColorConverter2}}"
                                     Style="{StaticResource BtnStyle5}" />
                                 <Button
                                     Margin="4"
-                                    Command="{Binding OpenLevel2Current}"
-                                    Content="二档电流开启"
+                                    Command="{Binding OpenReserved1}"
+                                    Content="电子负载输出开启"
                                     FontSize="17"
-                                    Foreground="{Binding BMS_Receive.ChargeDischargeRelay2Control, Converter={StaticResource ColorConverter}}"
+                                    Foreground="{Binding BMS_Receive.Reserved1, Converter={StaticResource ColorConverter}}"
                                     Style="{StaticResource BtnStyle5}" />
                                 <Button
                                     Margin="4"
-                                    Command="{Binding CloseLevel2Current}"
-                                    Content="二档电流关闭"
+                                    Command="{Binding CloseReserved1}"
+                                    Content="电子负载输出关闭"
                                     FontSize="17"
-                                    Foreground="{Binding BMS_Receive.ChargeDischargeRelay2Control, Converter={StaticResource ColorConverter2}}"
+                                    Foreground="{Binding BMS_Receive.Reserved1, Converter={StaticResource ColorConverter2}}"
                                     Style="{StaticResource BtnStyle5}" />
                                 <Button
                                     Margin="4"
-                                    Command="{Binding OpenLevel3Current}"
-                                    Content="三挡电流开启"
+                                    Command="{Binding OpenReserved2}"
+                                    Content="预留2开启"
                                     FontSize="17"
-                                    Foreground="{Binding BMS_Receive.ChargeDischargeRelay1Control, Converter={StaticResource ColorConverter}}"
+                                    Foreground="{Binding BMS_Receive.Reserved2, Converter={StaticResource ColorConverter}}"
                                     Style="{StaticResource BtnStyle5}" />
                                 <Button
                                     Margin="4"
-                                    Command="{Binding CloseLevel3Current}"
-                                    Content="三挡电流关闭"
+                                    Command="{Binding CloseReserved2}"
+                                    Content="预留2关闭"
                                     FontSize="17"
-                                    Foreground="{Binding BMS_Receive.ChargeDischargeRelay1Control, Converter={StaticResource ColorConverter2}}"
+                                    Foreground="{Binding BMS_Receive.Reserved2, Converter={StaticResource ColorConverter2}}"
                                     Style="{StaticResource BtnStyle5}" />
                                 <Button
                                     Margin="4"
-                                    Command="{Binding OpenChargeMOS1}"
-                                    Content="放电MOS管1开启"
+                                    Command="{Binding OpenReserved3}"
+                                    Content="预留3开启"
                                     FontSize="17"
-                                    Foreground="{Binding BMS_Receive.ChargeDischargeMosfet1Control, Converter={StaticResource ColorConverter}}"
+                                    Foreground="{Binding BMS_Receive.Reserved3, Converter={StaticResource ColorConverter}}"
                                     Style="{StaticResource BtnStyle5}" />
                                 <Button
                                     Margin="4"
-                                    Command="{Binding CloseChargeMOS1}"
-                                    Content="放电MOS管1关闭"
+                                    Command="{Binding CloseReserved3}"
+                                    Content="预留3关闭"
                                     FontSize="17"
-                                    Foreground="{Binding BMS_Receive.ChargeDischargeMosfet1Control, Converter={StaticResource ColorConverter2}}"
+                                    Foreground="{Binding BMS_Receive.Reserved3, Converter={StaticResource ColorConverter2}}"
                                     Style="{StaticResource BtnStyle5}" />
                                 <Button
                                     Margin="4"
-                                    Command="{Binding OpenChargeMOS2}"
-                                    Content="充电MOS管2开启"
+                                    Command="{Binding OpenResistorBankMosfetStatus}"
+                                    Content="电阻棒MOS开启"
                                     FontSize="17"
-                                    Foreground="{Binding BMS_Receive.ChargeDischargeMosfet2Control, Converter={StaticResource ColorConverter}}"
+                                    Foreground="{Binding BMS_Receive.ResistorBankMosfetStatus, Converter={StaticResource ColorConverter}}"
                                     Style="{StaticResource BtnStyle5}" />
                                 <Button
                                     Margin="4"
-                                    Command="{Binding CloseChargeMOS2}"
-                                    Content="充电MOS管2关闭"
+                                    Command="{Binding CloseResistorBankMosfetStatus}"
+                                    Content="电阻棒MOS关闭"
                                     FontSize="17"
-                                    Foreground="{Binding BMS_Receive.ChargeDischargeMosfet2Control, Converter={StaticResource ColorConverter2}}"
+                                    Foreground="{Binding BMS_Receive.ResistorBankMosfetStatus, Converter={StaticResource ColorConverter2}}"
                                     Style="{StaticResource BtnStyle5}" />
+                                <Button
+                                    Margin="4"
+                                    Command="{Binding OpenChargeRelayStatus}"
+                                    Content="充电继电器开启"
+                                    FontSize="17"
+                                    Foreground="{Binding BMS_Receive.ChargeRelayStatus, Converter={StaticResource ColorConverter}}"
+                                    Style="{StaticResource BtnStyle5}" />
+                                <Button
+                                    Margin="4"
+                                    Command="{Binding CloseChargeRelayStatus}"
+                                    Content="充电继电器关闭"
+                                    FontSize="17"
+                                    Foreground="{Binding BMS_Receive.ChargeRelayStatus, Converter={StaticResource ColorConverter2}}"
+                                    Style="{StaticResource BtnStyle5}" />
+                                <Button
+                                    Margin="4"
+                                    Command="{Binding OpenDischargeRelayStatus}"
+                                    Content="放电继电器开启"
+                                    FontSize="17"
+                                    Foreground="{Binding BMS_Receive.DischargeRelayStatus, Converter={StaticResource ColorConverter}}"
+                                    Style="{StaticResource BtnStyle5}" />
+                                <Button
+                                    Margin="4"
+                                    Command="{Binding CloseDischargeRelayStatus}"
+                                    Content="放电继电器关闭"
+                                    FontSize="17"
+                                    Foreground="{Binding BMS_Receive.DischargeRelayStatus, Converter={StaticResource ColorConverter2}}"
+                                    Style="{StaticResource BtnStyle5}" />
+                                <Button
+                                    Margin="4"
+                                    Command="{Binding OpenChargeCurrentLimitNegativeRelayStatus}"
+                                    Content="充电限流负极开启"
+                                    FontSize="17"
+                                    Foreground="{Binding BMS_Receive.ChargeCurrentLimitNegativeRelayStatus, Converter={StaticResource ColorConverter}}"
+                                    Style="{StaticResource BtnStyle5}" />
+                                <Button
+                                    Margin="4"
+                                    Command="{Binding CloseChargeCurrentLimitNegativeRelayStatus}"
+                                    Content="充电限流负极关闭"
+                                    FontSize="17"
+                                    Foreground="{Binding BMS_Receive.ChargeCurrentLimitNegativeRelayStatus, Converter={StaticResource ColorConverter2}}"
+                                    Style="{StaticResource BtnStyle5}" />
+
+
                                 <Button
                                     Margin="4"
                                     Command="{Binding LowPowerVoltageAndCurrentCmd}"
-                                    Content="预留继电器1开启"
+                                    Content="低功耗继电器开启"
                                     FontSize="17"
-                                    Foreground="{Binding BMS_Receive.LowerRelay1Control, Converter={StaticResource ColorConverter}}"
+                                    Foreground="{Binding BMS_Receive.LowPowerRelayStatus, Converter={StaticResource ColorConverter}}"
                                     Style="{StaticResource BtnStyle5}" />
                                 <Button
                                     Margin="4"
                                     Command="{Binding CloseLowPowerVoltageAndCurrentCmd}"
-                                    Content="预留继电器1关闭"
+                                    Content="低功耗继电器关闭"
                                     FontSize="17"
-                                    Foreground="{Binding BMS_Receive.LowerRelay1Control, Converter={StaticResource ColorConverter2}}"
+                                    Foreground="{Binding BMS_Receive.LowPowerRelayStatus, Converter={StaticResource ColorConverter2}}"
                                     Style="{StaticResource BtnStyle5}" />
                                 <Button
                                     Margin="4"
                                     Command="{Binding Relay2ControlTestCmd}"
                                     Content="预留继电器2开启"
                                     FontSize="17"
-                                    Foreground="{Binding BMS_Receive.Relay2Control, Converter={StaticResource ColorConverter}}"
+                                    Foreground="{Binding BMS_Receive.Reserved1RelayStatus, Converter={StaticResource ColorConverter}}"
                                     Style="{StaticResource BtnStyle5}" />
                                 <Button
                                     Margin="4"
                                     Command="{Binding CloseRelay2ControlTestCmd}"
                                     Content="预留继电器2关闭"
                                     FontSize="17"
-                                    Foreground="{Binding BMS_Receive.Relay2Control, Converter={StaticResource ColorConverter2}}"
+                                    Foreground="{Binding BMS_Receive.Reserved1RelayStatus, Converter={StaticResource ColorConverter2}}"
                                     Style="{StaticResource BtnStyle5}" />
                                 <Button
                                     Margin="4"
                                     Command="{Binding Relay3ControlTestCmd}"
                                     Content="预留继电器3开启"
                                     FontSize="17"
-                                    Foreground="{Binding BMS_Receive.Relay3Control, Converter={StaticResource ColorConverter}}"
+                                    Foreground="{Binding BMS_Receive.Reserved2RelayStatus, Converter={StaticResource ColorConverter}}"
                                     Style="{StaticResource BtnStyle5}" />
                                 <Button
                                     Margin="4"
                                     Command="{Binding CloseRelay3ControlTestCmd}"
                                     Content="预留继电器3关闭"
                                     FontSize="17"
-                                    Foreground="{Binding BMS_Receive.Relay3Control, Converter={StaticResource ColorConverter2}}"
+                                    Foreground="{Binding BMS_Receive.Reserved2RelayStatus, Converter={StaticResource ColorConverter2}}"
                                     Style="{StaticResource BtnStyle5}" />
                                 <Button
                                     Margin="4"
                                     Command="{Binding Relay4ControlTestCmd}"
                                     Content="预留继电器4开启"
                                     FontSize="17"
-                                    Foreground="{Binding BMS_Receive.Relay4Control, Converter={StaticResource ColorConverter}}"
+                                    Foreground="{Binding BMS_Receive.Reserved3RelayStatus, Converter={StaticResource ColorConverter}}"
                                     Style="{StaticResource BtnStyle5}" />
                                 <Button
                                     Margin="4"
                                     Command="{Binding CloseRelay4ControlTestCmd}"
                                     Content="预留继电器4关闭"
                                     FontSize="17"
-                                    Foreground="{Binding BMS_Receive.Relay4Control, Converter={StaticResource ColorConverter2}}"
+                                    Foreground="{Binding BMS_Receive.Reserved3RelayStatus, Converter={StaticResource ColorConverter2}}"
                                     Style="{StaticResource BtnStyle5}" />
                             </UniformGrid>
                         </GroupBox>
