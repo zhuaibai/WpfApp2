@@ -739,6 +739,7 @@ namespace WpfApp2.ViewModels
                             i++;
                         }
                     }
+                    
                     Application.Current.Dispatcher.Invoke(() => ShowBubble("测试结束"));
                 }
             }
