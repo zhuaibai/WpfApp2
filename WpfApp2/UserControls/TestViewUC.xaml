@@ -452,6 +452,10 @@
                                     <RowDefinition />
                                     <RowDefinition />
                                     <RowDefinition />
+                                    <RowDefinition />
+                                    <RowDefinition />
+                                    <RowDefinition />
+                                    <RowDefinition />
                                 </Grid.RowDefinitions>
                                 <!--  DC电压  -->
                                 <TextBlock
@@ -461,21 +465,21 @@
                                     VerticalAlignment="Center"
                                     FontSize="15"
                                     Foreground="White"
-                                    Text="DC当前电压:" />
+                                    Text="DC1当前电压:" />
                                 <TextBlock
                                     Grid.Column="1"
                                     Margin="0,12,0,0"
                                     VerticalAlignment="Center"
                                     FontSize="17"
                                     Foreground="#ff2bedf1"
-                                    Text="{Binding BMS_Receive.DcSourceVoltage}" />
+                                    Text="{Binding BMS_Receive.DcSource1Voltage}" />
                                 <TextBlock
                                     Grid.Column="2"
                                     Margin="0,12,0,0"
                                     VerticalAlignment="Center"
                                     FontSize="15"
                                     Foreground="White"
-                                    Text="DC设置电压:" />
+                                    Text="DC1设置电压:" />
                                 <TextBox
                                     Grid.Column="3"
                                     Margin="0,12,0,0"
@@ -493,21 +497,21 @@
                                     VerticalAlignment="Center"
                                     FontSize="15"
                                     Foreground="White"
-                                    Text="DC当前电流:" />
+                                    Text="DC1当前电流:" />
                                 <TextBlock
                                     Grid.Row="1"
                                     Grid.Column="1"
                                     VerticalAlignment="Center"
                                     FontSize="17"
                                     Foreground="#ff2bedf1"
-                                    Text="{Binding BMS_Receive.DcSourceCurrent}" />
+                                    Text="{Binding BMS_Receive.DcSource1Current}" />
                                 <TextBlock
                                     Grid.Row="1"
                                     Grid.Column="2"
                                     VerticalAlignment="Center"
                                     FontSize="15"
                                     Foreground="White"
-                                    Text="DC设置电流:" />
+                                    Text="DC1设置电流:" />
                                 <TextBox
                                     Grid.Row="1"
                                     Grid.Column="3"
@@ -516,9 +520,76 @@
                                     FontSize="17"
                                     Foreground="White"
                                     Text="{Binding DcSourceControlCurrent}" />
-                                <!--  BMS电流 & 低功耗电流  -->
+                                <!--  DC2电压  -->
                                 <TextBlock
                                     Grid.Row="2"
+                                    Grid.Column="0"
+                                    Margin="0,12,0,0"
+                                    HorizontalAlignment="Center"
+                                    VerticalAlignment="Center"
+                                    FontSize="15"
+                                    Foreground="White"
+                                    Text="DC2当前电压:" />
+                                <TextBlock
+                                    Grid.Row="2"
+                                    Grid.Column="1"
+                                    Margin="0,12,0,0"
+                                    VerticalAlignment="Center"
+                                    FontSize="17"
+                                    Foreground="#ff2bedf1"
+                                    Text="{Binding BMS_Receive.DcSource2Voltage}" />
+                                <TextBlock
+                                    Grid.Row="2"
+                                    Grid.Column="2"
+                                    Margin="0,12,0,0"
+                                    VerticalAlignment="Center"
+                                    FontSize="15"
+                                    Foreground="White"
+                                    Text="DC2设置电压:" />
+                                <TextBox
+                                    Grid.Row="2"
+                                    Grid.Column="3"
+                                    Margin="0,12,0,0"
+                                    VerticalAlignment="Center"
+                                    Background="#33ffffff"
+                                    FontSize="17"
+                                    Foreground="White"
+                                    Text="{Binding DcSource2ControlVoltage}" />
+                                <!--  DC电流  -->
+                                <TextBlock
+                                    Grid.Row="3"
+                                    Grid.Column="0"
+                                    Margin="5"
+                                    HorizontalAlignment="Center"
+                                    VerticalAlignment="Center"
+                                    FontSize="15"
+                                    Foreground="White"
+                                    Text="DC2当前电流:" />
+                                <TextBlock
+                                    Grid.Row="3"
+                                    Grid.Column="1"
+                                    VerticalAlignment="Center"
+                                    FontSize="17"
+                                    Foreground="#ff2bedf1"
+                                    Text="{Binding BMS_Receive.DcSource2Current}" />
+                                <TextBlock
+                                    Grid.Row="3"
+                                    Grid.Column="2"
+                                    VerticalAlignment="Center"
+                                    FontSize="15"
+                                    Foreground="White"
+                                    Text="DC2设置电流:" />
+                                <TextBox
+                                    Grid.Row="3"
+                                    Grid.Column="3"
+                                    VerticalAlignment="Center"
+                                    Background="#33ffffff"
+                                    FontSize="17"
+                                    Foreground="White"
+                                    Text="{Binding DcSource2ControlCurrent}" />
+                                <!--  BMS电流 & 低功耗电流  -->
+                                <TextBlock
+                                    Grid.Row="4"
                                     Grid.Column="0"
                                     Margin="5"
                                     HorizontalAlignment="Center"
@@ -527,21 +598,21 @@
                                     Foreground="White"
                                     Text="BMS电流:" />
                                 <TextBlock
-                                    Grid.Row="2"
+                                    Grid.Row="4"
                                     Grid.Column="1"
                                     VerticalAlignment="Center"
                                     FontSize="17"
                                     Foreground="#ff2bedf1"
                                     Text="{Binding BMSCurrent}" />
                                 <TextBlock
-                                    Grid.Row="2"
+                                    Grid.Row="4"
                                     Grid.Column="2"
                                     VerticalAlignment="Center"
                                     FontSize="15"
                                     Foreground="White"
                                     Text="低功耗电流:" />
                                 <TextBlock
-                                    Grid.Row="2"
+                                    Grid.Row="4"
                                     Grid.Column="3"
                                     VerticalAlignment="Center"
                                     FontSize="17"
@@ -550,7 +621,7 @@
 
                                 <!--  充电电流校准系数  -->
                                 <TextBlock
-                                    Grid.Row="3"
+                                    Grid.Row="5"
                                     Grid.Column="0"
                                     Margin="5"
                                     HorizontalAlignment="Center"
@@ -559,21 +630,21 @@
                                     Foreground="White"
                                     Text="充电校准系数:" />
                                 <TextBlock
-                                    Grid.Row="3"
+                                    Grid.Row="5"
                                     Grid.Column="1"
                                     VerticalAlignment="Center"
                                     FontSize="17"
                                     Foreground="#ff2bedf1"
                                     Text="{Binding ChargeCurrentAdj}" />
                                 <TextBlock
-                                    Grid.Row="3"
+                                    Grid.Row="5"
                                     Grid.Column="2"
                                     VerticalAlignment="Center"
                                     FontSize="15"
                                     Foreground="White"
                                     Text="设置系数值:" />
                                 <TextBox
-                                    Grid.Row="3"
+                                    Grid.Row="5"
                                     Grid.Column="3"
                                     VerticalAlignment="Center"
                                     Background="#33ffffff"
@@ -583,7 +654,7 @@
 
                                 <!--  放电电流校准系数  -->
                                 <TextBlock
-                                    Grid.Row="4"
+                                    Grid.Row="6"
                                     Grid.Column="0"
                                     HorizontalAlignment="Center"
                                     VerticalAlignment="Center"
@@ -591,21 +662,21 @@
                                     Foreground="White"
                                     Text="放电校准系数:" />
                                 <TextBlock
-                                    Grid.Row="4"
+                                    Grid.Row="6"
                                     Grid.Column="1"
                                     VerticalAlignment="Center"
                                     FontSize="17"
                                     Foreground="#ff2bedf1"
                                     Text="{Binding DischargeCurrentAdj}" />
                                 <TextBlock
-                                    Grid.Row="4"
+                                    Grid.Row="6"
                                     Grid.Column="2"
                                     VerticalAlignment="Center"
                                     FontSize="15"
                                     Foreground="White"
                                     Text="设置系数值:" />
                                 <TextBox
-                                    Grid.Row="4"
+                                    Grid.Row="6"
                                     Grid.Column="3"
                                     VerticalAlignment="Center"
                                     Background="#33ffffff"
@@ -613,7 +684,7 @@
                                     Foreground="White"
                                     Text="{Binding SetDischargeCurrentAdj}" />
                                 <UniformGrid
-                                    Grid.Row="5"
+                                    Grid.Row="7"
                                     Grid.ColumnSpan="4"
                                     Margin="10"
                                     Columns="2">
@@ -668,16 +739,30 @@
                                     <Button
                                         Margin="4"
                                         Command="{Binding OpenDcSourceSwitchCmd}"
-                                        Content="DC电源开"
+                                        Content="DC电源1开"
                                         FontSize="17"
                                         Foreground="{Binding DcSourceSwitch, Converter={StaticResource ColorConverter}}"
                                         Style="{StaticResource BtnStyle5}" />
                                     <Button
                                         Margin="4"
                                         Command="{Binding CloseDcSourceSwitchTestCmd}"
-                                        Content="DC电源关"
+                                        Content="DC电源1关"
                                         FontSize="17"
                                         Foreground="{Binding DcSourceSwitch, Converter={StaticResource ColorConverter2}}"
+                                        Style="{StaticResource BtnStyle5}" />
+                                    <Button
+                                        Margin="4"
+                                        Command="{Binding OpenDcSource2SwitchCom}"
+                                        Content="DC电源2开"
+                                        FontSize="17"
+                                        Foreground="{Binding DcSource2Switch, Converter={StaticResource ColorConverter}}"
+                                        Style="{StaticResource BtnStyle5}" />
+                                    <Button
+                                        Margin="4"
+                                        Command="{Binding CloseDcSource2SwitchTestCom}"
+                                        Content="DC电源2关"
+                                        FontSize="17"
+                                        Foreground="{Binding DcSource2Switch, Converter={StaticResource ColorConverter2}}"
                                         Style="{StaticResource BtnStyle5}" />
 
                                 </UniformGrid>
@@ -706,14 +791,14 @@
                                     Style="{StaticResource BtnStyle5}" />
                                 <Button
                                     Margin="4"
-                                    Command="{Binding OpenDisCharge}"
+                                    Command="{Binding OpenDcSource2SwitchCom}"
                                     Content="直流源2开启"
                                     FontSize="17"
                                     Foreground="{Binding BMS_Receive.DcSource2Switch, Converter={StaticResource ColorConverter}}"
                                     Style="{StaticResource BtnStyle5}" />
                                 <Button
                                     Margin="4"
-                                    Command="{Binding CloseDisCharge}"
+                                    Command="{Binding CloseDcSource2SwitchTestCom}"
                                     Content="直流源2关闭"
                                     FontSize="17"
                                     Foreground="{Binding BMS_Receive.DcSource2Switch, Converter={StaticResource ColorConverter2}}"

@@ -62,7 +62,7 @@ namespace WpfApp2.Tools
 
 
         /// <summary>
-        /// 判断两个值的差值是否小于5
+        /// 判断两个值的差值是否小于1
         /// </summary>
         /// <param name="a"></param>
         /// <param name="b"></param>
@@ -73,7 +73,7 @@ namespace WpfApp2.Tools
             int difference = Math.Abs(a - b);
 
             // 判断差值是否小于5
-            return difference <= 5;
+            return difference <= 2;
         }
 
         /// <summary>
@@ -104,6 +104,7 @@ namespace WpfApp2.Tools
             // 确保字节数组长度足够        
             if (bytes == null || bytes.Length < startIndex + 2)
             {
+                return 0;
                 throw new ArgumentException("字节数组长度不足");
             }
             // 方法1：使用BitConverter（平台相关的字节序）        

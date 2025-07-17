@@ -54,6 +54,7 @@ namespace WpfApp2.Tools
         {
             if (bytes.Length != 2)
             {
+                return 0;
                 throw new ArgumentException("字节数组的长度必须为2。");
             }
             return (ushort)((bytes[0] << 8) | bytes[1]); // 高字节左移8位后与低字节相或

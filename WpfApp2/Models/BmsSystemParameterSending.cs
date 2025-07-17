@@ -51,7 +51,7 @@ namespace WpfApp2.Models
         public ushort Reserved3 { get; set; }              // 预留3
 
         // 设备状态参数
-        public ushort ResistorBankMosfetStatus { get; set; }   // 电阻帮MOS状态
+        public ushort ResistorBankMosfetStatus { get; set; }   // 电阻棒MOS状态
         public ushort ChargeRelayStatus { get; set; }          // 充电继电器状态
         public ushort DischargeRelayStatus { get; set; }       // 放电继电器状态
         public ushort ChargeCurrentLimitNegativeRelayStatus { get; set; }  // 充电限流负极继电器状态
@@ -106,9 +106,7 @@ namespace WpfApp2.Models
             WriteUShort(TestSuccessLedStatus, result, offset); offset += 2;
             WriteUShort(TestFailureLedStatus, result, offset); offset += 2;
 
-            WriteUShort(DcSourceSwitch, result, offset); offset += 2;
-            WriteUShort(DcSourceControlVoltage, result, offset); offset += 2;
-            WriteUShort(DcSourceControlCurrent, result, offset); offset += 2;
+            
 
             WriteUShort(DcSource1Switch, result, offset); offset += 2;
             WriteUShort(DcSource1Voltage, result, offset); offset += 2;
@@ -118,6 +116,10 @@ namespace WpfApp2.Models
             WriteUShort(DcSource2Voltage, result, offset); offset += 2;
             WriteUShort(DcSource2Current, result, offset); offset += 2;
 
+            WriteUShort(DcSourceSwitch, result, offset); offset += 2;
+            WriteUShort(DcSourceControlVoltage, result, offset); offset += 2;
+            WriteUShort(DcSourceControlCurrent, result, offset); offset += 2;
+
             WriteUShort(ElectronicLoadMode, result, offset); offset += 2;
             WriteUShort(ElectronicLoadCurrent, result, offset); offset += 2;
 
@@ -125,7 +127,7 @@ namespace WpfApp2.Models
             WriteUShort(Reserved2, result, offset); offset += 2;
             WriteUShort(Reserved3, result, offset); offset += 2;
 
-            WriteUShort(ResistorBankMosfetStatus, result, offset); offset += 2;
+            WriteUShort(ResistorBankMosfetStatus, result, offset); offset += 2;   
             WriteUShort(ChargeRelayStatus, result, offset); offset += 2;
             WriteUShort(DischargeRelayStatus, result, offset); offset += 2;
             WriteUShort(ChargeCurrentLimitNegativeRelayStatus, result, offset); offset += 2;
@@ -161,10 +163,6 @@ namespace WpfApp2.Models
             result.TestSuccessLedStatus = ReadUShort(data, offset); offset += 2;
             result.TestFailureLedStatus = ReadUShort(data, offset); offset += 2;
 
-            result.DcSourceSwitch = ReadUShort(data, offset); offset += 2;
-            result.DcSourceControlVoltage = ReadUShort(data, offset); offset += 2;
-            result.DcSourceControlCurrent = ReadUShort(data, offset); offset += 2;
-
             result.DcSource1Switch = ReadUShort(data, offset); offset += 2;
             result.DcSource1Voltage = ReadUShort(data, offset); offset += 2;
             result.DcSource1Current = ReadUShort(data, offset); offset += 2;
@@ -172,6 +170,10 @@ namespace WpfApp2.Models
             result.DcSource2Switch = ReadUShort(data, offset); offset += 2;
             result.DcSource2Voltage = ReadUShort(data, offset); offset += 2;
             result.DcSource2Current = ReadUShort(data, offset); offset += 2;
+
+            result.DcSourceSwitch = ReadUShort(data, offset); offset += 2;
+            result.DcSourceControlVoltage = ReadUShort(data, offset); offset += 2;
+            result.DcSourceControlCurrent = ReadUShort(data, offset); offset += 2;
 
             result.ElectronicLoadMode = ReadUShort(data, offset); offset += 2;
             result.ElectronicLoadCurrent = ReadUShort(data, offset); offset += 2;
