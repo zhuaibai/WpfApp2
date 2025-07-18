@@ -121,7 +121,7 @@
     </UserControl.Resources>
     <Grid>
         <Grid.ColumnDefinitions>
-            <ColumnDefinition MinWidth="100" MaxWidth="250" />
+            <ColumnDefinition MinWidth="300" MaxWidth="350" />
             <ColumnDefinition Width="auto" />
             <ColumnDefinition Width="2*" />
             <ColumnDefinition MinWidth="300" MaxWidth="400" />
@@ -683,8 +683,39 @@
                                     FontSize="17"
                                     Foreground="White"
                                     Text="{Binding SetDischargeCurrentAdj}" />
-                                <UniformGrid
+                                <!--  放电电流校准系数  -->
+                                <TextBlock
                                     Grid.Row="7"
+                                    Grid.Column="0"
+                                    HorizontalAlignment="Center"
+                                    VerticalAlignment="Center"
+                                    FontSize="15"
+                                    Foreground="White"
+                                    Text="当前:" />
+                                <TextBlock
+                                    Grid.Row="7"
+                                    Grid.Column="1"
+                                    VerticalAlignment="Center"
+                                    FontSize="17"
+                                    Foreground="#ff2bedf1"
+                                    Text="{Binding BMS_Receive.ElectronicLoadCurrent}" />
+                                <TextBlock
+                                    Grid.Row="7"
+                                    Grid.Column="2"
+                                    VerticalAlignment="Center"
+                                    FontSize="15"
+                                    Foreground="White"
+                                    Text="电子负载电流  :" />
+                                <TextBox
+                                    Grid.Row="7"
+                                    Grid.Column="3"
+                                    VerticalAlignment="Center"
+                                    Background="#33ffffff"
+                                    FontSize="17"
+                                    Foreground="White"
+                                    Text="{Binding SetElectronicLoadCurrent}" />
+                                <UniformGrid
+                                    Grid.Row="8"
                                     Grid.ColumnSpan="4"
                                     Margin="10"
                                     Columns="2">

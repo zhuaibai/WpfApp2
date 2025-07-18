@@ -348,7 +348,7 @@ namespace WpfApp2.ViewModels
             {
 
                 LogEntries.Add(logEntry);
-                if (LogEntries.Count > 100) LogEntries.RemoveAt(0);
+                if (LogEntries.Count > 300) LogEntries.RemoveAt(0);
             });
             SaveLogToFile($"【{logEntry.Time}】  {log}");
         }
@@ -571,7 +571,7 @@ namespace WpfApp2.ViewModels
         private CancellationTokenSource _cts = new CancellationTokenSource();//取消线程专用
         private ManualResetEventSlim _pauseEvent = new ManualResetEventSlim(true);//暂停线程专用
         private readonly SemaphoreSlim _semaphore = new SemaphoreSlim(1, 1); // 异步竞争	                                 
-        private BmsSystemParametersSending parametersSending = new BmsSystemParametersSending() { CommunicationVersion = 1001, LowPowerRelayStatus = 1, Reserved1RelayStatus = 1, Reserved2RelayStatus = 1, Reserved3RelayStatus = 1, DcSource1Current = 10, DcSource1Voltage = 5000, DcSource1Switch = 1,DcSource2Current=100 }; //发送指令实体类初始化，默认MOS管2开启
+        private BmsSystemParametersSending parametersSending = new BmsSystemParametersSending() { CommunicationVersion = 1001, LowPowerRelayStatus = 1, Reserved1RelayStatus = 1, Reserved2RelayStatus = 1, Reserved3RelayStatus = 1, DcSource1Current = 10, DcSource1Voltage = 5000, DcSource1Switch = 1, DcSource2Current = 100 };
         //
         #region 开始、停止按钮的互相切换
         private Visibility _visibility = Visibility.Visible;
@@ -678,7 +678,7 @@ namespace WpfApp2.ViewModels
             _cts.Cancel();
             AddLog("后台通信停止请求已发送");
             Application.Current.Dispatcher.Invoke(() => ShowBubble("正在停止，请稍等..."));
-            SwitchButtonVisible(true);
+            //SwitchButtonVisible(true);
         }
 
         /// <summary>
@@ -686,16 +686,26 @@ namespace WpfApp2.ViewModels
         /// </summary>
         private async Task BackgroundWorker(CancellationToken token)
         {
+            // 记录任务开始时间
+            DateTime start = TimeTracker.Start();
             //把所有项置为待测试
             ReSetTestItems();
 
             int i = 0;//计数
             bool flag = false;//测试成功与否
+            parametersSending = new BmsSystemParametersSending() { CommunicationVersion = 1001, LowPowerRelayStatus = 1, Reserved1RelayStatus = 1, Reserved2RelayStatus = 1, Reserved3RelayStatus = 1, DcSource1Current = 10, DcSource1Voltage = 5000, DcSource1Switch = 1, DcSource2Current = 100 }; //发送指令实体类初始化，默认MOS管2开启
             do
             {
                 //先开机，确保开机属性
                 BMS_Receive = SendPacked(parametersSending);
-                if (BMS_Receive.DcSource1Switch == 1 && BMS_Receive.LowPowerRelayStatus == 1 && BMS_Receive.Reserved1RelayStatus == 1 && BMS_Receive.Reserved2RelayStatus == 1 && BMS_Receive.Reserved3RelayStatus == 1 )
+                if (BMS_Receive == null)
+                {
+                    AddLog($"上位机通讯返回异常,请检查串口是否连接正确");
+                    IsRunning = false;
+                    SwitchButtonVisible(true);
+                    return;
+                }
+                if (BMS_Receive.DcSource1Switch == 1 && BMS_Receive.LowPowerRelayStatus == 1 && BMS_Receive.Reserved1RelayStatus == 1 && BMS_Receive.Reserved2RelayStatus == 1 && BMS_Receive.Reserved3RelayStatus == 1)
                 {
                     flag = true;
                 }
@@ -752,10 +762,20 @@ namespace WpfApp2.ViewModels
                             i++;
                         }
                     }
+                    if (i == TestItems.Count)
+                    {
+                        Application.Current.Dispatcher.Invoke(() => ShowBubble("测试通过"));
+                        AddLog("测试结束，测试结果：通过！");
+                    }
+                    else
+                    {
+                        AddLog("测试结束，测试结果：不合格！");
+                    }
+                    //关闭所有电子元件
 
-                    Application.Current.Dispatcher.Invoke(() => ShowBubble("测试通过"));
-                    AddLog("测试结束，测试结果：通过！");
-                    StopBackgroundThread();
+                    _cts.Cancel();
+
+
                 }
             }
             catch (OperationCanceledException)
@@ -765,11 +785,23 @@ namespace WpfApp2.ViewModels
             catch (Exception ex)
             {
                 AddLog(ex.ToString());
+                AddLog("异常停止");
+
             }
             finally
             {
+                AddLog("准备关闭电子元件");
+                ExitTestMode();
+                SwitchButtonVisible(true);
                 IsRunning = false;
                 AddLog("已停止");
+                // 获取耗时（毫秒）
+                long elapsedMs = TimeTracker.GetElapsedMilliseconds(start);
+                AddLog($"任务耗时: {elapsedMs} 毫秒");
+                // 获取耗时（可读格式）
+                TimeSpan elapsed = TimeTracker.GetElapsedTime(start);
+                AddLog($"任务耗时: {elapsed.TotalSeconds:F2} 秒");
+
             }
         }
 
@@ -939,8 +971,10 @@ namespace WpfApp2.ViewModels
                         Thread.Sleep(200);
                     } while (!interSuccess && ERROR_COUNT < 10);//最多发十次
 
+                    Thread.Sleep(2000);
                     if (interSuccess)
                     {
+                        boxResult = MessageBox.Show("BMS并机通讯已通过，请关闭右侧三个拨码开关！", "测试暂停", MessageBoxButton.OK, MessageBoxImage.Warning);
                         ERROR_COUNT = 0;
                         //已进入测试模式
                         do
@@ -951,7 +985,9 @@ namespace WpfApp2.ViewModels
                         if (!interSuccess)
                         {
                             AddLog("测试异常过多");
+                            return false;
                         }
+
                         return true;
                     }
                     else
@@ -1056,7 +1092,7 @@ namespace WpfApp2.ViewModels
                         //关闭低功耗继电器
                         interSuccess = LowPowerVoltageAndCurrent(0);
                     } while (!interSuccess);
-
+                    AddLog("等待6S");
                     Thread.Sleep(6000);
                     //采低功耗电压
                     ERROR_COUNT = 0;
@@ -1067,18 +1103,17 @@ namespace WpfApp2.ViewModels
                         ERROR_COUNT++;
                         //interSuccess = LowPowerVoltageAndCurrent(1);//低功耗检测
                         //关闭继电器1
-
+                        Thread.Sleep(2000);
                         BMS_Receive = SendPacked(parametersSending);
                         BMS_Receive.LowPowerCurrent = (ushort)(BMS_Receive.LowPowerVoltage * 1000000 / 450000);
+                        AddLog($"低功耗检测：电压{BMS_Receive.LowPowerVoltage},电流：{BMS_Receive.LowPowerCurrent}");
+                        
                         if (BMS_Receive.LowPowerCurrent <= 400)
                         {
-                            if (BMS_Receive.LowPowerVoltage == 0)
+                            if (BMS_Receive.LowPowerVoltage != 0&&ERROR_COUNT>=4)
                             {
-                                interSuccess = false;
-                            }
-                            else
                                 interSuccess = true;
-
+                            }
                         }
                         AddLog($"电流为{BMS_Receive.LowPowerCurrent}");
                     } while (!interSuccess);
@@ -1087,6 +1122,7 @@ namespace WpfApp2.ViewModels
                         AddLog("测试异常过多");
                         return false;
                     }
+
                     return true;
                 case "充电电流":
 
@@ -1094,12 +1130,40 @@ namespace WpfApp2.ViewModels
                     interSuccess = false;
                     parametersSending.LowPowerRelayStatus = 1;
                     parametersSending.Reserved3RelayStatus = 1;
+                    interSuccess = ChargeCurrentTest(20);
 
-                    //
-                    interSuccess = ChargeCurrentTest(1);
                     if (!interSuccess)
                     {
-                        AddLog("充电电流测试失败");
+                        AddLog("充电电流测试失败，正在关闭相应电子元件");
+                        int failCount = 0;
+                        bool succeed = false;
+                        do
+                        {
+                            if (failCount++ == 10)
+                            {
+                                return false;
+                            }
+                            //关闭电子负载开关
+                            parametersSending.Reserved1 = 0;
+                            succeed = CloseParameter(parametersSending.Reserved1, "Reserved1", "电子负载开关");
+                            Thread.Sleep(1000);
+                        } while (!succeed);
+                        Thread.Sleep(1000);
+                        failCount = 0;
+                        succeed = false;
+                        //关闭充电继电器
+                        do
+                        {
+                            if (failCount++ == 10)
+                            {
+                                return false;
+                            }
+                            //关闭充电继电器
+                            parametersSending.ChargeRelayStatus = 0;
+                            parametersSending.ElectronicLoadCurrent = 1;
+                            succeed = CloseParameter(parametersSending.ChargeRelayStatus, "ChargeRelayStatus", "充电继电器");
+                            Thread.Sleep(1000);
+                        } while (!succeed);
                         return false;
                     }
                     else
@@ -1113,13 +1177,42 @@ namespace WpfApp2.ViewModels
                     interSuccess = false;
 
                     //
-
-                    interSuccess = DisChargeCurrentTest(1);
-
+                    int[] testDisCurrents = new int[] { 5, 13, 20 };                
+                    interSuccess = DisChargeCurrentTest(20);
                     if (!interSuccess)
                     {
-                        AddLog("放电电流测试失败");
+                        AddLog("放电电流测试失败,正在关闭相应电子元件");
+                        int failCount = 0;
+                        bool succeed = false;
+                        do
+                        {
+                            if (failCount++ == 10)
+                            {
+                                return false;
+                            }
+                            //关闭电子负载开关
+                            parametersSending.Reserved1 = 0;
+                            succeed = CloseParameter(parametersSending.Reserved1, "Reserved1", "电子负载开关");
+                            Thread.Sleep(1000);
+                        } while (!succeed);
+
+
+                        failCount = 0;
+                        succeed = false;
+                        do
+                        {
+                            if (failCount++ == 10)
+                            {
+                                return false;
+                            }
+                            //关闭放电继电器
+                            parametersSending.DischargeRelayStatus = 0;
+                            parametersSending.ElectronicLoadCurrent = 1;
+                            succeed = CloseParameter(parametersSending.DischargeRelayStatus, "DischargeRelayStatus", "放电继电器");
+                            Thread.Sleep(1000);
+                        } while (!succeed);
                         return false;
+
                     }
                     else
                     {
@@ -1130,18 +1223,56 @@ namespace WpfApp2.ViewModels
                 case "充电限流检测":
                     ERROR_COUNT = 0;
                     interSuccess = false;
-
-                    do
+                    AddLog("准备测试充电限流");
+                    //开启低功耗继电器
+                    interSuccess = ChargeCurrentLimitTest();
+                    //没过的话关闭对应电子元件
+                    if (!interSuccess)
                     {
-                        if (ERROR_COUNT++ == 10)
+                        AddLog("充电限流检测失败！正在关闭相关电子元件");
+                        int failCount = 0;
+                        bool succeed = false;
+                        do
                         {
-                            return false;
-                        }
-                        //开启低功耗继电器
-                        interSuccess = ChargeCurrentLimitTest();
-                    } while (!interSuccess);
+                            if (failCount++ == 10)
+                            {
+                                return false;
+                            }
+                            //关闭电阻棒MOS管
+                            parametersSending.ResistorBankMosfetStatus = 0;
+                            succeed = CloseParameter(parametersSending.ResistorBankMosfetStatus, "ResistorBankMosfetStatus", "确保电阻棒MOS管");
+                            Thread.Sleep(1000);
+                        } while (!succeed);
 
-                    return true;
+                        failCount = 0;
+                        succeed = false;
+                        do
+                        {
+                            if (failCount++ == 10)
+                            {
+                                return false;
+                            }
+                            //关闭电子负载开关
+                            parametersSending.Reserved1 = 0;
+                            succeed = CloseParameter(parametersSending.Reserved1, "Reserved1", "确保电子负载开关");
+                            Thread.Sleep(500);
+                        } while (!succeed);
+
+                        //关闭限流开关
+                        failCount = 0;
+                        succeed = false;
+                        do
+                        {
+                            if (failCount++ == 10)
+                            {
+                                return false;
+                            }
+                            succeed = CloseLimitedCurrent();
+                            Thread.Sleep(1000);
+                        } while (!succeed);
+
+                    }
+                    return interSuccess;
                 default:
 
                     return false;
@@ -1169,6 +1300,7 @@ namespace WpfApp2.ViewModels
 
             if (!interSuccess)
             {
+                AddLog("进入测试模式失败");
                 return false;
             }
             return true;
@@ -1348,7 +1480,7 @@ namespace WpfApp2.ViewModels
                     return true;
                 }
             }
-            return true;
+            return false;
         }
 
         /// <summary>
@@ -1579,7 +1711,7 @@ namespace WpfApp2.ViewModels
 
             failCount = 0;
             succeed = false;
-            AddLog("准备设置电子负载电流为30A");
+            AddLog("准备设置电子负载电流为20A");
             do
             {
                 if (failCount++ == 10)
@@ -1587,26 +1719,15 @@ namespace WpfApp2.ViewModels
                     return false;
                 }
                 //设置电子负载电流为30A
-                parametersSending.ElectronicLoadCurrent = 3;
+                parametersSending.ElectronicLoadCurrent = 5;
                 BMS_Receive = SendPacked(parametersSending);
-                if (BMS_Receive != null)
-                {
-                    AddLog($"当前电子负载电流为{BMS_Receive.ElectronicLoadCurrent}");
-                    if (BMS_Receive.ElectronicLoadCurrent == 30)
-                    {
-                        succeed = true;
-                    }
-                    else
-                        succeed = true;
-
-                }
-                else
-                    succeed = false;
+                
+                succeed = true;
             } while (!succeed);
 
             //判断条件
             BMS_Receive = SendPacked(parametersSending);
-            if(!(BMS_Receive.ChargeRelayStatus==1&&BMS_Receive.DischargeRelayStatus==0&&BMS_Receive.ResistorBankMosfetStatus==0&&BMS_Receive.ChargeCurrentLimitNegativeRelayStatus==0&&BMS_Receive.Relay1Status==0))
+            if (!(BMS_Receive.ChargeRelayStatus == 1 && BMS_Receive.DischargeRelayStatus == 0 && BMS_Receive.ResistorBankMosfetStatus == 0 && BMS_Receive.ChargeCurrentLimitNegativeRelayStatus == 0 && BMS_Receive.Relay1Status == 0))
             {
                 AddLog($"前置条件不符！");
                 return false;
@@ -1626,9 +1747,78 @@ namespace WpfApp2.ViewModels
                 Thread.Sleep(1000);
             } while (!succeed);
 
+            
+
+            //先设置电流为5A，
+            failCount = 0;
+            succeed = false;
+            do
+            {
+                if (failCount++ == 10)
+                {
+                    return false;
+                }
+                //设置电子负载电流为30A
+                parametersSending.ElectronicLoadCurrent = 5;
+                BMS_Receive = SendPacked(parametersSending);
+                int Current = BMS_Receive.ElectronicLoadCurrent;
+                AddLog($"当前电流为{Current}");
+                //判断是否达到
+                if (Math.Abs(Current - 500) < 20)
+                {
+                    succeed = true;
+                }
+                Thread.Sleep(1000);
+            } while (!succeed);
+
+            Thread.Sleep(2000);
+            //设置电流为13A，
+            failCount = 0;
+            succeed = false;
+            do
+            {
+                if (failCount++ == 10)
+                {
+                    return false;
+                }
+                //设置电子负载电流为30A
+                parametersSending.ElectronicLoadCurrent = 13;
+                BMS_Receive = SendPacked(parametersSending);
+                int Current = BMS_Receive.ElectronicLoadCurrent;
+                AddLog($"当前电流为{Current}");
+                //判断是否达到
+                if (Math.Abs(Current - 1300) < 20)
+                {
+                    succeed = true;
+                }
+                Thread.Sleep(1000);
+            } while (!succeed);
+
+            Thread.Sleep(2000);
+            //设置电流为20A，
+            failCount = 0;
+            succeed = false;
+            do
+            {
+                if (failCount++ == 10)
+                {
+                    return false;
+                }
+                //设置电子负载电流为30A
+                parametersSending.ElectronicLoadCurrent = 20;
+                BMS_Receive = SendPacked(parametersSending);
+                int Current = BMS_Receive.ElectronicLoadCurrent;
+                AddLog($"当前电流为{Current}");
+                //判断是否达到
+                if (Math.Abs(Current - 2000) < 20)
+                {
+                    succeed = true;
+                }
+                Thread.Sleep(1000);
+            } while (!succeed);
 
             //第七步 采集电子负载电流(准确值)与BMS板电流(调校值)
-            Thread.Sleep(5000);
+            Thread.Sleep(1000);
             int com2Current = 0;
             int com1Current = 0;
 
@@ -1639,29 +1829,55 @@ namespace WpfApp2.ViewModels
                 BMS_Receive = SendPacked(parametersSending);
                 com2Current = GetCurrentFormBMS();
                 com1Current = BMS_Receive.ElectronicLoadCurrent;
-
-                AddLog($"com1电流{com1Current};com2标准电流{com2Current}");
+                BMSCurrent = (ushort)com2Current;
+                AddLog($"com1标准电流{com1Current};com2电流{com2Current}");
+                if (com1Current == 0 || com2Current == 0)
+                {
+                    ushort chargeAdj = ReadChargeCurrentAdjustParameter();
+                    AddLog($"当前充电校准系数:{chargeAdj}");
+                    ChargeCurrentAdj = chargeAdj;
+                    if (chargeAdj == 0)
+                    {
+                       bool su =  WriteChargeCurrentAdjustParameter(1000);
+                        string meg = su ? "成功" : "失败";
+                        AddLog($"写入充电校准系数1000{meg}");
+                        SetChargeCurrentAdj = 1000;
+                    }
+                    failCount++;
+                    Thread.Sleep(1000);
+                    continue;
+                }
                 if (CommunicateTool.AreWithinFive(com2Current, com1Current))
                 {
+                    ushort adjustReceive = ReadChargeCurrentAdjustParameter();
+                    AddLog($"当前充电校准系数:{adjustReceive}");
+                    ChargeCurrentAdj = adjustReceive;
                     //相差在合适范围，返回成功
+                    AddLog("通过");
                     succeed = true;
                 }
                 else
                 {
-                    if (com1Current == 0 || com2Current == 0)
-                    {
-                        failCount++;
-                        continue;
-                    }
-
+                   
                     //有差距，获取当前充电校准系数
                     ushort adjustReceive = ReadChargeCurrentAdjustParameter();
                     AddLog($"当前充电校准系数:{adjustReceive}");
-                    //计算校准系数
-                    int adjustSend = GetAdjustParatemer(com1Current, com2Current, adjustReceive);
+                    ChargeCurrentAdj = adjustReceive;
+                    int adjustSend = 0;
+                    if (adjustReceive != 0)
+                    {
+                        //计算校准系数
+                        adjustSend = GetAdjustParatemer(com1Current, com2Current, adjustReceive);
+                    }
+                    else
+                    {
+                        adjustSend = 1000;
+                    }
+                    
 
                     //写入校准系数
                     bool su = WriteChargeCurrentAdjustParameter((ushort)adjustSend);
+                    SetChargeCurrentAdj = (ushort)adjustSend;
                     if (su)
                     {
                         AddLog($"写入充电校准系数成功:{adjustSend}");
@@ -1678,6 +1894,7 @@ namespace WpfApp2.ViewModels
             if (!succeed)
             {
                 AddLog("校准失败");
+                failCount = 0;
                 succeed = false;
                 do
                 {
@@ -1702,6 +1919,7 @@ namespace WpfApp2.ViewModels
                     }
                     //关闭充电继电器
                     parametersSending.ChargeRelayStatus = 0;
+                    parametersSending.ElectronicLoadCurrent = 1;
                     succeed = CloseParameter(parametersSending.ChargeRelayStatus, "ChargeRelayStatus", "充电继电器");
                     Thread.Sleep(1000);
                 } while (!succeed);
@@ -1724,7 +1942,7 @@ namespace WpfApp2.ViewModels
                     succeed = CloseParameter(parametersSending.Reserved1, "Reserved1", "电子负载开关");
                     Thread.Sleep(1000);
                 } while (!succeed);
-                Thread.Sleep (1000); 
+                Thread.Sleep(1000);
                 failCount = 0;
                 succeed = false;
                 //关闭充电继电器
@@ -1736,6 +1954,7 @@ namespace WpfApp2.ViewModels
                     }
                     //关闭充电继电器
                     parametersSending.ChargeRelayStatus = 0;
+                    parametersSending.ElectronicLoadCurrent = 1;
                     succeed = CloseParameter(parametersSending.ChargeRelayStatus, "ChargeRelayStatus", "充电继电器");
                     Thread.Sleep(1000);
                 } while (!succeed);
@@ -1860,7 +2079,7 @@ namespace WpfApp2.ViewModels
 
             failCount = 0;
             succeed = false;
-            AddLog("准备设置电子负载电流为30A");
+            AddLog("准备设置电子负载电流为20A");
             do
             {
                 if (failCount++ == 10)
@@ -1868,17 +2087,12 @@ namespace WpfApp2.ViewModels
                     return false;
                 }
                 //设置电子负载电流为30A
-                parametersSending.ElectronicLoadCurrent = 3;
+                parametersSending.ElectronicLoadCurrent = 5;
                 BMS_Receive = SendPacked(parametersSending);
                 if (BMS_Receive != null)
                 {
                     AddLog($"当前电子负载电流为{BMS_Receive.ElectronicLoadCurrent}");
-                    if (BMS_Receive.ElectronicLoadCurrent == 30)
-                    {
-                        succeed = true;
-                    }
-                    else
-                        succeed = true;
+                    succeed = true;
 
                 }
                 else
@@ -1909,6 +2123,76 @@ namespace WpfApp2.ViewModels
                 Thread.Sleep(500);
             } while (!succeed);
 
+            Thread.Sleep(2000);
+
+            //先设置电流为5A，
+            failCount = 0;
+            succeed = false;
+            do
+            {
+                if (failCount++ == 10)
+                {
+                    return false;
+                }
+                //设置电子负载电流为30A
+                parametersSending.ElectronicLoadCurrent = 5;
+                BMS_Receive = SendPacked(parametersSending);
+                int Current = BMS_Receive.ElectronicLoadCurrent;
+                AddLog($"当前电流为{Current}");
+                //判断是否达到
+                if (Math.Abs(Current - 500) < 20)
+                {
+                    succeed = true;
+                }
+                Thread.Sleep(500);
+            } while (!succeed);
+
+            Thread.Sleep(2000);
+            //设置电流为13A，
+            failCount = 0;
+            succeed = false;
+            do
+            {
+                if (failCount++ == 10)
+                {
+                    return false;
+                }
+                //设置电子负载电流为30A
+                parametersSending.ElectronicLoadCurrent = 13;
+                BMS_Receive = SendPacked(parametersSending);
+                int Current = BMS_Receive.ElectronicLoadCurrent;
+                AddLog($"当前电流为{Current}");
+                //判断是否达到
+                if (Math.Abs(Current - 1300) < 20)
+                {
+                    succeed = true;
+                }
+                Thread.Sleep(1000);
+            } while (!succeed);
+
+            Thread.Sleep(2000);
+            //设置电流为13A，
+            failCount = 0;
+            succeed = false;
+            do
+            {
+                if (failCount++ == 10)
+                {
+                    return false;
+                }
+                //设置电子负载电流为30A
+                parametersSending.ElectronicLoadCurrent = 20;
+                BMS_Receive = SendPacked(parametersSending);
+                int Current = BMS_Receive.ElectronicLoadCurrent;
+                AddLog($"当前电流为{Current}");
+                //判断是否达到
+                if (Math.Abs(Current - 2000) < 20)
+                {
+                    succeed = true;
+                }
+                Thread.Sleep(1000);
+            } while (!succeed);
+
             //第七步 读取电流(串口2是需要校准的，串口1是万瑞达的).对比差值，读充电系数，写充电系数
             Thread.Sleep(3000);
             int com2Current = 0;
@@ -1920,9 +2204,26 @@ namespace WpfApp2.ViewModels
             {
                 BMS_Receive = SendPacked(parametersSending);
                 com2Current = GetCurrentFormBMS();
+                BMSCurrent = (ushort)com2Current;
                 com1Current = BMS_Receive.ElectronicLoadCurrent;
                 AddLog($"com1电流{com1Current};com2电流{com2Current}");
-                
+                if (com1Current == 0 || com2Current == 0)
+                {
+                    ushort dischargeAdj = ReadDischargeCurrentAdjustParameter();
+                    AddLog($"当前充电校准系数:{dischargeAdj}");
+                    DischargeCurrentAdj = dischargeAdj;
+                    if (dischargeAdj == 0)
+                    {
+                        bool su = WriteDischargeCurrentAdjustParameter(1000);
+                        string meg = su ? "成功" : "失败";
+                        AddLog($"写入充电校准系数1000{meg}");
+                        SetDischargeCurrentAdj = 1000;
+                        Thread.Sleep(1000);
+                    }
+                    failCount++;
+                    continue;
+                }
+
                 if (CommunicateTool.AreWithinFive(com2Current, com1Current))
                 {
                     //相差在合适范围，返回成功
@@ -1930,20 +2231,20 @@ namespace WpfApp2.ViewModels
                 }
                 else
                 {
-                    if (com1Current == 0 || com2Current == 0)
-                    {
-                        //在这里修改，修好放电电流显示后***************************=====**********************
-                        succeed = true;
-                        failCount++;
-                        continue;
-                    }
-
+                    
                     //有差距，获取当前放电校准系数
                     ushort adjustReceive = ReadDischargeCurrentAdjustParameter();
                     AddLog($"当前放电校准系数:{adjustReceive}");
-                    //计算校准系数
-                    int adjustSend = GetAdjustParatemer(com1Current, com2Current, adjustReceive);
+                    DischargeCurrentAdj = adjustReceive;
 
+                    int adjustSend;
+                    if (adjustReceive == 0)
+                    {
+                        adjustSend = 1000;
+                    }else
+                    //计算校准系数
+                    adjustSend = GetAdjustParatemer(com1Current, com2Current, adjustReceive);
+                    SetDischargeCurrentAdj = (ushort)adjustSend;
                     //写入校准系数
                     bool su = WriteDischargeCurrentAdjustParameter((ushort)adjustSend);
                     if (su)
@@ -1952,8 +2253,9 @@ namespace WpfApp2.ViewModels
                     }
                     else
                     {
-                        AddLog($"写入放电校准系数成功:{adjustSend}");
+                        AddLog($"写入放电校准系数失败:{adjustSend}");
                     }
+                    Thread.Sleep(2000);
                 }
                 failCount++;
             } while (!succeed && failCount < 10);
@@ -1986,6 +2288,7 @@ namespace WpfApp2.ViewModels
                     }
                     //关闭放电继电器
                     parametersSending.DischargeRelayStatus = 0;
+                    parametersSending.ElectronicLoadCurrent = 1;
                     succeed = CloseParameter(parametersSending.DischargeRelayStatus, "DischargeRelayStatus", "放电继电器");
                     Thread.Sleep(1000);
                 } while (!succeed);
@@ -2021,6 +2324,7 @@ namespace WpfApp2.ViewModels
                     }
                     //关闭放电继电器
                     parametersSending.DischargeRelayStatus = 0;
+                    parametersSending.ElectronicLoadCurrent = 1;
                     succeed = CloseParameter(parametersSending.DischargeRelayStatus, "DischargeRelayStatus", "放电继电器");
                     Thread.Sleep(1000);
                 } while (!succeed);
@@ -2110,11 +2414,7 @@ namespace WpfApp2.ViewModels
                 Thread.Sleep(1000);
             } while (!succeed);
 
-            
-
             Thread.Sleep(1000);
-            
-
 
             //第二步 关闭放电继电器
             failCount = 0;
@@ -2378,37 +2678,155 @@ namespace WpfApp2.ViewModels
         /// <returns></returns>
         private bool ExitTestMode()
         {
-            //测试模式置4
-            parametersSending.TestMode = 5;
-
-            //拼接字符串
-            byte[] sengdingPack = CommunicateTool.ConcatByteArrays(Head, parametersSending.ToByteArray());
-            sengdingPack = CommunicateTool.ConcatByteArrays(sengdingPack, SerialCommunicationService.getCRC16(sengdingPack));
-
-            //发送字符串
-            byte[] result = SerialCommunicationService.SendTestCommand(sengdingPack, 65);
-
-            //解析
-            BMS_Receive = AnalyseBmsReceive(result);
-
-            //判断
-            if (BMS_Receive == null)
+            int failCount = 0;
+            bool succeed = false;
+            parametersSending.DcSource1Switch = 0;
+            parametersSending.DcSource2Switch = 0;
+            parametersSending.ElectronicLoadCurrent = 1;
+            //关闭电阻棒
+            do
             {
-                return false;
-            }
-            else
-            {
-                //判断是否退出测试模式
-                if (BMS_Receive.TestMode == 0)
+                if (failCount++ == 10)
                 {
-                    return true;
+                    return false;
                 }
-            }
-            return false;
+                //关闭电阻棒MOS管
+                parametersSending.ResistorBankMosfetStatus = 0;
+                succeed = CloseParameter(parametersSending.ResistorBankMosfetStatus, "ResistorBankMosfetStatus", "电阻棒MOS管");
+                Thread.Sleep(1000);
+            } while (!succeed);
+
+            //关闭电子负载继电器
+            failCount = 0;
+            succeed = false;
+            do
+            {
+                if (failCount++ == 10)
+                {
+                    return false;
+                }
+                //关闭电子负载开关
+                parametersSending.Reserved1 = 0;
+                succeed = CloseParameter(parametersSending.Reserved1, "Reserved1", "电子负载开关");
+                Thread.Sleep(1000);
+            } while (!succeed);
+
+            //关闭放电继电器
+            failCount = 0;
+            succeed = false;
+            do
+            {
+                if (failCount++ == 10)
+                {
+                    return false;
+                }
+                //关闭放电继电器
+                parametersSending.DischargeRelayStatus = 0;
+                succeed = CloseParameter(parametersSending.DischargeRelayStatus, "DischargeRelayStatus", "放电继电器");
+                Thread.Sleep(1000);
+            } while (!succeed);
+
+            //关闭充电继电器
+            failCount = 0;
+            succeed = false;
+            do
+            {
+                if (failCount++ == 10)
+                {
+                    return false;
+                }
+                //关闭充电继电器
+                parametersSending.ChargeRelayStatus = 0;
+                succeed = CloseParameter(parametersSending.ChargeRelayStatus, "ChargeRelayStatus", "充电继电器");
+                Thread.Sleep(1000);
+            } while (!succeed);
+
+            //关闭充电限流负极继电器
+            failCount = 0;
+            succeed = false;
+            do
+            {
+                if (failCount++ == 10)
+                {
+                    return false;
+                }
+                //关闭充电限流负极继电器
+                parametersSending.ChargeCurrentLimitNegativeRelayStatus = 0;
+                succeed = CloseParameter(parametersSending.ChargeCurrentLimitNegativeRelayStatus, "ChargeCurrentLimitNegativeRelayStatus", "充电限流负极继电器");
+                Thread.Sleep(1000);
+            } while (!succeed);
+
+            //关闭限流
+            failCount = 0;
+            succeed = false;
+            do
+            {
+                if (failCount++ == 10)
+                {
+                    return false;
+                }
+                succeed = CloseLimitedCurrent();
+                Thread.Sleep(1000);
+            } while (!succeed);
+
+            //关闭低功耗继电器
+            failCount = 0;
+            succeed = false;
+            do
+            {
+                if (failCount++ == 10)
+                {
+                    return false;
+                }
+                succeed = LowPowerVoltageAndCurrent(0);
+                Thread.Sleep(1000);
+            } while (!succeed);
+            AddLog("限流已关闭");
+
+            //关闭预留继电器2
+            failCount = 0;
+            succeed = false;
+            do
+            {
+                if (failCount++ == 10)
+                {
+                    return false;
+                }
+                succeed = Relay2ControlTest(0);
+                Thread.Sleep(1000);
+            } while (!succeed);
+
+            //关闭预留继电器3
+            failCount = 0;
+            succeed = false;
+            do
+            {
+                if (failCount++ == 10)
+                {
+                    return false;
+                }
+                succeed = Relay3ControlTest(0);
+                Thread.Sleep(1000);
+            } while (!succeed);
+
+            //关闭预留继电4
+            failCount = 0;
+            succeed = false;
+            do
+            {
+                if (failCount++ == 10)
+                {
+                    return false;
+                }
+                succeed = Relay4ControlTest(0);
+                Thread.Sleep(1000);
+
+            } while (!succeed);
+            return true;
         }
 
         /// <summary>
-        /// 低功耗检测
+        /// 关闭或打开低功耗继电器
         /// </summary>
         /// <returns></returns>
         private bool LowPowerVoltageAndCurrent(ushort open)
@@ -3296,275 +3714,6 @@ namespace WpfApp2.ViewModels
 
         #endregion
 
-        /// <summary>
-        /// 充电电流测试步骤一(开继电器4关闭继电器5)
-        /// </summary>
-        /// <returns></returns>
-        private bool ChargeCurrentTest1()
-        {
-            int failCount = 0;
-            bool IsSuccess = false;
-            do
-            {
-                //打开继电器4
-                IsSuccess = OpenOrCloseChargeDischargeRelayControl(4, true);
-                failCount++;
-            } while (!IsSuccess && failCount <= 10);
-            if (!IsSuccess)
-            {
-                AddLog("打开继电器4失败");
-                return false;
-            }
-
-            //关闭继电器5
-            failCount = 0;
-            do
-            {
-                IsSuccess = OpenOrCloseChargeDischargeRelayControl(5, false);
-                failCount += 1;
-            } while (!IsSuccess && failCount <= 10);
-            if (!IsSuccess)
-            {
-                AddLog("关闭继电器5失败");
-                return false;
-            }
-            return true;
-        }
-
-        /// <summary>
-        /// 开启电流档位
-        /// </summary>
-        /// <param name="level">电流档位</param>
-        /// <returns></returns>
-        private bool OpenOrCloseCurrentLevel(int level, bool open)
-        {
-            int failCount = 0;
-            bool IsSuccess = false;
-            if (level == 1)
-            {
-                //开启电流档位1
-                do
-                {
-                    IsSuccess = OpenOrCloseChargeDischargeRelayControl(3, open);
-                    failCount++;
-                } while (!IsSuccess && failCount <= 10);
-            }
-            else if (level == 2)
-            {
-                do
-                {
-                    IsSuccess = OpenOrCloseChargeDischargeRelayControl(2, open);
-                    failCount++;
-                } while (!IsSuccess && failCount <= 10);
-            }
-            else if (level == 3)
-            {
-                do
-                {
-                    IsSuccess = OpenOrCloseChargeDischargeRelayControl(1, open);
-                    failCount++;
-                } while (!IsSuccess && failCount <= 10);
-            }
-
-            if (!IsSuccess)
-            {
-                string msg = open ? "开启" : "关闭";
-                AddLog($"{msg}{level}档电流失败");
-                return false;
-            }
-            else
-            {
-                string msg = open ? "开启" : "关闭";
-                AddLog($"{msg}{level}档电流成功");
-                return true;
-            }
-
-        }
-
-        /// <summary>
-        /// 打开充放电电流MOS管1，关闭MOS管2
-        /// </summary>
-        /// <returns></returns>
-        private bool ChargeCurrentTest2()
-        {
-            int failCount = 0;
-            bool IsSuccess = false;
-            do
-            {
-                IsSuccess = OpenOrCloseChargeDischargeMosfetControl(1, true);
-                failCount++;
-            } while (!IsSuccess && failCount <= 10);
-            if (!IsSuccess)
-            {
-                AddLog("打开MOS管1失败");
-                return false;
-            }
-            else
-            {
-                AddLog("打开MOS管1成功");
-            };
-
-            do
-            {
-                IsSuccess = OpenOrCloseChargeDischargeMosfetControl(2, false);
-                failCount++;
-            } while (!IsSuccess && failCount <= 10);
-            if (!IsSuccess)
-            {
-                AddLog("关闭MOS管2失败");
-                return false;
-            }
-            else
-            {
-                AddLog("打开MOS管成功");
-                return true;
-            }
-        }
-
-        /// <summary>
-        /// 放电电流测试步骤一(开继电器5关闭继电器4)
-        /// </summary>
-        /// <returns></returns>
-        private bool DisChargeCurrentTset1()
-        {
-            int failCount = 0;
-            bool IsSuccess = false;
-            do
-            {
-                //打开继电器5
-                IsSuccess = OpenOrCloseChargeDischargeRelayControl(5, true);
-                failCount++;
-            } while (!IsSuccess && failCount <= 10);
-            if (!IsSuccess)
-            {
-                AddLog("打开继电器5失败");
-                return false;
-            }
-
-            //关闭继电器4
-            failCount = 0;
-            do
-            {
-                IsSuccess = OpenOrCloseChargeDischargeRelayControl(4, false);
-                failCount += 1;
-            } while (!IsSuccess && failCount <= 10);
-            if (!IsSuccess)
-            {
-                AddLog("关闭继电器4失败");
-                return false;
-            }
-            return true;
-        }
-
-
-        /// <summary>
-        /// 打开或关闭第n个充放电继电器
-        /// </summary>
-        /// <param name="num">第几个继电器</param>
-        /// <param name="open">打开还是关闭</param>
-        /// <returns></returns>
-        private bool OpenOrCloseChargeDischargeRelayControl(int num, bool open)
-        {
-            ////设置充放电继电器状态
-            //switch (num)
-            //{
-            //    case 1:
-            //        //parametersSending.ReSetChargeDischargeRelayControlToZero();
-            //        parametersSending.ChargeDischargeRelay1Control = (ushort)(open == true ? 1 : 0);
-            //        BMS_Receive = SendPacked(parametersSending);
-            //        if (BMS_Receive != null)
-            //        {
-            //            return BMS_Receive.ChargeDischargeRelay1Control == (ushort)(open ? 1 : 0);
-            //        }
-            //        else
-            //            return false;
-            //    case 2:
-            //        //parametersSending.ReSetChargeDischargeRelayControlToZero();
-            //        parametersSending.ChargeDischargeRelay2Control = (ushort)(open == true ? 1 : 0);
-            //        BMS_Receive = SendPacked(parametersSending);
-            //        if (BMS_Receive != null)
-            //        {
-            //            return BMS_Receive.ChargeDischargeRelay2Control == (ushort)(open ? 1 : 0);
-            //        }
-            //        else
-            //            return false;
-            //    case 3:
-            //        //parametersSending.ReSetChargeDischargeRelayControlToZero();
-            //        parametersSending.ChargeDischargeRelay3Control = (ushort)(open == true ? 1 : 0);
-            //        BMS_Receive = SendPacked(parametersSending);
-            //        if (BMS_Receive != null)
-            //        {
-            //            return BMS_Receive.ChargeDischargeRelay3Control == (ushort)(open ? 1 : 0);
-            //        }
-            //        else
-            //            return false;
-            //    case 4:
-            //        //parametersSending.ReSetChargeDischargeRelayControlToZero();
-            //        parametersSending.ChargeDischargeRelay4Control = (ushort)(open == true ? 1 : 0);
-            //        BMS_Receive = SendPacked(parametersSending);
-            //        if (BMS_Receive != null)
-            //        {
-            //            return BMS_Receive.ChargeDischargeRelay4Control == (ushort)(open ? 1 : 0);
-            //        }
-            //        else
-            //            return false;
-            //    case 5:
-            //        //parametersSending.ReSetChargeDischargeRelayControlToZero();
-            //        parametersSending.ChargeDischargeRelay5Control = (ushort)(open == true ? 1 : 0);
-            //        BMS_Receive = SendPacked(parametersSending);
-            //        if (BMS_Receive != null)
-            //        {
-            //            return BMS_Receive.ChargeDischargeRelay5Control == (ushort)(open ? 1 : 0);
-            //        }
-            //        else
-            //            return false;
-            //    default:
-            //        return false;
-            //}
-
-            return false;
-
-        }
-
-
-        /// <summary>
-        /// 打开或关闭充放电MOS管(n)
-        /// </summary>
-        /// <param name="num">第几个MOS管</param>
-        /// <param name="open">打开或者关闭</param>
-        /// <returns></returns>
-        private bool OpenOrCloseChargeDischargeMosfetControl(int num, bool open)
-        {
-            ////设置充放电继电器状态
-            //switch (num)
-            //{
-            //    case 1:
-
-            //        parametersSending.ChargeDischargeMosfet1Control = (ushort)(open == true ? 1 : 0);
-            //        BMS_Receive = SendPacked(parametersSending);
-            //        if (BMS_Receive != null)
-            //        {
-            //            return BMS_Receive.ChargeDischargeMosfet1Control == (ushort)(open ? 1 : 0);
-            //        }
-            //        else
-            //            return false;
-            //    case 2:
-
-            //        parametersSending.ChargeDischargeMosfet2Control = (ushort)(open == true ? 1 : 0);
-            //        BMS_Receive = SendPacked(parametersSending);
-            //        if (BMS_Receive != null)
-            //        {
-            //            return BMS_Receive.ChargeDischargeRelay2Control == (ushort)(open ? 1 : 0);
-            //        }
-            //        else
-            //            return false;
-            //    default: return false;
-
-            //}
-            return true;
-
-        }
-
 
         /// <summary>
         /// 发送指令
@@ -3653,8 +3802,8 @@ namespace WpfApp2.ViewModels
                 {
                     current = (ushort)(-value);
                 }
-                else 
-                current = (ushort)value;
+                else
+                    current = (ushort)value;
 
                 return current;
 
@@ -3663,13 +3812,13 @@ namespace WpfApp2.ViewModels
             {
                 if (receive[0] == 0x01)
                 {
-                    ShowBubbles("读取电流失败", 2000);
+                    ShowBubbles("CRC校验失败，读取电流失败", 2000);
                     AddLog("读取电流返回CRC校验失败");
                 }
                 else if (receive[0] == 0x02)
                 {
                     AddLog("读取电流返回超时");
-                    ShowBubbles("读取电流失败", 2000);
+                    ShowBubbles("读取电流返回超时，读取电流失败", 2000);
                 }
             }
 
@@ -3772,9 +3921,9 @@ namespace WpfApp2.ViewModels
             byte[] sendPack = CommunicateTool.ConcatByteArrays(adj, SerialCommunicationService2.getCRC16(adj));
 
             //发送指令
-            byte[] receive = SerialCommunicationService2.SendTestCommand2(sendPack, 8);
+            byte[] receive = SerialCommunicationService2.SendTestCommand(sendPack, 8);
 
-            if (ByteConverter.BytesToNumberNormal(receive) == value)
+            if (receive.Length==2&&ByteConverter.BytesToNumberNormal(receive) == value)
             {
                 return true;
             }
@@ -3809,9 +3958,9 @@ namespace WpfApp2.ViewModels
             byte[] sendPack = CommunicateTool.ConcatByteArrays(adj, SerialCommunicationService2.getCRC16(adj));
 
             //发送指令
-            byte[] receive = SerialCommunicationService2.SendTestCommand2(sendPack, 8);
+            byte[] receive = SerialCommunicationService2.SendTestCommand(sendPack, 8);
 
-            if (ByteConverter.BytesToNumberNormal(receive) == value)
+            if (receive.Length == 2 && ByteConverter.BytesToNumberNormal(receive) == value)
             {
                 return true;
             }
@@ -3998,6 +4147,7 @@ namespace WpfApp2.ViewModels
             {
                 return new RelayCommand(() =>
                 {
+                    parametersSending.ElectronicLoadCurrent = SetElectronicLoadCurrent;
                     bool isSuccess = OpenElectronicLoadMode();
                     if (isSuccess)
                     {
@@ -4010,6 +4160,20 @@ namespace WpfApp2.ViewModels
                 });
             }
         }
+
+        //设置电子负载电流
+        private ushort setElectronicLoadCurrent;
+
+        public ushort SetElectronicLoadCurrent
+        {
+            get { return setElectronicLoadCurrent; }
+            set
+            {
+                setElectronicLoadCurrent = value;
+                this.RaiseProperChanged(nameof(SetElectronicLoadCurrent));
+            }
+        }
+
 
         /// <summary>
         /// 电子负载模式关闭
@@ -4042,8 +4206,8 @@ namespace WpfApp2.ViewModels
             {
                 return new RelayCommand(() =>
                 {
-                    parametersSending.Reserved1 = 1;
-                    parametersSending.ElectronicLoadCurrent = 30;
+                    parametersSending.Reserved1 = SetElectronicLoadCurrent;
+                    
                     bool isSuccess = OpenParameter(parametersSending.Reserved1, "Reserved1", "电子负载输出");
                     if (isSuccess)
                     {
@@ -4373,139 +4537,6 @@ namespace WpfApp2.ViewModels
 
 
         /// <summary>
-        /// 三挡电流开启
-        /// </summary>
-        public RelayCommand OpenLevel3Current
-        {
-            get
-            {
-                return new RelayCommand(() =>
-                {
-                    bool isSuccess = OpenOrCloseChargeDischargeRelayControl(1, true);
-                    if (isSuccess)
-                    {
-                        ShowBubbleWithTime("三档电流开启成功", 2000);
-                    }
-                    else
-                    {
-                        ShowBubbleWithTime("三档电流开启失败", 2000);
-                    }
-                });
-            }
-        }
-
-        /// <summary>
-        /// 三挡电流关闭
-        /// </summary>
-        public RelayCommand CloseLevel3Current
-        {
-            get
-            {
-                return new RelayCommand(() =>
-                {
-                    bool isSuccess = OpenOrCloseChargeDischargeRelayControl(1, false);
-                    if (isSuccess)
-                    {
-                        ShowBubbleWithTime("三档电流关闭成功", 2000);
-                    }
-                    else
-                    {
-                        ShowBubbleWithTime("三档电流关闭失败", 2000);
-                    }
-                });
-            }
-        }
-
-        /// <summary>
-        /// 充电MOS管1打开
-        /// </summary>
-        public RelayCommand OpenChargeMOS1
-        {
-            get
-            {
-                return new RelayCommand(() =>
-                {
-                    bool isSuccess = OpenOrCloseChargeDischargeMosfetControl(1, true);
-                    if (isSuccess)
-                    {
-                        ShowBubbleWithTime("充放电MOS管1打开成功", 2000);
-                    }
-                    else
-                    {
-                        ShowBubbleWithTime("充放电MOS管1打开失败", 2000);
-                    }
-                });
-            }
-        }
-
-        /// <summary>
-        /// 充电MOS管1关闭
-        /// </summary>
-        public RelayCommand CloseChargeMOS1
-        {
-            get
-            {
-                return new RelayCommand(() =>
-                {
-                    bool isSuccess = OpenOrCloseChargeDischargeMosfetControl(1, false);
-                    if (isSuccess)
-                    {
-                        ShowBubbleWithTime("充放电MOS管1关闭成功", 2000);
-                    }
-                    else
-                    {
-                        ShowBubbleWithTime("充放电MOS管1关闭失败", 2000);
-                    }
-                });
-            }
-        }
-
-
-        /// <summary>
-        /// 充电MOS管2打开
-        /// </summary>
-        public RelayCommand OpenChargeMOS2
-        {
-            get
-            {
-                return new RelayCommand(() =>
-                {
-                    bool isSuccess = OpenOrCloseChargeDischargeMosfetControl(2, true);
-                    if (isSuccess)
-                    {
-                        ShowBubbleWithTime("充放电MOS管2打开成功", 2000);
-                    }
-                    else
-                    {
-                        ShowBubbleWithTime("充放电MOS管2打开失败", 2000);
-                    }
-                });
-            }
-        }
-
-        /// <summary>
-        /// 充电MOS管2关闭
-        /// </summary>
-        public RelayCommand CloseChargeMOS2
-        {
-            get
-            {
-                return new RelayCommand(() =>
-                {
-                    bool isSuccess = OpenOrCloseChargeDischargeMosfetControl(2, false);
-                    if (isSuccess)
-                    {
-                        ShowBubbleWithTime("充放电MOS管2关闭成功", 2000);
-                    }
-                    else
-                    {
-                        ShowBubbleWithTime("充放电MOS管2关闭失败", 2000);
-                    }
-                });
-            }
-        }
-
-        /// <summary>
         /// 读取电流
         /// </summary>
         public RelayCommand ReadCurrentCmd
@@ -4515,15 +4546,8 @@ namespace WpfApp2.ViewModels
                 return new RelayCommand(() =>
                 {
                     BMSCurrent = GetCurrentFormBMS();
-                    bool isSuccess = false;
-                    if (isSuccess)
-                    {
-                        ShowBubbleWithTime(BMSCurrent.ToString(), 2000);
-                    }
-                    else
-                    {
-                        ShowBubbleWithTime(BMSCurrent.ToString(), 2000);
-                    }
+                    
+                    
                 });
             }
         }
@@ -4619,14 +4643,7 @@ namespace WpfApp2.ViewModels
                     ChargeCurrentAdj = sa;
                     bool isSuccess = false;
                     AddLog($"充电校准指数{ChargeCurrentAdj}");
-                    if (isSuccess)
-                    {
-                        ShowBubbleWithTime("充放电MOS管2关闭成功", 2000);
-                    }
-                    else
-                    {
-                        ShowBubbleWithTime(sa.ToString(), 2000);
-                    }
+                    
                 });
             }
         }
@@ -4644,14 +4661,7 @@ namespace WpfApp2.ViewModels
                     bool isSuccess = false;
                     DischargeCurrentAdj = sa;
                     AddLog($"放电校准指数{DischargeCurrentAdj}");
-                    if (isSuccess)
-                    {
-                        ShowBubbleWithTime("充放电MOS管2关闭成功", 2000);
-                    }
-                    else
-                    {
-                        ShowBubbleWithTime(sa.ToString(), 2000);
-                    }
+                    
                 });
             }
         }
@@ -4667,14 +4677,14 @@ namespace WpfApp2.ViewModels
             {
                 return new RelayCommand(() =>
                 {
-                    bool isSuccess = WriteChargeCurrentAdjustParameter(ChargeCurrentAdj);
+                    bool isSuccess = WriteChargeCurrentAdjustParameter(SetChargeCurrentAdj);
                     if (isSuccess)
                     {
-                        ShowBubbleWithTime("充放电MOS管2关闭成功", 2000);
+                        ShowBubbleWithTime("写入充电校准系数成功", 2000);
                     }
                     else
                     {
-                        ShowBubbleWithTime("充放电MOS管2关闭失败", 2000);
+                        ShowBubbleWithTime("写入充电校准系数失败", 2000);
                     }
                 });
             }
@@ -4692,11 +4702,11 @@ namespace WpfApp2.ViewModels
                     bool isSuccess = WriteDischargeCurrentAdjustParameter(SetDischargeCurrentAdj);
                     if (isSuccess)
                     {
-                        ShowBubbleWithTime("充放电MOS管2关闭成功", 2000);
+                        ShowBubbleWithTime("写入放电校准系数成功", 2000);
                     }
                     else
                     {
-                        ShowBubbleWithTime("充放电MOS管2关闭失败", 2000);
+                        ShowBubbleWithTime("写入放电校准系数失败", 2000);
                     }
                 });
             }
