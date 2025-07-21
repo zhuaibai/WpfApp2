@@ -706,7 +706,7 @@ namespace WpfApp2.ViewModels
             testData = new TestData();
             int i = 0;//计数
             bool flag = false;//测试成功与否
-            parametersSending = new BmsSystemParametersSending() { CommunicationVersion = 1001, LowPowerRelayStatus = 1, Reserved1RelayStatus = 1, Reserved2RelayStatus = 1, Reserved3RelayStatus = 1, DcSource1Current = 10, DcSource1Voltage = 5000, DcSource1Switch = 1, DcSource2Current = 100 }; //发送指令实体类初始化，默认MOS管2开启
+            parametersSending = new BmsSystemParametersSending() { CommunicationVersion = 1001, LowPowerRelayStatus = 1, Reserved1RelayStatus = 1, Reserved2RelayStatus = 1, Reserved3RelayStatus = 1, DcSource1Current = 10, DcSource1Voltage = 5000, DcSource1Switch = 1, DcSource2Current = 100 }; //发送指令实体类初始化
             do
             {
                 //先开机，确保开机属性

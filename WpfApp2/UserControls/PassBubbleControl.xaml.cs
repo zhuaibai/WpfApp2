@@ -18,9 +18,9 @@ namespace WpfApp2.UserControls
     /// <summary>
     /// PassBubbleContro_.xaml 的交互逻辑
     /// </summary>
-    public partial class PassBubbleContro_ : UserControl
+    public partial class PassBubbleControl : UserControl
     {
-        public PassBubbleContro_()
+        public PassBubbleControl()
         {
             InitializeComponent();
         }
