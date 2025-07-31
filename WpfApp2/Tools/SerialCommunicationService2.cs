@@ -283,7 +283,7 @@ namespace WpfApp2.Tools
                 byte[] Command = command;
                 SerialPort.Write(Command, 0, Command.Length);
                 //添加发送帧数
-                AddSendFrame(Command.Length);
+                //AddSendFrame(Command.Length);
                 // 设置读取超时时间【1s】
                 SerialPort.ReadTimeout = 1000;
                 // 需要读取的字节数
@@ -298,7 +298,7 @@ namespace WpfApp2.Tools
                     totalBytesRead += bytesRead;
                 }
                 //增加接收返回帧数
-                AddReceiveFrame(totalBytesRead);
+                //AddReceiveFrame(totalBytesRead);
                 //获取返回转字符串
                 string DataBuffer = Encoding.ASCII.GetString(buffer);
                 return DataBuffer;
@@ -308,11 +308,12 @@ namespace WpfApp2.Tools
                 // 超时未
                 //MessageBox.Show("超时未收到ACK");
                 //增加接收返回帧数
-                AddReceiveFrame(totalBytesRead);
+                //AddReceiveFrame(totalBytesRead);
                 return string.Empty;
             }
             catch (Exception ex)
             {
+                
                 return string.Empty;
             }
             finally
@@ -336,7 +337,7 @@ namespace WpfApp2.Tools
             //转成字节
             byte[] bytes = Encoding.ASCII.GetBytes(Command);
             //获取CRC校验字节
-            byte[] CRC = getCRC(bytes);
+            byte[] CRC = getCRC16(bytes);
             //拼接
             byte[] buffer = bytes.Concat(CRC).ToArray();
             //末尾的字节

@@ -16,7 +16,7 @@ using System.Windows.Shapes;
 namespace WpfApp2.UserControls
 {
     /// <summary>
-    /// PassBubbleContro_.xaml 的交互逻辑
+    /// PassBubbleControl.xaml 的交互逻辑
     /// </summary>
     public partial class PassBubbleControl : UserControl
     {
