@@ -1015,14 +1015,14 @@
                                     VerticalAlignment="Center"
                                     FontSize="15"
                                     Foreground="White"
-                                    Text="低功耗电流:" />
+                                    Text="低功耗电压:" />
                                 <TextBlock
                                     Grid.Row="4"
                                     Grid.Column="3"
                                     VerticalAlignment="Center"
                                     FontSize="17"
                                     Foreground="#ff2bedf1"
-                                    Text="{Binding BMS_Receive.LowPowerCurrent}" />
+                                    Text="{Binding BMS_Receive.LowPowerVoltage}" />
 
                                 <!--  充电电流校准系数  -->
                                 <TextBlock

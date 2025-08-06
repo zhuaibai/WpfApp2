@@ -106,7 +106,9 @@ namespace WpfApp2.Models
             WriteUShort(TestSuccessLedStatus, result, offset); offset += 2;
             WriteUShort(TestFailureLedStatus, result, offset); offset += 2;
 
-            
+            WriteUShort(DcSourceSwitch, result, offset); offset += 2;
+            WriteUShort(DcSourceControlVoltage, result, offset); offset += 2;
+            WriteUShort(DcSourceControlCurrent, result, offset); offset += 2;
 
             WriteUShort(DcSource1Switch, result, offset); offset += 2;
             WriteUShort(DcSource1Voltage, result, offset); offset += 2;
@@ -115,11 +117,7 @@ namespace WpfApp2.Models
             WriteUShort(DcSource2Switch, result, offset); offset += 2;
             WriteUShort(DcSource2Voltage, result, offset); offset += 2;
             WriteUShort(DcSource2Current, result, offset); offset += 2;
-
-            WriteUShort(DcSourceSwitch, result, offset); offset += 2;
-            WriteUShort(DcSourceControlVoltage, result, offset); offset += 2;
-            WriteUShort(DcSourceControlCurrent, result, offset); offset += 2;
-
+        
             WriteUShort(ElectronicLoadMode, result, offset); offset += 2;
             WriteUShort(ElectronicLoadCurrent, result, offset); offset += 2;
 
@@ -163,6 +161,10 @@ namespace WpfApp2.Models
             result.TestSuccessLedStatus = ReadUShort(data, offset); offset += 2;
             result.TestFailureLedStatus = ReadUShort(data, offset); offset += 2;
 
+            result.DcSourceSwitch = ReadUShort(data, offset); offset += 2;
+            result.DcSourceControlVoltage = ReadUShort(data, offset); offset += 2;
+            result.DcSourceControlCurrent = ReadUShort(data, offset); offset += 2;
+
             result.DcSource1Switch = ReadUShort(data, offset); offset += 2;
             result.DcSource1Voltage = ReadUShort(data, offset); offset += 2;
             result.DcSource1Current = ReadUShort(data, offset); offset += 2;
@@ -170,10 +172,6 @@ namespace WpfApp2.Models
             result.DcSource2Switch = ReadUShort(data, offset); offset += 2;
             result.DcSource2Voltage = ReadUShort(data, offset); offset += 2;
             result.DcSource2Current = ReadUShort(data, offset); offset += 2;
-
-            result.DcSourceSwitch = ReadUShort(data, offset); offset += 2;
-            result.DcSourceControlVoltage = ReadUShort(data, offset); offset += 2;
-            result.DcSourceControlCurrent = ReadUShort(data, offset); offset += 2;
 
             result.ElectronicLoadMode = ReadUShort(data, offset); offset += 2;
             result.ElectronicLoadCurrent = ReadUShort(data, offset); offset += 2;

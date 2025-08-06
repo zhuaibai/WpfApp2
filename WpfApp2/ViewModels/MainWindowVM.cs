@@ -1788,12 +1788,12 @@ namespace WpfApp2.ViewModels
                     return false;
                 }
                 //设置电子负载电流为30A
-                parametersSending.ElectronicLoadCurrent = 20;
+                parametersSending.ElectronicLoadCurrent = 15;
                 BMS_Receive = SendPacked(parametersSending);
                 int Current = BMS_Receive.ElectronicLoadCurrent;
                 AddLog($"当前电流为{Current}");
                 //判断是否达到
-                if (Math.Abs(Current - 2000) < 20)
+                if (Math.Abs(Current - 1500) < 20)
                 {
                     succeed = true;
                 }
@@ -1811,12 +1811,12 @@ namespace WpfApp2.ViewModels
                     return false;
                 }
                 //设置电子负载电流为20A
-                parametersSending.ElectronicLoadCurrent = 30;
+                parametersSending.ElectronicLoadCurrent = 20;
                 BMS_Receive = SendPacked(parametersSending);
                 int Current = BMS_Receive.ElectronicLoadCurrent;
                 AddLog($"当前电流为{Current}");
                 //判断是否达到
-                if (Math.Abs(Current - 3000) < 10)
+                if (Math.Abs(Current - 2000) < 10)
                 {
                     succeed = true;
                 }
@@ -2184,12 +2184,12 @@ namespace WpfApp2.ViewModels
                     return false;
                 }
                 //设置电子负载电流为30A
-                parametersSending.ElectronicLoadCurrent = 20;
+                parametersSending.ElectronicLoadCurrent = 15;
                 BMS_Receive = SendPacked(parametersSending);
                 int Current = BMS_Receive.ElectronicLoadCurrent;
                 AddLog($"当前电流为{Current}");
                 //判断是否达到
-                if (Math.Abs(Current - 2000) < 20)
+                if (Math.Abs(Current - 1500) < 20)
                 {
                     succeed = true;
                 }
@@ -2207,12 +2207,12 @@ namespace WpfApp2.ViewModels
                     return false;
                 }
                 //设置电子负载电流为30A
-                parametersSending.ElectronicLoadCurrent = 30;
+                parametersSending.ElectronicLoadCurrent = 20;
                 BMS_Receive = SendPacked(parametersSending);
                 int Current = BMS_Receive.ElectronicLoadCurrent;
                 AddLog($"当前电流为{Current}");
                 //判断是否达到
-                if (Math.Abs(Current - 3000) < 10)
+                if (Math.Abs(Current - 2000) < 10)
                 {
                     succeed = true;
                 }
@@ -2495,11 +2495,11 @@ namespace WpfApp2.ViewModels
             } while (!succeed);
 
             //第四步 设置dc1和dc2的电流电压
-            parametersSending.DcSource1Current = 500;//(50A)
+            parametersSending.DcSource1Current = 4000;//(50A)
             parametersSending.DcSource1Voltage = 5000;//(50V)
 
-            parametersSending.DcSource2Current = 5000;//(50A)
-            parametersSending.DcSource2Voltage = 5200;//(50V)
+            parametersSending.DcSource2Current = 4000;//(50A)
+            parametersSending.DcSource2Voltage = 5200;//(52V)
 
             //第五步 dc源1/2开
             failCount = 0;
@@ -2533,7 +2533,7 @@ namespace WpfApp2.ViewModels
             Thread.Sleep(2000);
 
             BMS_Receive = SendPacked(parametersSending);
-            if (!(BMS_Receive.DcSource1Current <= 20 && BMS_Receive.DcSource2Current <= 200))
+            if (!(BMS_Receive.DcSource1Current <= 200 && BMS_Receive.DcSource2Current <= 200))
             {
                 AddLog($"dc1电流{BMS_Receive.DcSource1Current},dc2电流{BMS_Receive.DcSource2Current}，超过预定区间");
                 return false;
@@ -2705,7 +2705,7 @@ namespace WpfApp2.ViewModels
             } while (!succeed);
 
             Thread.Sleep(1000);
-            parametersSending.DcSource1Current = 10;
+            parametersSending.DcSource1Current = 100;
             parametersSending.DcSource2Current = 100;
             failCount = 0;
             succeed = false;
@@ -3106,7 +3106,7 @@ namespace WpfApp2.ViewModels
             parametersSending.TestMode = 0;
             //DC控制开关控制打开
             parametersSending.DcSource1Switch = 1;
-            parametersSending.DcSource1Current = (ushort)(DcSourceControlCurrent * 10);
+            parametersSending.DcSource1Current = (ushort)(DcSourceControlCurrent * 100);
             parametersSending.DcSource1Voltage = (ushort)(DcSourceControlVoltage * 100);
 
             //拼接字符串
@@ -4283,6 +4283,8 @@ namespace WpfApp2.ViewModels
             {
                 return new RelayCommand(() =>
                 {
+                    parametersSending.DcSource2Voltage = (ushort)DcSource2ControlVoltage;
+                    parametersSending.DcSource2Current = (ushort)DcSource2ControlCurrent;
                     bool isSuccess = OpenDcSource2Switch();
                     if (isSuccess)
                     {
@@ -5126,6 +5128,7 @@ namespace WpfApp2.ViewModels
             {
                 return new RelayCommand(() =>
                 {
+                    
                     bool isSuccess = OpenDcSourceSwitch();
                     if (isSuccess)
                     {
