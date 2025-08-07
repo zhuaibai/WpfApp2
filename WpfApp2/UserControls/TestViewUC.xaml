@@ -142,7 +142,7 @@
                 VerticalAlignment="Center"
                 Content="{Binding Bubble}" />
         </Grid>
-        
+
 
         <!--  第二行 串口显示、机器类型和日志显示  -->
 
@@ -153,7 +153,6 @@
                 <RowDefinition />
             </Grid.RowDefinitions>
             <Border
-                
                 Margin="5"
                 Background="#1118aabd"
                 CornerRadius="10" />
@@ -430,9 +429,139 @@
                 <StackPanel>
                     <Expander>
                         <StackPanel>
+                            <!--  BMS板信息  -->
+                            <GroupBox
+                                Margin="10,10,10,15"
+                                Header="BMS"
+                                Style="{StaticResource GroupBoxMachineTypeSty}">
+                                <Grid Margin="0,30,0,0">
+                                    <Grid.ColumnDefinitions>
+                                        <ColumnDefinition Width="1.5*" />
+                                        <ColumnDefinition Width="0.7*" />
+                                        <ColumnDefinition Width="1*" />
+                                        <ColumnDefinition Width="1*" />
+                                    </Grid.ColumnDefinitions>
+                                    <Grid.RowDefinitions>
+                                        <RowDefinition Height="40" />
+                                        <RowDefinition />
+                                        <RowDefinition />
+                                        <RowDefinition />
+                                    </Grid.RowDefinitions>
+                                    <!--  是否激活  -->
+                                    <TextBlock
+                                        Grid.Column="0"
+                                        Margin="0,12,0,0"
+                                        HorizontalAlignment="Center"
+                                        VerticalAlignment="Center"
+                                        FontSize="15"
+                                        Foreground="White"
+                                        Text="是否激活:" />
+                                    <TextBlock
+                                        Grid.Column="1"
+                                        Margin="0,12,0,0"
+                                        VerticalAlignment="Center"
+                                        FontSize="17"
+                                        Foreground="#ff2bedf1"
+                                        Text="{Binding testData.IsActivate}" />
+
+                                    <!--  低功耗电流  -->
+                                    <TextBlock
+                                        Grid.Column="2"
+                                        Margin="0,12,0,0"
+                                        HorizontalAlignment="Center"
+                                        VerticalAlignment="Center"
+                                        FontSize="15"
+                                        Foreground="White"
+                                        Text="电流:" />
+                                    <TextBlock
+                                        Grid.Column="3"
+                                        Margin="0,12,0,0"
+                                        VerticalAlignment="Center"
+                                        FontSize="17"
+                                        Foreground="#ff2bedf1"
+                                        Text="{Binding testData.LowPowerCurrent}" />
+
+                                    <!--  软件版本  -->
+                                    <TextBlock
+                                        Grid.Row="1"
+                                        Grid.Column="0"
+                                        Margin="0,12,0,0"
+                                        HorizontalAlignment="Center"
+                                        VerticalAlignment="Center"
+                                        FontSize="15"
+                                        Foreground="White"
+                                        Text="软件版本:" />
+                                    <TextBlock
+                                        Grid.Row="1"
+                                        Grid.Column="1"
+                                        Margin="0,12,0,0"
+                                        VerticalAlignment="Center"
+                                        FontSize="17"
+                                        Foreground="#ff2bedf1"
+                                        Text="{Binding testData.SoftwareVersion}" />
+
+                                    <!--  硬件版本  -->
+                                    <TextBlock
+                                        Grid.Row="1"
+                                        Grid.Column="2"
+                                        Margin="0,12,0,0"
+                                        HorizontalAlignment="Center"
+                                        VerticalAlignment="Center"
+                                        FontSize="15"
+                                        Foreground="White"
+                                        Text="硬件版本:" />
+                                    <TextBlock
+                                        Grid.Row="1"
+                                        Grid.Column="3"
+                                        Margin="0,12,0,0"
+                                        VerticalAlignment="Center"
+                                        FontSize="17"
+                                        Foreground="#ff2bedf1"
+                                        Text="{Binding testData.HardwareWareVersion}" />
+
+                                    <!--  系统时间  -->
+                                    <TextBlock
+                                        Grid.Row="2"
+                                        Grid.Column="0"
+                                        Margin="0,12,0,0"
+                                        HorizontalAlignment="Center"
+                                        VerticalAlignment="Center"
+                                        FontSize="15"
+                                        Foreground="White"
+                                        Text="系统时间:" />
+                                    <TextBlock
+                                        Grid.Row="2"
+                                        Grid.Column="1"
+                                        Margin="0,12,0,0"
+                                        VerticalAlignment="Center"
+                                        FontSize="17"
+                                        Foreground="#ff2bedf1"
+                                        Text="{Binding testData.Time}" />
+
+                                    <!--  出厂时间  -->
+                                    <TextBlock
+                                        Grid.Row="2"
+                                        Grid.Column="2"
+                                        Margin="0,12,0,0"
+                                        HorizontalAlignment="Center"
+                                        VerticalAlignment="Center"
+                                        FontSize="15"
+                                        Foreground="White"
+                                        Text="出厂时间:" />
+                                    <TextBlock
+                                        Grid.Row="2"
+                                        Grid.Column="3"
+                                        Margin="0,12,0,0"
+                                        VerticalAlignment="Center"
+                                        FontSize="17"
+                                        Foreground="#ff2bedf1"
+                                        Text="{Binding testData.ProductDate}" />
+
+                                </Grid>
+
+                            </GroupBox>
                             <!--  低功耗检测结果  -->
                             <GroupBox
-                                Grid.Row="1"
                                 Margin="10,10,10,15"
                                 Header="低功耗"
                                 Style="{StaticResource GroupBoxMachineTypeSty}">

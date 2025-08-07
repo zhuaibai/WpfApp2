@@ -10,6 +10,75 @@ namespace WpfApp2.Models
     public class TestData:BaseViewModel
     {
 
+        //是否激活
+        private string isActivate;
+
+        public string IsActivate
+        {
+            get { return isActivate; }
+            set
+            {
+                isActivate = value;
+                this.RaiseProperChanged(nameof(IsActivate));
+            }
+        }
+
+
+        //bms板系统时间
+        private string time;
+
+        public string Time
+        {
+            get { return time; }
+            set
+            {
+                time = value;
+                this.RaiseProperChanged(nameof(Time));
+            }
+        }
+
+        //软件版本号
+        private string softerVersion;
+
+        public string SoftwareVersion
+        {
+            get { return softerVersion; }
+            set
+            {
+                softerVersion = value;
+                this.RaiseProperChanged(nameof(SoftwareVersion));
+            }
+        }
+
+        //硬件版本号
+        private string hardwareWare;
+
+        public string  HardwareWareVersion
+        {
+            get { return hardwareWare; }
+            set
+            {
+                hardwareWare = value;
+                this.RaiseProperChanged(nameof(HardwareWareVersion));
+            }
+        }
+
+        //出厂时间
+        private string productDate;
+
+        public string ProductDate
+        {
+            get { return productDate; }
+            set
+            {
+                productDate = value;
+                this.RaiseProperChanged(nameof(ProductDate));
+            }
+        }
+
+
+
+
         // 低功耗电压
         private ushort _LowPowerVoltage;
         public ushort LowPowerVoltage

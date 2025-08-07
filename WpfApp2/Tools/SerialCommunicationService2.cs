@@ -427,13 +427,12 @@ namespace WpfApp2.Tools
             }
         }
 
-
         /// <summary>
         /// 发送测试指令
         /// </summary>
         /// <param name="command">测试指令(字节数组)</param>
         /// <param name="returnCount">返回字节长度</param>
-        /// <returns>提取的数据(或异常字节编码)</returns>
+        /// <returns>返回的数据(或异常字节编码)</returns>
         public static byte[] SendTestCommand2(byte[] command, int returnCount)
         {
             _semaphore.Wait();
