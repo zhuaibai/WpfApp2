@@ -5,6 +5,8 @@ using System.Windows.Controls;
 using System.Windows.Input;
 using System.Windows.Media.Animation;
 using WpfApp2.Command;
+using WpfApp2.CustomMessageBox;
+using WpfApp2.CustomMessageBox.Service;
 using WpfApp2.Models;
 using WpfApp2.Models.Service;
 using WpfApp2.Tools;
@@ -14,10 +16,13 @@ namespace WpfApp2.ViewModels
 {
     public class MainWindowVM : BaseViewModel
     {
-        public MainWindowVM()
+        public MainWindowVM(IMessageDialogService messageService)
         {
             //初始化
             Init();
+            _messageService = messageService;
+
+            ShowMessageCommand = new RelayCommand(OnShowMessage);
         }
 
         #region 初始化
@@ -700,6 +705,8 @@ namespace WpfApp2.ViewModels
         {
             // 记录任务开始时间
             DateTime start = TimeTracker.Start();
+           
+            
             //把所有项置为待测试
             ReSetTestItems();
             testData = new TestData();
@@ -782,7 +789,7 @@ namespace WpfApp2.ViewModels
                     if (i == TestItems.Count && flag)
                     {
                         Application.Current.Dispatcher.Invoke(() => ShowBubble("测试通过"));
-                        AddLog($"写入当前时间：{GetFormattedDateTime()}");
+                        //AddLog($"写入当前时间：{GetFormattedDateTime()}");
                         bool succeed = false;
                         //写入当前时间
                         //for (int j = 0; j < 5; j++)
@@ -865,8 +872,6 @@ namespace WpfApp2.ViewModels
                             AddLog("BMS232测试异常过多");
                             return false;
                         }
-
-
                         //重置参数
                         ResetBeforeTest();
                         //读取是否激活
@@ -875,17 +880,12 @@ namespace WpfApp2.ViewModels
                         ReadTime();
                         //写入系统时间
                         WriteTimeAfterTest();
+                        //读取系统时间
+                        ReadTime();
                         //读取出厂日期、软件版本、硬件版本
                         ReadThreeData();
                         //写入出厂日期
-                        WriteProductDate();
-
-
-
-
-
-
-
+                        //WriteProductDate();
 
                         return true;
                     }
@@ -1695,6 +1695,7 @@ namespace WpfApp2.ViewModels
                 //关闭放电继电器
                 parametersSending.DischargeRelayStatus = 0;
                 succeed = CloseParameter(parametersSending.DischargeRelayStatus, "DischargeRelayStatus", "放电继电器");
+                Thread.Sleep(500);
             } while (!succeed);
 
 
@@ -1711,6 +1712,7 @@ namespace WpfApp2.ViewModels
                 //关闭充电限流负极继电器
                 parametersSending.ChargeCurrentLimitNegativeRelayStatus = 0;
                 succeed = CloseParameter(parametersSending.ChargeCurrentLimitNegativeRelayStatus, "ChargeCurrentLimitNegativeRelayStatus", "充电限流负极继电器");
+                Thread.Sleep(500);
             } while (!succeed);
 
 
@@ -1726,6 +1728,7 @@ namespace WpfApp2.ViewModels
                 //关闭电阻棒MOS管
                 parametersSending.ResistorBankMosfetStatus = 0;
                 succeed = CloseParameter(parametersSending.ResistorBankMosfetStatus, "ResistorBankMosfetStatus", "电阻棒MOS管");
+                Thread.Sleep(500);
             } while (!succeed);
 
             //第五步 读取当前负载模式为CC就设置电子负载电流为30A
@@ -1740,6 +1743,7 @@ namespace WpfApp2.ViewModels
                 //读取当前负载模式为CC
                 parametersSending.ElectronicLoadMode = 1;
                 succeed = OpenParameter(parametersSending.ElectronicLoadMode, "ElectronicLoadMode", "负载模式为CC");
+                Thread.Sleep(500);
             } while (!succeed);
 
             failCount = 0;
@@ -1754,7 +1758,7 @@ namespace WpfApp2.ViewModels
                 //设置电子负载电流为30A
                 parametersSending.ElectronicLoadCurrent = 20;
                 BMS_Receive = SendPacked(parametersSending);
-
+                Thread.Sleep(500);
                 succeed = true;
             } while (!succeed);
 
@@ -1765,7 +1769,7 @@ namespace WpfApp2.ViewModels
                 AddLog($"前置条件不符！");
                 return false;
             }
-
+            Thread.Sleep(2000);
 
             //第六步 打开电子负载开关
             failCount = 0;
@@ -1782,7 +1786,7 @@ namespace WpfApp2.ViewModels
                 Thread.Sleep(1000);
             } while (!succeed);
 
-            Thread.Sleep(2000);
+            Thread.Sleep(1000);
             //先设置电流为5A，
             failCount = 0;
             succeed = false;
@@ -1805,7 +1809,7 @@ namespace WpfApp2.ViewModels
                 Thread.Sleep(2000);
             } while (!succeed);
 
-            Thread.Sleep(2000);
+            Thread.Sleep(1000);
             //设置电流为13A，
             failCount = 0;
             succeed = false;
@@ -1828,7 +1832,7 @@ namespace WpfApp2.ViewModels
                 Thread.Sleep(2000);
             } while (!succeed);
 
-            Thread.Sleep(2000);
+            Thread.Sleep(1000);
             //设置电流为20A，
             failCount = 0;
             succeed = false;
@@ -2067,7 +2071,7 @@ namespace WpfApp2.ViewModels
                 //关闭充电继电器
                 parametersSending.ChargeRelayStatus = 0;
                 succeed = CloseParameter(parametersSending.ChargeRelayStatus, "ChargeRelayStatus", "充电继电器");
-                Thread.Sleep(1000);
+                Thread.Sleep(500);
             } while (!succeed);
 
 
@@ -2088,7 +2092,7 @@ namespace WpfApp2.ViewModels
                 Thread.Sleep(1000);
             } while (!succeed);
 
-
+            Thread.Sleep(2000);
 
             //第三步 关闭充电限流负极继电器
             failCount = 0;
@@ -2102,6 +2106,7 @@ namespace WpfApp2.ViewModels
                 //关闭充电限流负极继电器
                 parametersSending.ChargeCurrentLimitNegativeRelayStatus = 0;
                 succeed = CloseParameter(parametersSending.ChargeCurrentLimitNegativeRelayStatus, "ChargeCurrentLimitNegativeRelayStatus", "充电限流负极继电器");
+                Thread.Sleep(200);
             } while (!succeed);
 
 
@@ -2117,6 +2122,7 @@ namespace WpfApp2.ViewModels
                 //关闭电阻棒MOS管
                 parametersSending.ResistorBankMosfetStatus = 0;
                 succeed = CloseParameter(parametersSending.ResistorBankMosfetStatus, "ResistorBankMosfetStatus", "电阻棒MOS管");
+                Thread.Sleep(200);
             } while (!succeed);
 
             //第五步 读取当前负载模式为CC就设置电子负载电流为30A
@@ -2131,6 +2137,7 @@ namespace WpfApp2.ViewModels
                 //读取当前负载模式为CC
                 parametersSending.ElectronicLoadMode = 1;
                 succeed = OpenParameter(parametersSending.ElectronicLoadMode, "ElectronicLoadMode", "负载模式为CC");
+                Thread.Sleep(200);
             } while (!succeed);
 
             failCount = 0;
@@ -2163,6 +2170,7 @@ namespace WpfApp2.ViewModels
             }
 
             //第六步 打开电子负载开关
+            Thread.Sleep(2000);
 
             failCount = 0;
             succeed = false;
@@ -2202,7 +2210,7 @@ namespace WpfApp2.ViewModels
                 Thread.Sleep(1000);
             } while (!succeed);
 
-            Thread.Sleep(2000);
+            Thread.Sleep(1000);
             //设置电流为13A，
             failCount = 0;
             succeed = false;
@@ -2225,7 +2233,7 @@ namespace WpfApp2.ViewModels
                 Thread.Sleep(2000);
             } while (!succeed);
 
-            Thread.Sleep(2000);
+            Thread.Sleep(1000);
             //设置电流为20A，
             failCount = 0;
             succeed = false;
@@ -2249,7 +2257,7 @@ namespace WpfApp2.ViewModels
             } while (!succeed);
 
             //第七步 读取电流(串口2是需要校准的，串口1是万瑞达的).对比差值，读充电系数，写充电系数
-            Thread.Sleep(3000);
+            Thread.Sleep(1000);
             int com2Current = 0;
             int com1Current = 0;
 
@@ -3916,6 +3924,7 @@ namespace WpfApp2.ViewModels
                 }
                 else
                 {
+                    AddLog("未激活");
                     testData.IsActivate = "未激活";
                     interSuccess = true;
                 }
@@ -4004,7 +4013,7 @@ namespace WpfApp2.ViewModels
                 if (receive.Length == 11)
                 {
                     interSuccess = true;
-                    testData.Time = $"{receive[3]}/{receive[4]}/{receive[5]}/{receive[6]}/{receive[7]}/{receive[8]}";
+                    testData.Time = $"20{receive[3]}/{receive[4]}/{receive[5]}  {receive[6]}:{receive[7]}:{receive[8]}";
                 }
 
                 //interSuccess = InterTestMode(1);
@@ -4046,6 +4055,7 @@ namespace WpfApp2.ViewModels
                 if (receive.Length == 15)
                     interSuccess = true;
                 //interSuccess = InterTestMode(1);
+                Thread.Sleep(200);  
             } while (!interSuccess && ERROR_COUNT < 10);//最多发十次
 
             if (!interSuccess)
@@ -4092,20 +4102,17 @@ namespace WpfApp2.ViewModels
                 if (receive.Length == 33)
                 {
                     interSuccess = true;
-                    int aa = receive[4] << 8 + receive[3];
-                    int bb = receive[6] << 16 + receive[5];
+                  
                     //软件版本
-                    testData.SoftwareVersion = BitConverter.ToInt16(new byte[] { receive[4], receive[3] }, 0).ToString("D2") + BitConverter.ToInt16(new byte[] { receive[6], receive[5] }, 0).ToString("D2");
+                    testData.SoftwareVersion = ByteConverter.BytesToNumber(new byte[] { receive[3], receive[4] }).ToString("D2") + ByteConverter.BytesToNumber(new byte[] { receive[5], receive[6] }).ToString("D2");
 
-                    string str1 = receive[4].ToString("D2"); // 0x0A -> 10 -> "10"
-                    string str2 = receive[3].ToString("D2"); // 0x01 -> 1 -> "01"
                     //硬件版本
-                    testData.HardwareWareVersion = BitConverter.ToInt16(new byte[] { receive[8], receive[7] }, 0).ToString("D2") + BitConverter.ToInt16(new byte[] { receive[10], receive[9] }, 0).ToString("D2");
+                    testData.HardwareWareVersion = ByteConverter.BytesToNumber(new byte[] { receive[7], receive[8] }).ToString("D2") + ByteConverter.BytesToNumber(new byte[] { receive[9], receive[10] }).ToString("D2");
                     //出厂日期
-                    testData.ProductDate = ByteConverter.BytesToDateNumber(new byte[] { receive[15], receive[16], receive[17], receive[18] }).ToString();
+                    //testData.ProductDate = ByteConverter.BytesToDateNumber(new byte[] { receive[15], receive[16], receive[17], receive[18] }).ToString();
                     AddLog($"【软件版本】：{testData.SoftwareVersion}");
                     AddLog($"【硬件版本】：{testData.HardwareWareVersion}");
-                    AddLog($"【出厂日期】：{testData.ProductDate}");
+                    //AddLog($"【出厂日期】：{testData.ProductDate}");
 
                 }
 
@@ -5618,6 +5625,55 @@ namespace WpfApp2.ViewModels
 
         #endregion
 
+        #region 消息框
+
+        private readonly IMessageDialogService _messageService;
+
+        public ICommand ShowMessageCommand { get; }
+
+        private void OnShowMessage()
+        {
+            var result = LShowMessage("确定要删除此文件吗？删除后无法恢复！", "删除确认", MessageIcon.Warning);
+               
+
+            if (result == MessageResult.OK)
+            {
+                // 执行删除操作
+               
+            }
+            else
+            {
+                // 取消操作
+                _messageService.Show("操作已取消", "提示", MessageIcon.Information);
+            }
+        }
+
+        /// <summary>
+        /// 消息弹框
+        /// </summary>
+        /// <param name="message">消息</param>
+        /// <param name="title">标题</param>
+        /// <param name="messageIcon">图标</param>
+        /// <returns></returns>
+        private MessageResult LShowMessage(string message, string title, MessageIcon messageIcon)
+        {
+            MessageResult result = MessageResult.OK;
+            Application.Current.Dispatcher.Invoke(new Action(() =>
+            {
+                result = _messageService.Show(
+                message,
+                title,
+                messageIcon,
+                fontSize: 50
+                );
+            }));
+            return result;
+
+        }
+                
+
+
+        #endregion
     }
 
 }

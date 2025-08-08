@@ -8,6 +8,7 @@ using System.Windows.Media;
 using System.Windows.Media.Imaging;
 using System.Windows.Navigation;
 using System.Windows.Shapes;
+using WpfApp2.CustomMessageBox.Service;
 using WpfApp2.ViewModels;
 
 namespace WpfApp2
@@ -20,7 +21,7 @@ namespace WpfApp2
         public MainWindow()
         {
             InitializeComponent();
-            this.DataContext = new MainWindowVM();
+            this.DataContext = new MainWindowVM(new MessageDialogService());
             
         }
 

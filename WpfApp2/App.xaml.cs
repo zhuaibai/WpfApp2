@@ -2,6 +2,7 @@
 using System.Configuration;
 using System.Data;
 using System.Windows;
+using WpfApp2.CustomMessageBox.Service;
 
 namespace WpfApp2
 {
@@ -11,6 +12,18 @@ namespace WpfApp2
     public partial class App : Application
     {
         public static ResourceDictionary resourceDictionary;
+
+        protected override void OnStartup(StartupEventArgs e)
+        {
+            base.OnStartup(e);
+
+            // 注册消息框服务（实际项目中可使用DI容器）
+            ServiceLocator.Register<IMessageDialogService>(new MessageDialogService());
+
+            // 初始化主窗口
+           // var mainWindow = new MainWindow();
+           // mainWindow.Show();
+        }
 
         /// <summary>
         /// 切换界面语言

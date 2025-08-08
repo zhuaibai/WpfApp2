@@ -427,7 +427,7 @@
 
             <ScrollViewer VerticalScrollBarVisibility="Hidden">
                 <StackPanel>
-                    <Expander>
+                    <Expander IsExpanded="True">
                         <StackPanel>
                             <!--  BMS板信息  -->
                             <GroupBox
@@ -450,6 +450,7 @@
                                     <!--  是否激活  -->
                                     <TextBlock
                                         Grid.Column="0"
+                                        Grid.ColumnSpan="2"
                                         Margin="0,12,0,0"
                                         HorizontalAlignment="Center"
                                         VerticalAlignment="Center"
@@ -457,33 +458,38 @@
                                         Foreground="White"
                                         Text="是否激活:" />
                                     <TextBlock
-                                        Grid.Column="1"
+                                        Grid.Column="2"
+                                        Grid.ColumnSpan="2"
                                         Margin="0,12,0,0"
                                         VerticalAlignment="Center"
                                         FontSize="17"
                                         Foreground="#ff2bedf1"
                                         Text="{Binding testData.IsActivate}" />
 
-                                    <!--  低功耗电流  -->
+                                    <!--  系统时间  -->
                                     <TextBlock
-                                        Grid.Column="2"
+                                        Grid.Row="2"
+                                        Grid.Column="0"
+                                        Grid.ColumnSpan="2"
                                         Margin="0,12,0,0"
                                         HorizontalAlignment="Center"
                                         VerticalAlignment="Center"
                                         FontSize="15"
                                         Foreground="White"
-                                        Text="电流:" />
+                                        Text="系统时间:" />
                                     <TextBlock
-                                        Grid.Column="3"
+                                        Grid.Row="2"
+                                        Grid.Column="2"
+                                        Grid.ColumnSpan="2"
                                         Margin="0,12,0,0"
                                         VerticalAlignment="Center"
                                         FontSize="17"
                                         Foreground="#ff2bedf1"
-                                        Text="{Binding testData.LowPowerCurrent}" />
+                                        Text="{Binding testData.Time}" />
 
                                     <!--  软件版本  -->
                                     <TextBlock
-                                        Grid.Row="1"
+                                        Grid.Row="3"
                                         Grid.Column="0"
                                         Margin="0,12,0,0"
                                         HorizontalAlignment="Center"
@@ -492,7 +498,7 @@
                                         Foreground="White"
                                         Text="软件版本:" />
                                     <TextBlock
-                                        Grid.Row="1"
+                                        Grid.Row="3"
                                         Grid.Column="1"
                                         Margin="0,12,0,0"
                                         VerticalAlignment="Center"
@@ -502,7 +508,7 @@
 
                                     <!--  硬件版本  -->
                                     <TextBlock
-                                        Grid.Row="1"
+                                        Grid.Row="3"
                                         Grid.Column="2"
                                         Margin="0,12,0,0"
                                         HorizontalAlignment="Center"
@@ -511,51 +517,13 @@
                                         Foreground="White"
                                         Text="硬件版本:" />
                                     <TextBlock
-                                        Grid.Row="1"
+                                        Grid.Row="3"
                                         Grid.Column="3"
                                         Margin="0,12,0,0"
                                         VerticalAlignment="Center"
                                         FontSize="17"
                                         Foreground="#ff2bedf1"
                                         Text="{Binding testData.HardwareWareVersion}" />
-
-                                    <!--  系统时间  -->
-                                    <TextBlock
-                                        Grid.Row="2"
-                                        Grid.Column="0"
-                                        Margin="0,12,0,0"
-                                        HorizontalAlignment="Center"
-                                        VerticalAlignment="Center"
-                                        FontSize="15"
-                                        Foreground="White"
-                                        Text="系统时间:" />
-                                    <TextBlock
-                                        Grid.Row="2"
-                                        Grid.Column="1"
-                                        Margin="0,12,0,0"
-                                        VerticalAlignment="Center"
-                                        FontSize="17"
-                                        Foreground="#ff2bedf1"
-                                        Text="{Binding testData.Time}" />
-
-                                    <!--  出厂时间  -->
-                                    <TextBlock
-                                        Grid.Row="2"
-                                        Grid.Column="2"
-                                        Margin="0,12,0,0"
-                                        HorizontalAlignment="Center"
-                                        VerticalAlignment="Center"
-                                        FontSize="15"
-                                        Foreground="White"
-                                        Text="出厂时间:" />
-                                    <TextBlock
-                                        Grid.Row="2"
-                                        Grid.Column="3"
-                                        Margin="0,12,0,0"
-                                        VerticalAlignment="Center"
-                                        FontSize="17"
-                                        Foreground="#ff2bedf1"
-                                        Text="{Binding testData.ProductDate}" />
 
                                 </Grid>
 
@@ -1298,7 +1266,8 @@
                                         Style="{StaticResource BtnStyle}" />
                                     <Button
                                         Margin="4"
-                                        Content=""
+                                        Content="测试"
+                                        Command="{Binding ShowMessageCommand}"
                                         FontSize="17"
                                         Style="{StaticResource BtnStyle}" />
                                     <Button
