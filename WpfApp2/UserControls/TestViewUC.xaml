@@ -427,7 +427,7 @@
 
             <ScrollViewer VerticalScrollBarVisibility="Hidden">
                 <StackPanel>
-                    <Expander IsExpanded="True">
+                    <Grid>
                         <StackPanel>
                             <!--  BMS板信息  -->
                             <GroupBox
@@ -449,8 +449,8 @@
                                     </Grid.RowDefinitions>
                                     <!--  是否激活  -->
                                     <TextBlock
+                                        Grid.Row="2"
                                         Grid.Column="0"
-                                        Grid.ColumnSpan="2"
                                         Margin="0,12,0,0"
                                         HorizontalAlignment="Center"
                                         VerticalAlignment="Center"
@@ -458,19 +458,35 @@
                                         Foreground="White"
                                         Text="是否激活:" />
                                     <TextBlock
-                                        Grid.Column="2"
-                                        Grid.ColumnSpan="2"
+                                        Grid.Row="2"
+                                        Grid.Column="1"
                                         Margin="0,12,0,0"
                                         VerticalAlignment="Center"
                                         FontSize="17"
                                         Foreground="#ff2bedf1"
                                         Text="{Binding testData.IsActivate}" />
 
-                                    <!--  系统时间  -->
+                                    <!--当前测试版本-->
                                     <TextBlock
                                         Grid.Row="2"
+                                        Grid.Column="2"
+                                        Margin="0,12,0,0"
+                                        HorizontalAlignment="Center"
+                                        VerticalAlignment="Center"
+                                        FontSize="15"
+                                        Foreground="White"
+                                        Text="测试软件版本:" />
+                                    <TextBlock
+                                        Grid.Row="2"
+                                        Grid.Column="3"
+                                        Margin="0,12,0,0"
+                                        VerticalAlignment="Center"
+                                        FontSize="17"
+                                        Foreground="#ff2bedf1"
+                                        Text="{Binding testData.TestSofterWare}" />
+                                    <!--  系统时间  -->
+                                    <TextBlock
                                         Grid.Column="0"
-                                        Grid.ColumnSpan="2"
                                         Margin="0,12,0,0"
                                         HorizontalAlignment="Center"
                                         VerticalAlignment="Center"
@@ -478,28 +494,26 @@
                                         Foreground="White"
                                         Text="系统时间:" />
                                     <TextBlock
-                                        Grid.Row="2"
                                         Grid.Column="2"
                                         Grid.ColumnSpan="2"
                                         Margin="0,12,0,0"
                                         VerticalAlignment="Center"
                                         FontSize="17"
-                                        Foreground="#ff2bedf1"
+                                        Foreground="#FF0000FF"
                                         Text="{Binding testData.Time}" />
-
                                     <!--  软件版本  -->
                                     <TextBlock
                                         Grid.Row="3"
-                                        Grid.Column="0"
+                                        Grid.Column="2"
                                         Margin="0,12,0,0"
                                         HorizontalAlignment="Center"
                                         VerticalAlignment="Center"
                                         FontSize="15"
                                         Foreground="White"
-                                        Text="软件版本:" />
+                                        Text="板子软件版本:" />
                                     <TextBlock
                                         Grid.Row="3"
-                                        Grid.Column="1"
+                                        Grid.Column="3"
                                         Margin="0,12,0,0"
                                         VerticalAlignment="Center"
                                         FontSize="17"
@@ -509,7 +523,7 @@
                                     <!--  硬件版本  -->
                                     <TextBlock
                                         Grid.Row="3"
-                                        Grid.Column="2"
+                                        Grid.Column="0"
                                         Margin="0,12,0,0"
                                         HorizontalAlignment="Center"
                                         VerticalAlignment="Center"
@@ -518,7 +532,7 @@
                                         Text="硬件版本:" />
                                     <TextBlock
                                         Grid.Row="3"
-                                        Grid.Column="3"
+                                        Grid.Column="1"
                                         Margin="0,12,0,0"
                                         VerticalAlignment="Center"
                                         FontSize="17"
@@ -933,7 +947,7 @@
                             </GroupBox>
                         </StackPanel>
 
-                    </Expander>
+                    </Grid>
                     <Expander>
                         <GroupBox
                             Grid.Row="1"
@@ -1266,8 +1280,8 @@
                                         Style="{StaticResource BtnStyle}" />
                                     <Button
                                         Margin="4"
-                                        Content="测试"
                                         Command="{Binding ShowMessageCommand}"
+                                        Content="测试"
                                         FontSize="17"
                                         Style="{StaticResource BtnStyle}" />
                                     <Button
@@ -1275,28 +1289,28 @@
                                         Command="{Binding OpenDcSourceSwitchCmd}"
                                         Content="DC电源1开"
                                         FontSize="17"
-                                        Foreground="{Binding DcSourceSwitch, Converter={StaticResource ColorConverter}}"
+                                        Foreground="{Binding BMS_Receive.DcSource1Switch, Converter={StaticResource ColorConverter}}"
                                         Style="{StaticResource BtnStyle5}" />
                                     <Button
                                         Margin="4"
                                         Command="{Binding CloseDcSourceSwitchTestCmd}"
                                         Content="DC电源1关"
                                         FontSize="17"
-                                        Foreground="{Binding DcSourceSwitch, Converter={StaticResource ColorConverter2}}"
+                                        Foreground="{Binding BMS_Receive.DcSource1Switch, Converter={StaticResource ColorConverter2}}"
                                         Style="{StaticResource BtnStyle5}" />
                                     <Button
                                         Margin="4"
                                         Command="{Binding OpenDcSource2SwitchCom}"
                                         Content="DC电源2开"
                                         FontSize="17"
-                                        Foreground="{Binding DcSource2Switch, Converter={StaticResource ColorConverter}}"
+                                        Foreground="{Binding BMS_Receive.DcSource2Switch, Converter={StaticResource ColorConverter}}"
                                         Style="{StaticResource BtnStyle5}" />
                                     <Button
                                         Margin="4"
                                         Command="{Binding CloseDcSource2SwitchTestCom}"
                                         Content="DC电源2关"
                                         FontSize="17"
-                                        Foreground="{Binding DcSource2Switch, Converter={StaticResource ColorConverter2}}"
+                                        Foreground="{Binding BMS_Receive.DcSource2Switch, Converter={StaticResource ColorConverter2}}"
                                         Style="{StaticResource BtnStyle5}" />
 
                                 </UniformGrid>
@@ -1308,7 +1322,7 @@
                         <!--  串口一  -->
                         <GroupBox Margin="10,13,10,0" Style="{StaticResource GroupBoxMachineTypeSty}">
                             <UniformGrid Margin="10" Columns="2">
-                                <Button
+                                <!--<Button
                                     Height="40"
                                     Margin="4"
                                     Command="{Binding OpenCharge}"
@@ -1336,8 +1350,9 @@
                                     Content="直流源2关闭"
                                     FontSize="17"
                                     Foreground="{Binding BMS_Receive.DcSource2Switch, Converter={StaticResource ColorConverter2}}"
-                                    Style="{StaticResource BtnStyle5}" />
+                                    Style="{StaticResource BtnStyle5}" />-->
                                 <Button
+                                    Height="40"
                                     Margin="4"
                                     Command="{Binding OpenElectronicLoadModeCom}"
                                     Content="电子负载开启"

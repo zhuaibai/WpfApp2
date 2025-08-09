@@ -11,7 +11,8 @@ namespace WpfApp2.CustomMessageBox
         Information,
         Warning,
         Error,
-        Question
+        Question,
+        Pass // 新增通过图标
     }
 
 
@@ -22,5 +23,12 @@ namespace WpfApp2.CustomMessageBox
         Cancel
     }
 
-
+    public enum InputType
+    {
+        Text,       // 单行文本
+        Multiline,  // 多行文本
+        Number,     // 数字输入
+        Password,   // 密码输入
+        Date        // 日期输入
+    }
 }

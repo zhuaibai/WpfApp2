@@ -354,7 +354,7 @@ namespace WpfApp2.Models
                 OnPropertyChanged();
             }
         }
-        // 预留2
+        // 预留2(拨码开关)
         private ushort _Reserved2;
         public ushort Reserved2
         {
@@ -366,7 +366,7 @@ namespace WpfApp2.Models
                 OnPropertyChanged();
             }
         }
-        // 预留3
+        // 预留3(复位开关)
         private ushort _Reserved3;
         public ushort Reserved3
         {

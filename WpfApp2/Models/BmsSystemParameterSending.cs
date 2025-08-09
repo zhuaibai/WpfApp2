@@ -46,9 +46,9 @@ namespace WpfApp2.Models
         public ushort ElectronicLoadCurrent { get; set; }  // 电子负载电流
 
         // 预留参数
-        public ushort Reserved1 { get; set; }              // 预留1
-        public ushort Reserved2 { get; set; }              // 预留2
-        public ushort Reserved3 { get; set; }              // 预留3
+        public ushort Reserved1 { get; set; }              // 电子负载开关
+        public ushort Reserved2 { get; set; }              // 拨码开关打开
+        public ushort Reserved3 { get; set; }              // 复位开关打开
 
         // 设备状态参数
         public ushort ResistorBankMosfetStatus { get; set; }   // 电阻棒MOS状态

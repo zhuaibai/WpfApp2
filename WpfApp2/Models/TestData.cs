@@ -37,6 +37,20 @@ namespace WpfApp2.Models
             }
         }
 
+        //需要测试的软件版本
+        private string tsetSofterWare;
+
+        public string TestSofterWare
+        {
+            get { return tsetSofterWare; }
+            set
+            {
+                tsetSofterWare = value;
+                this.RaiseProperChanged(nameof(TestSofterWare));
+            }
+        }
+
+
         //软件版本号
         private string softerVersion;
 

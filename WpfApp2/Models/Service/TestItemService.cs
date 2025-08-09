@@ -26,7 +26,7 @@ namespace WpfApp2.Models.Service
 
             SQLiteHelper.ExecuteNonQuery(sql);
         }
-        // 创建表（如果不存在）
+        
         
 
         // 添加项目
