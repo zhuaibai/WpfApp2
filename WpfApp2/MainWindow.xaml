@@ -44,14 +44,12 @@
                     <ColumnDefinition />
                 </Grid.ColumnDefinitions>
                 <!--  第一列  -->
-                <StackPanel>
-                    <Border>
-                        <Border.Effect>
-                            <DropShadowEffect
-                                BlurRadius="10"
-                                Direction="230"
-                                ShadowDepth="5" />
-                        </Border.Effect>
+                <StackPanel Orientation="Horizontal">
+                    <!--  第一列  -->
+                    <Image Margin="10,2" Source="Images/Logo.png"  />
+                   
+                        <!--  第一列  -->
+                       
                         <TextBlock
                             Grid.Column="0"
                             Margin="5,0,0,0"
@@ -67,7 +65,7 @@
                                 Foreground="White"
                                 Text="让世界永不停电" />
                         </TextBlock>
-                    </Border>
+                    
                 </StackPanel>
 
                 

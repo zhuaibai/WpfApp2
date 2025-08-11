@@ -719,6 +719,7 @@ namespace WpfApp2.ViewModels
             ReSetTestItems();
             int i = 0;//计数
             bool flag = false;//测试成功与否
+            bool finallySucceess = false;
             parametersSending = new BmsSystemParametersSending() { CommunicationVersion = 1001, LowPowerRelayStatus = 1, Reserved1RelayStatus = 1, Reserved2RelayStatus = 1, Reserved3RelayStatus = 1, DcSource1Current = 10, DcSource1Voltage = 5000, DcSource1Switch = 100, DcSource2Current = 100 }; //发送指令实体类初始化
             do
             {
@@ -801,10 +802,12 @@ namespace WpfApp2.ViewModels
                     {
                         Application.Current.Dispatcher.Invoke(() => ShowBubble("测试通过，正在关闭电子元件..."));
                         AddLog("测试结束，测试结果：通过！");
+                        finallySucceess = true;
                     }
                     else
                     {
                         AddLog("测试结束，测试结果：不合格！");
+                        finallySucceess = false;
                     }
                     //关闭所有电子元件
                     _cts.Cancel();
@@ -836,7 +839,12 @@ namespace WpfApp2.ViewModels
                 //AddLog($"任务耗时: {elapsed.TotalSeconds:F2} 秒");
                 //TimeSpan elmin = TimeTracker.GetElapsedTime(start);
                 AddLog($"任务耗时: {elapsed.Minutes}分{elapsed.Seconds:00}秒");
-                LShowMessage("测试通过！", "恭喜", MessageIcon.Pass);
+                if (finallySucceess)
+                    LShowMessage("测试通过！", "恭喜", MessageIcon.Pass);
+                else
+                {
+                    LShowMessage("测试结束,可进行更换板子","结束",MessageIcon.Information);
+                }
             }
         }
 
@@ -873,7 +881,11 @@ namespace WpfApp2.ViewModels
                         //重置参数
                         ResetBeforeTest();
                         //读取是否激活
-                        WriteBeforeTest();
+                        if (!WriteBeforeTest())
+                        {
+                            LShowMessage("当前BMS板未激活，请先激活", "警告", MessageIcon.Warning);
+                            return false;
+                        }
                         //读取系统时间
                         ReadTime();
                         //写入系统时间
@@ -2776,11 +2788,28 @@ namespace WpfApp2.ViewModels
         /// <returns></returns>
         private bool ExitTestMode()
         {
+
+
             int failCount = 0;
             bool succeed = false;
             parametersSending.DcSource1Switch = 0;
             parametersSending.DcSource2Switch = 0;
             parametersSending.ElectronicLoadCurrent = 1;
+
+            //关闭限流
+            failCount = 0;
+            succeed = false;
+            do
+            {
+                if (failCount++ == 10)
+                {
+                    AddLog("关闭限流失败");
+                    break;
+                }
+                succeed = CloseLimitedCurrent();
+                Thread.Sleep(200);
+            } while (!succeed);
+            AddLog("限流已关闭");
 
             BMS_Receive = SendPacked(parametersSending);
 
@@ -2893,20 +2922,7 @@ namespace WpfApp2.ViewModels
                 }
             }
 
-            //关闭限流
-            failCount = 0;
-            succeed = false;
-            do
-            {
-                if (failCount++ == 10)
-                {
-                    AddLog("关闭限流失败");
-                    break;
-                }
-                succeed = CloseLimitedCurrent();
-                Thread.Sleep(200);
-            } while (!succeed);
-            AddLog("限流已关闭");
+            
 
             parametersSending.LowPowerRelayStatus = 0;
             parametersSending.Reserved1RelayStatus = 0;
