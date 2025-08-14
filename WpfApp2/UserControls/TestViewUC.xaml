@@ -499,7 +499,7 @@
                                         Margin="0,12,0,0"
                                         VerticalAlignment="Center"
                                         FontSize="17"
-                                        Foreground="#FF0000FF"
+                                        Foreground="#ff2bedf1"
                                         Text="{Binding testData.Time}" />
                                     <!--  软件版本  -->
                                     <TextBlock

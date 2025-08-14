@@ -326,5 +326,34 @@ namespace WpfApp2.Models
             }
         }
 
+        /// <summary>
+        /// 复位
+        /// </summary>
+        public void ReSetParameters()
+        {
+            IsActivate = "";
+            Time = "";
+            SoftwareVersion = "";
+            HardwareWareVersion = "";
+            LowPowerVoltage = 0;
+            LowPowerCurrent = 0;
+            ChargeCom1Current = 0;
+            ChargeCom1CurrentResult = 0;
+            ChargeCom2Current = 0;
+            ChargeCom2CurrentResult = 0;
+            ChargeAdjustNum = 0;
+            WriteChargeAdjustNum = 0;
+            DisChargeCom1Current = 0;
+            DisChargeCom1CurrentResult = 0;
+            DisChargeCom2Current = 0;
+            DisChargeCom2CurrentResult = 0;
+            DisChargeAdjustNum = 0;
+            WriteDisChargeAdjustNum = 0;
+            LimitDc2Source = 0;
+            LimitDc2SourceResult = 0;
+            LimitBmsSource = 0;
+            LimitBmsSourceResult = 0;
+
+        }
     }
 }

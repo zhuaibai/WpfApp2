@@ -26,7 +26,18 @@ namespace WpfApp2
             EnterFullScreen();
             //FullScreenHelper.EnterFullScreen(this); // 启动全屏
             this.DataContext = new MainWindowVM(new MessageDialogService());
-            
+            Closing += MainWindow_Closing;
+        }
+
+        private void MainWindow_Closing(object? sender, System.ComponentModel.CancelEventArgs e)
+        {
+            if (this.DataContext is MainWindowVM mainVM)
+            {
+                if (mainVM.IsRunning) {
+                    //退出程序时，若还在进行测试，则关闭所有电子元件
+                    mainVM.ExitTestMode();
+                }
+            }
         }
 
         /// <summary>
