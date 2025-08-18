@@ -46,11 +46,11 @@
                 <!--  第一列  -->
                 <StackPanel Orientation="Horizontal">
                     <!--  第一列  -->
-                    <Image Margin="10,2" Source="Images/Logo.png"  />
-                   
-                        <!--  第一列  -->
-                       
-                        <TextBlock
+                    <Image Margin="10,2" Source="Images/Logo.png" />
+
+                    <!--  第一列  -->
+
+                    <!--<TextBlock
                             Grid.Column="0"
                             Margin="5,0,0,0"
                             Padding="0,0,0,0"
@@ -64,11 +64,11 @@
                                 FontSize="13"
                                 Foreground="White"
                                 Text="让世界永不停电" />
-                        </TextBlock>
-                    
+                        </TextBlock>-->
+
                 </StackPanel>
 
-                
+
 
                 <!--  第二列  -->
                 <Grid Grid.Column="1">
@@ -76,6 +76,23 @@
                         <RowDefinition />
                         <RowDefinition Height="17" />
                     </Grid.RowDefinitions>
+                    <StackPanel Orientation="Horizontal" HorizontalAlignment="Left">
+                        <TextBlock
+                            Grid.Column="0"
+                            Margin="5,0,0,0"
+                            Padding="0,0,0,0"
+                            VerticalAlignment="Center">
+                            <Run
+                                FontSize="20"
+                                Foreground="#aaa"
+                                Text="BMS测试上位机" />
+                            <!--<LineBreak />-->
+                            <!--<Run
+                                FontSize="13"
+                                Foreground="White"
+                                Text="让世界永不停电" />-->
+                        </TextBlock>
+                    </StackPanel>
                     <StackPanel
                         HorizontalAlignment="Right"
                         Background="Transparent"
@@ -92,7 +109,7 @@
                         <Button
                             Click="BtnClose"
                             Content="&#xe85d;"
-                            Style="{StaticResource OperateBtnStyle}" />
+                            Style="{StaticResource OperateBtnStyle2}" />
                     </StackPanel>
                     <Border
                         Grid.Row="1"
@@ -118,7 +135,9 @@
                 </Grid>
             </Grid>
         </Border>
+        <!--  内容  -->
         <ContentControl Grid.Row="1" Content="{Binding ContentControl}" />
+        <!--  底部花边  -->
         <Border
             Grid.Row="2"
             BorderBrush="#5518aabd"

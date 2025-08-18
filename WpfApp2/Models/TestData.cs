@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Collections.ObjectModel;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -9,6 +10,15 @@ namespace WpfApp2.Models
 {
     public class TestData:BaseViewModel
     {
+        public TestData() {
+            DianxinVoltage = new ObservableCollection<ushort>();
+            DianxinVoltageTest = new ObservableCollection<int>();
+            for (int i = 0; i < 16; i++)
+            {
+                DianxinVoltage.Add(0);
+                DianxinVoltageTest.Add(1);
+            }
+        }
 
         //是否激活
         private string isActivate;
@@ -327,6 +337,57 @@ namespace WpfApp2.Models
         }
 
         /// <summary>
+        /// 16个电芯电压
+        /// </summary>
+        public ObservableCollection<ushort> DianxinVoltage { get; set; }
+
+
+
+        /// <summary>
+        /// 电芯电压结果
+        /// </summary>
+        public ObservableCollection<int> DianxinVoltageTest { get; set; }
+        
+        
+
+        /// <summary>
+        /// 把字节数组转成电芯电压数组
+        /// </summary>
+        /// <param name="values"></param>
+        public void GetDianxinVoltage(byte[] values)
+        {
+            
+            for (int i = 0; i < 16; i++)
+            {
+                byte[] value = new byte[2];
+                Array.Copy(values, i * 2 + 3, value, 0, 2);
+                DianxinVoltage[i] =(Tools.ByteConverter.BytesToNumber(value));
+            }
+            
+        }
+
+        /// <summary>
+        /// 分析各个电芯电压是否合格
+        /// </summary>
+        public string AnalyseDianxinVoltage()
+        {
+            string result = "";
+            for (int i = 0; i < 16; i++)
+            {
+                if (DianxinVoltage[i] >= 2750 && DianxinVoltage[i] <= 3600)
+                {
+                    DianxinVoltageTest[i] = 1;
+                }
+                else
+                {
+                    result += $"电芯{i + 1}:{DianxinVoltage[i]};";
+                    DianxinVoltageTest[i] = 0;
+                }
+            }
+            return result;
+        }
+
+        /// <summary>
         /// 复位
         /// </summary>
         public void ReSetParameters()
@@ -353,6 +414,11 @@ namespace WpfApp2.Models
             LimitDc2SourceResult = 0;
             LimitBmsSource = 0;
             LimitBmsSourceResult = 0;
+
+            for(int i = 0; i < DianxinVoltage.Count; i++)
+            {
+                DianxinVoltage[i] = 0;
+            }
 
         }
     }

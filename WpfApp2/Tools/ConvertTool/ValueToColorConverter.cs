@@ -48,4 +48,28 @@ namespace WpfApp2.Tools.ConvertTool
             throw new NotImplementedException();
         }
     }
+
+    public class IntToColorConverter : IValueConverter
+    {
+        public object Convert(object value, Type targetType, object parameter, CultureInfo culture)
+        {
+            // 如果绑定值为整数
+            if (value is int intValue)
+            {
+                // 值为0时返回红色
+                if (intValue == 0) return Brushes.Red;
+
+                // 值为1时返回指定颜色 #ff2bedf1
+                if (intValue == 1) return new SolidColorBrush((Color)ColorConverter.ConvertFromString("#ff2bedf1"));
+            }
+
+            // 默认返回黑色
+            return Brushes.Black;
+        }
+
+        public object ConvertBack(object value, Type targetType, object parameter, CultureInfo culture)
+        {
+            throw new NotSupportedException("单向转换不支持逆向转换");
+        }
+    }
 }
