@@ -72,6 +72,14 @@ namespace WpfApp2
         /// <param name="e"></param>
         private void BtnClose(object sender, RoutedEventArgs e)
         {
+            if (this.DataContext is MainWindowVM mainVM)
+            {
+                if (mainVM.IsRunning)
+                {
+                    //退出程序时，若还在进行测试，则关闭所有电子元件
+                    mainVM.ExitTestMode();
+                }
+            }
             //this.Close();
             Environment.Exit(0);
         }

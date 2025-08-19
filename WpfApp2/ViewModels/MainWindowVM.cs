@@ -4137,6 +4137,12 @@ namespace WpfApp2.ViewModels
             //解析
             BmsSystemparametersReceive bmsReceive = AnalyseBmsReceive(result);
 
+            //充放电电流为2393，打印
+            if(bmsReceive!=null && bmsReceive.ElectronicLoadCurrent == 2393)
+            {
+                string hex = BitConverter.ToString(result);
+                AddLog($"电流为2393：字节数组{hex}");
+            }
             return bmsReceive;
         }
 
