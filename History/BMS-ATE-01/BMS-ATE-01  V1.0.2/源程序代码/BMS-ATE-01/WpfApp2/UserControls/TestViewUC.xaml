@@ -1,0 +1,1890 @@
+﻿<UserControl
+    x:Class="WpfApp2.UserControls.TestViewUC"
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:convert="clr-namespace:WpfApp2.Tools.ConvertTool"
+    xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+    xmlns:local="clr-namespace:WpfApp2.UserControls"
+    xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+    d:DesignHeight="600"
+    d:DesignWidth="1200"
+    mc:Ignorable="d">
+    <UserControl.Resources>
+        <!--  注册布尔值到文本的转换器  -->
+        <convert:BooleanToTextConverter x:Key="BooleanToTextConverter" />
+        <convert:ValueToColorConverter x:Key="ColorConverter" />
+        <convert:ValueToColorConverter2 x:Key="ColorConverter2" />
+        <convert:StringSubstringConverter x:Key="StringSubstringConverter" />
+        <convert:IntToColorConverter x:Key="IntColorConverter" />
+        <!--  定义 ListViewItem 的样式  -->
+        <Style x:Key="TestViewSty" TargetType="ListViewItem">
+            <Setter Property="HorizontalContentAlignment" Value="Stretch" />
+
+            <Style.Triggers>
+                <!--  Flag=1 且 IsImportant=True 时为绿色  -->
+                <MultiDataTrigger>
+                    <MultiDataTrigger.Conditions>
+                        <Condition Binding="{Binding Flag}" Value="1" />
+                        <Condition Binding="{Binding IsImportant}" Value="True" />
+                    </MultiDataTrigger.Conditions>
+                    <Setter Property="Background" Value="Green" />
+                    <Setter Property="Foreground" Value="White" />
+                </MultiDataTrigger>
+
+                <!--  Flag=1 且 IsImportant=False 时为红色  -->
+                <MultiDataTrigger>
+                    <MultiDataTrigger.Conditions>
+                        <Condition Binding="{Binding Flag}" Value="1" />
+                        <Condition Binding="{Binding IsImportant}" Value="False" />
+                    </MultiDataTrigger.Conditions>
+                    <Setter Property="Background" Value="Red" />
+                    <Setter Property="Foreground" Value="White" />
+                </MultiDataTrigger>
+
+                <!--  Flag=0 时无论 IsImportantt=False 时为白色  -->
+                <MultiDataTrigger>
+                    <MultiDataTrigger.Conditions>
+                        <Condition Binding="{Binding Flag}" Value="0" />
+                        <Condition Binding="{Binding IsImportant}" Value="False" />
+                    </MultiDataTrigger.Conditions>
+                    <Setter Property="Background" Value="#eeffffff" />
+                    <Setter Property="Foreground" Value="Black" />
+                </MultiDataTrigger>
+                <!--<DataTrigger Binding="{Binding Flag}" Value="0">
+                    <Setter Property="Background" Value="White" />
+                </DataTrigger>-->
+
+                <!--  Flag=0 时无论 IsImportantt=False 时为白色  -->
+                <MultiDataTrigger>
+                    <MultiDataTrigger.Conditions>
+                        <Condition Binding="{Binding Flag}" Value="0" />
+                        <Condition Binding="{Binding IsImportant}" Value="true" />
+                    </MultiDataTrigger.Conditions>
+                    <Setter Property="Background" Value="BlueViolet" />
+                    <Setter Property="Foreground" Value="White" />
+                </MultiDataTrigger>
+
+
+            </Style.Triggers>
+        </Style>
+        <Style TargetType="GridViewColumnHeader">
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="GridViewColumnHeader">
+                        <Border
+                            Padding="{TemplateBinding Padding}"
+                            Background="{TemplateBinding Background}"
+                            BorderBrush="{TemplateBinding BorderBrush}"
+                            BorderThickness="{TemplateBinding BorderThickness}"
+                            CornerRadius="5">
+                            <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center" />
+                        </Border>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+            <Setter Property="Background" Value="Transparent" />
+            <Setter Property="Foreground" Value="White" />
+            <Setter Property="FontSize" Value="14" />
+            <Setter Property="Padding" Value="10" />
+            <Setter Property="BorderThickness" Value="0" />
+
+        </Style>
+        <!--  定义 ListViewItem 的样式  -->
+        <Style x:Key="LogViewSty" TargetType="ListViewItem">
+            <Setter Property="Margin" Value="5" />
+            <Setter Property="Padding" Value="10" />
+            <Setter Property="Background" Value="White" />
+            <Setter Property="BorderBrush" Value="#E0E0E0" />
+            <Setter Property="BorderThickness" Value="1" />
+
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="ListViewItem">
+                        <Border
+                            Padding="{TemplateBinding Padding}"
+                            Background="{TemplateBinding Background}"
+                            BorderBrush="{TemplateBinding BorderBrush}"
+                            BorderThickness="{TemplateBinding BorderThickness}"
+                            CornerRadius="5">
+                            <ContentPresenter />
+                        </Border>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+            <Style.Triggers>
+                <Trigger Property="IsMouseOver" Value="True">
+                    <Setter Property="Background" Value="#E8F4FF" />
+                </Trigger>
+            </Style.Triggers>
+        </Style>
+    </UserControl.Resources>
+    <Grid>
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition MinWidth="350" MaxWidth="400" />
+            <ColumnDefinition Width="0" />
+            <ColumnDefinition Width="*" />
+            <ColumnDefinition MinWidth="450" MaxWidth="500" />
+        </Grid.ColumnDefinitions>
+
+        <Grid.RowDefinitions>
+            <RowDefinition Height="0" />
+            <RowDefinition />
+            <RowDefinition Height="auto" />
+
+        </Grid.RowDefinitions>
+        <Grid
+            Grid.RowSpan="4"
+            Grid.ColumnSpan="4"
+            Panel.ZIndex="3">
+            <UserControl
+                HorizontalAlignment="Center"
+                VerticalAlignment="Center"
+                Content="{Binding Bubble}" />
+        </Grid>
+
+
+        <!--  第二行 串口显示、机器类型和日志显示  -->
+
+        <Grid Grid.Row="1">
+            <Grid.RowDefinitions>
+                <RowDefinition Height="auto" />
+                <RowDefinition Height="auto" />
+                <RowDefinition />
+            </Grid.RowDefinitions>
+            <Border
+                Margin="5"
+                Background="#1118aabd"
+                CornerRadius="10" />
+            <Button
+                Margin="10"
+                Command="{Binding SwitchUC}"
+                Content="主页"
+                FontSize="35"
+                Style="{StaticResource BtnStyle4}"
+                Tag="&#xe973;" />
+            <Border
+                Grid.Row="1"
+                Grid.RowSpan="2"
+                Margin="5"
+                Background="#1118aabd"
+                CornerRadius="10" />
+            <Border
+                Grid.Row="1"
+                Margin="5,5,5,5"
+                Background="#1118aabd"
+                CornerRadius="10" />
+            <!--  串口信息显示  -->
+            <StackPanel Grid.Row="1" Orientation="Vertical">
+
+                <StackPanel
+                    Grid.Column="0"
+                    Margin="10,10,10,10"
+                    Orientation="Vertical">
+                    <GroupBox
+                        Margin="5"
+                        Padding="10"
+                        BorderBrush="#9918aabd"
+                        Foreground="White"
+                        Header="上 位 机">
+                        <Grid>
+                            <Grid.RowDefinitions>
+                                <RowDefinition Height="Auto" />
+                                <RowDefinition Height="Auto" />
+                                <RowDefinition Height="Auto" />
+                                <RowDefinition Height="Auto" />
+                                <RowDefinition Height="Auto" />
+                            </Grid.RowDefinitions>
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="Auto" />
+                                <ColumnDefinition Width="*" />
+                            </Grid.ColumnDefinitions>
+                            <TextBlock
+                                Grid.Row="0"
+                                Grid.Column="0"
+                                Text="串口号:" />
+                            <TextBlock
+                                Grid.Row="0"
+                                Grid.Column="1"
+                                HorizontalAlignment="Center"
+                                Foreground="#ff2bedf1"
+                                Text="{Binding SerialPort1.SelectedPort}" />
+                        </Grid>
+                    </GroupBox>
+                    <GroupBox
+                        Margin="5"
+                        Padding="10"
+                        BorderBrush="#9918aabd"
+                        BorderThickness="1"
+                        Foreground="White"
+                        Header="BMS 板">
+                        <Grid>
+                            <Grid.RowDefinitions>
+                                <RowDefinition Height="Auto" />
+                                <RowDefinition Height="Auto" />
+                                <RowDefinition Height="Auto" />
+                                <RowDefinition Height="Auto" />
+                                <RowDefinition Height="Auto" />
+                            </Grid.RowDefinitions>
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="Auto" />
+                                <ColumnDefinition Width="*" />
+                            </Grid.ColumnDefinitions>
+                            <TextBlock
+                                Grid.Row="0"
+                                Grid.Column="0"
+                                Text="串口号:" />
+                            <TextBlock
+                                Grid.Row="0"
+                                Grid.Column="1"
+                                HorizontalAlignment="Center"
+                                Foreground="#ff2bedf1"
+                                Text="{Binding SerialPort2.SelectedPort}" />
+                        </Grid>
+                    </GroupBox>
+                    <GroupBox
+                        Margin="5"
+                        Padding="10"
+                        BorderBrush="#9918aabd"
+                        Foreground="White"
+                        Header="机 器 类 型">
+                        <Grid>
+                            <Grid.RowDefinitions>
+                                <RowDefinition Height="Auto" />
+                                <RowDefinition Height="Auto" />
+                                <RowDefinition Height="Auto" />
+                                <RowDefinition Height="Auto" />
+                                <RowDefinition Height="Auto" />
+                            </Grid.RowDefinitions>
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="Auto" />
+                                <ColumnDefinition Width="*" />
+                            </Grid.ColumnDefinitions>
+                            <TextBlock
+                                Grid.Row="0"
+                                Grid.Column="0"
+                                Text="机器:" />
+                            <TextBlock
+                                Grid.Row="0"
+                                Grid.Column="1"
+                                HorizontalAlignment="Center"
+                                FontSize="30"
+                                Foreground="#ff2bedf1"
+                                Text="{Binding testMachine.MachineName}" />
+                            <TextBlock
+                                Grid.Row="1"
+                                Grid.Column="0"
+                                Text="功率:" />
+                            <TextBlock
+                                Grid.Row="1"
+                                Grid.Column="1"
+                                HorizontalAlignment="Center"
+                                FontSize="15"
+                                Foreground="#ff2bedf1"
+                                Text="{Binding testMachine.A_Hour}" />
+                            <TextBlock
+                                Grid.Row="2"
+                                Grid.Column="0"
+                                Text="电池电压:" />
+                            <TextBlock
+                                Grid.Row="2"
+                                Grid.Column="1"
+                                HorizontalAlignment="Center"
+                                FontSize="15"
+                                Foreground="#ff2bedf1"
+                                Text="{Binding testMachine.BatVol}" />
+
+                        </Grid>
+                    </GroupBox>
+                </StackPanel>
+            </StackPanel>
+            <!--  日志  -->
+            <ListView
+                x:Name="LogListView"
+                Grid.Row="2"
+                Margin="10"
+                Background="Transparent"
+                BorderThickness="0"
+                ItemContainerStyle="{StaticResource LogViewSty}"
+                ItemsSource="{Binding LogEntries}"
+                ScrollViewer.VerticalScrollBarVisibility="Hidden">
+                <ListView.ItemTemplate>
+                    <DataTemplate>
+                        <StackPanel Orientation="Horizontal">
+                            <TextBlock
+                                Margin="0,0,0,4"
+                                FontSize="10"
+                                Foreground="#666666"
+                                Text="{Binding Time, Converter={StaticResource StringSubstringConverter}}" />
+                            <TextBlock
+                                FontSize="14"
+                                Foreground="#333333"
+                                Text="{Binding Message}" />
+                        </StackPanel>
+                    </DataTemplate>
+                </ListView.ItemTemplate>
+            </ListView>
+            <!--<GridSplitter Grid.Column="1" Grid.RowSpan="2" Width="3" Margin="0,10" HorizontalAlignment="Center" Background="Gray"/>-->
+        </Grid>
+
+        <Border
+            Grid.Row="1"
+            Grid.Column="1"
+            Width="0"
+            Margin="0,0,0,10"
+            Background="Gray" />
+        <!--  第二行 测试项目展示  -->
+        <Border
+            Grid.Row="1"
+            Grid.Column="2"
+            Margin="5"
+            Background="#1118aabd"
+            CornerRadius="10" />
+        <!-- 给ListView设置宽度的-->
+        <Grid
+            Grid.Row="1"
+            Grid.Column="2"
+            Margin="30,10">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="100" />
+                <ColumnDefinition Width="*" />
+                <ColumnDefinition Width="125" />
+            </Grid.ColumnDefinitions>
+            <Grid x:Name="column1" Grid.Column="0" />
+            <Grid x:Name="column2" Grid.Column="1" />
+            <Grid x:Name="column3" Grid.Column="2" />
+        </Grid>
+        <ListView
+            x:Name="TestItemListView"
+            Grid.Row="1"
+            Grid.Column="2"
+            Margin="20,10,20,20"
+            Background="Transparent"
+            BorderThickness="0"
+            ItemContainerStyle="{StaticResource TestViewSty}"
+            ItemsSource="{Binding TestItems}"
+            ScrollViewer.VerticalScrollBarVisibility="Hidden">
+            <ListView.View>
+                <GridView AllowsColumnReorder="True">
+
+                    <!--  设置第一列宽度为比例宽度 2*  -->
+                    <GridViewColumn Width="{Binding ElementName=column1, Path=ActualWidth}" Header="ID">
+                        <GridViewColumn.CellTemplate>
+                            <DataTemplate>
+                                <TextBlock FontSize="35" Text="{Binding Id}" />
+                            </DataTemplate>
+                        </GridViewColumn.CellTemplate>
+                    </GridViewColumn>
+
+                    <!--  设置第二列宽度为比例宽度 3*  -->
+                    <GridViewColumn Width="{Binding ElementName=column2, Path=ActualWidth}" Header="测试项目">
+                        <GridViewColumn.CellTemplate>
+                            <DataTemplate>
+                                <TextBlock FontSize="35" Text="{Binding Name}" />
+                            </DataTemplate>
+                        </GridViewColumn.CellTemplate>
+                    </GridViewColumn>
+                    <!--  设置第三列宽度为比例宽度 2*  -->
+                    <GridViewColumn Width="{Binding ElementName=column3, Path=ActualWidth}" Header="是否合格">
+                        <GridViewColumn.CellTemplate>
+                            <DataTemplate>
+                                <!--<TextBlock FontSize="30" Text="{Binding IsImportant, Converter={StaticResource BooleanToTextConverter}}" />-->
+                                <TextBlock FontSize="35">
+                                    <TextBlock.Text>
+                                        <MultiBinding Converter="{StaticResource BooleanToTextConverter}">
+                                            <Binding Path="IsImportant" />
+                                            <Binding Path="Flag" />
+                                        </MultiBinding>
+                                    </TextBlock.Text>
+                                </TextBlock>
+                            </DataTemplate>
+                        </GridViewColumn.CellTemplate>
+                    </GridViewColumn>
+                </GridView>
+            </ListView.View>
+        </ListView>
+
+        <!--  第二行第三列 单步调试步骤  -->
+        <Grid
+            Grid.Row="1"
+            Grid.Column="3"
+            Margin="0,0,0,10">
+            <Grid.RowDefinitions>
+                <RowDefinition />
+                <RowDefinition Height="auto" />
+
+
+            </Grid.RowDefinitions>
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition />
+
+            </Grid.ColumnDefinitions>
+            <Border
+                Grid.ColumnSpan="2"
+                Margin="5"
+                Background="#1118aabd"
+                CornerRadius="10" />
+            <!--  第二行 右侧属性显示  -->
+
+            <ScrollViewer VerticalScrollBarVisibility="Hidden">
+                <StackPanel>
+                    <Grid>
+                        <StackPanel>
+                            <!--  BMS板信息  -->
+                            <GroupBox
+                                Margin="10,10,10,15"
+                                Header="BMS"
+                                Style="{StaticResource GroupBoxMachineTypeSty}">
+                                <Grid Margin="0,30,0,0">
+                                    <Grid.ColumnDefinitions>
+                                        <ColumnDefinition Width="1.5*" />
+                                        <ColumnDefinition Width="0.7*" />
+                                        <ColumnDefinition Width="1*" />
+                                        <ColumnDefinition Width="1*" />
+                                    </Grid.ColumnDefinitions>
+                                    <Grid.RowDefinitions>
+                                        <RowDefinition Height="40" />
+                                        <RowDefinition />
+                                        <RowDefinition />
+                                        <RowDefinition />
+                                    </Grid.RowDefinitions>
+                                    <!--  是否激活  -->
+                                    <TextBlock
+                                        Grid.Row="2"
+                                        Grid.Column="0"
+                                        Margin="0,12,0,0"
+                                        HorizontalAlignment="Center"
+                                        VerticalAlignment="Center"
+                                        FontSize="15"
+                                        Foreground="White"
+                                        Text="是否激活:" />
+                                    <TextBlock
+                                        Grid.Row="2"
+                                        Grid.Column="1"
+                                        Margin="0,12,0,0"
+                                        VerticalAlignment="Center"
+                                        FontSize="17"
+                                        Foreground="#ff2bedf1"
+                                        Text="{Binding testData.IsActivate}" />
+
+                                    <!--  当前测试版本  -->
+                                    <TextBlock
+                                        Grid.Row="2"
+                                        Grid.Column="2"
+                                        Margin="0,12,0,0"
+                                        HorizontalAlignment="Center"
+                                        VerticalAlignment="Center"
+                                        FontSize="15"
+                                        Foreground="White"
+                                        Text="测试软件版本:" />
+                                    <TextBlock
+                                        Grid.Row="2"
+                                        Grid.Column="3"
+                                        Margin="0,12,0,0"
+                                        VerticalAlignment="Center"
+                                        FontSize="17"
+                                        Foreground="#ff2bedf1"
+                                        Text="{Binding testData.TestSofterWare}" />
+                                    <!--  系统时间  -->
+                                    <TextBlock
+                                        Grid.Column="0"
+                                        Margin="0,12,0,0"
+                                        HorizontalAlignment="Center"
+                                        VerticalAlignment="Center"
+                                        FontSize="15"
+                                        Foreground="White"
+                                        Text="系统时间:" />
+                                    <TextBlock
+                                        Grid.Column="2"
+                                        Grid.ColumnSpan="2"
+                                        Margin="0,12,0,0"
+                                        VerticalAlignment="Center"
+                                        FontSize="17"
+                                        Foreground="#ff2bedf1"
+                                        Text="{Binding testData.Time}" />
+                                    <!--  软件版本  -->
+                                    <TextBlock
+                                        Grid.Row="3"
+                                        Grid.Column="2"
+                                        Margin="0,12,0,0"
+                                        HorizontalAlignment="Center"
+                                        VerticalAlignment="Center"
+                                        FontSize="15"
+                                        Foreground="White"
+                                        Text="板子软件版本:" />
+                                    <TextBlock
+                                        Grid.Row="3"
+                                        Grid.Column="3"
+                                        Margin="0,12,0,0"
+                                        VerticalAlignment="Center"
+                                        FontSize="17"
+                                        Foreground="#ff2bedf1"
+                                        Text="{Binding testData.SoftwareVersion}" />
+
+                                    <!--  硬件版本  -->
+                                    <TextBlock
+                                        Grid.Row="3"
+                                        Grid.Column="0"
+                                        Margin="0,12,0,0"
+                                        HorizontalAlignment="Center"
+                                        VerticalAlignment="Center"
+                                        FontSize="15"
+                                        Foreground="White"
+                                        Text="硬件版本:" />
+                                    <TextBlock
+                                        Grid.Row="3"
+                                        Grid.Column="1"
+                                        Margin="0,12,0,0"
+                                        VerticalAlignment="Center"
+                                        FontSize="17"
+                                        Foreground="#ff2bedf1"
+                                        Text="{Binding testData.HardwareWareVersion}" />
+
+                                </Grid>
+
+                            </GroupBox>
+                            <!--  低功耗检测结果  -->
+                            <GroupBox
+                                Margin="10,10,10,15"
+                                Header="低功耗"
+                                Style="{StaticResource GroupBoxMachineTypeSty}">
+                                <Grid Margin="0,30,0,0">
+                                    <Grid.ColumnDefinitions>
+                                        <ColumnDefinition Width="1.5*" />
+                                        <ColumnDefinition Width="0.7*" />
+                                        <ColumnDefinition Width="1*" />
+                                        <ColumnDefinition Width="1*" />
+                                    </Grid.ColumnDefinitions>
+                                    <Grid.RowDefinitions>
+                                        <RowDefinition Height="40" />
+                                    </Grid.RowDefinitions>
+                                    <!--  低功耗电压电压  -->
+                                    <TextBlock
+                                        Grid.Column="0"
+                                        Margin="0,12,0,0"
+                                        HorizontalAlignment="Center"
+                                        VerticalAlignment="Center"
+                                        FontSize="15"
+                                        Foreground="White"
+                                        Text="电压:" />
+                                    <TextBlock
+                                        Grid.Column="1"
+                                        Margin="0,12,0,0"
+                                        VerticalAlignment="Center"
+                                        FontSize="17"
+                                        Foreground="#ff2bedf1"
+                                        Text="{Binding testData.LowPowerVoltage}" />
+
+                                    <!--  低功耗电流  -->
+                                    <TextBlock
+                                        Grid.Column="2"
+                                        Margin="0,12,0,0"
+                                        HorizontalAlignment="Center"
+                                        VerticalAlignment="Center"
+                                        FontSize="15"
+                                        Foreground="White"
+                                        Text="电流:" />
+                                    <TextBlock
+                                        Grid.Column="3"
+                                        Margin="0,12,0,0"
+                                        VerticalAlignment="Center"
+                                        FontSize="17"
+                                        Foreground="#ff2bedf1"
+                                        Text="{Binding testData.LowPowerCurrent}" />
+
+
+
+
+                                </Grid>
+
+                            </GroupBox>
+                            <!--  充电电流校准  -->
+                            <GroupBox
+                                Grid.Row="1"
+                                Margin="10,0,10,15"
+                                Header="充电电流"
+                                Style="{StaticResource GroupBoxMachineTypeSty}">
+                                <Grid Margin="0,30,0,0">
+                                    <Grid.ColumnDefinitions>
+                                        <ColumnDefinition Width="1.5*" />
+                                        <ColumnDefinition Width="0.7*" />
+                                        <ColumnDefinition Width="1.5*" />
+                                        <ColumnDefinition Width="1*" />
+                                    </Grid.ColumnDefinitions>
+                                    <Grid.RowDefinitions>
+                                        <RowDefinition />
+                                        <RowDefinition />
+                                        <RowDefinition />
+                                    </Grid.RowDefinitions>
+                                    <!--  标准电流  -->
+                                    <TextBlock
+                                        Grid.Column="0"
+                                        Margin="0,12,0,0"
+                                        HorizontalAlignment="Center"
+                                        VerticalAlignment="Center"
+                                        FontSize="15"
+                                        Foreground="White"
+                                        Text="标准电流:" />
+                                    <TextBlock
+                                        Grid.Column="1"
+                                        Margin="0,12,0,0"
+                                        VerticalAlignment="Center"
+                                        FontSize="17"
+                                        Foreground="#ff2bedf1"
+                                        Text="{Binding BMS_Receive.ElectronicLoadCurrent}" />
+                                    <!--  BMS板电流  -->
+                                    <TextBlock
+                                        Grid.Column="2"
+                                        Margin="0,12,0,0"
+                                        HorizontalAlignment="Center"
+                                        VerticalAlignment="Center"
+                                        FontSize="15"
+                                        Foreground="White"
+                                        Text="BMS板电流:" />
+                                    <TextBlock
+                                        Grid.Column="3"
+                                        Margin="0,12,0,0"
+                                        VerticalAlignment="Center"
+                                        FontSize="17"
+                                        Foreground="#ff2bedf1"
+                                        Text="{Binding BMSCurrent}" />
+
+                                    <!--  BMS板校准前电流  -->
+                                    <TextBlock
+                                        Grid.Row="1"
+                                        Grid.Column="0"
+                                        Margin="0,12,0,0"
+                                        HorizontalAlignment="Center"
+                                        VerticalAlignment="Center"
+                                        FontSize="15"
+                                        Foreground="White"
+                                        Text=" BMS板校准前电流:" />
+                                    <TextBlock
+                                        Grid.Row="1"
+                                        Grid.Column="1"
+                                        Margin="0,12,0,0"
+                                        VerticalAlignment="Center"
+                                        FontSize="17"
+                                        Foreground="#ff2bedf1"
+                                        Text="{Binding testData.ChargeCom2Current}" />
+
+                                    <!--  校准后电流电流  -->
+                                    <TextBlock
+                                        Grid.Row="1"
+                                        Grid.Column="2"
+                                        Margin="0,12,0,0"
+                                        HorizontalAlignment="Center"
+                                        VerticalAlignment="Center"
+                                        FontSize="15"
+                                        Foreground="White"
+                                        Text="BMS板校准后电流:" />
+                                    <TextBlock
+                                        Grid.Row="1"
+                                        Grid.Column="3"
+                                        Margin="0,12,0,0"
+                                        VerticalAlignment="Center"
+                                        FontSize="17"
+                                        Foreground="#ff2bedf1"
+                                        Text="{Binding testData.ChargeCom2CurrentResult}" />
+                                    <!--  原来校准系数  -->
+                                    <TextBlock
+                                        Grid.Row="2"
+                                        Grid.Column="0"
+                                        Margin="0,12,0,0"
+                                        HorizontalAlignment="Center"
+                                        VerticalAlignment="Center"
+                                        FontSize="15"
+                                        Foreground="White"
+                                        Text=" 原来校准系数:" />
+                                    <TextBlock
+                                        Grid.Row="2"
+                                        Grid.Column="1"
+                                        Margin="0,12,0,0"
+                                        VerticalAlignment="Center"
+                                        FontSize="17"
+                                        Foreground="#ff2bedf1"
+                                        Text="{Binding testData.ChargeAdjustNum}" />
+
+                                    <!--  校准后电流电流  -->
+                                    <TextBlock
+                                        Grid.Row="2"
+                                        Grid.Column="2"
+                                        Margin="0,12,0,0"
+                                        HorizontalAlignment="Center"
+                                        VerticalAlignment="Center"
+                                        FontSize="15"
+                                        Foreground="White"
+                                        Text="新设校准系数:" />
+                                    <TextBlock
+                                        Grid.Row="2"
+                                        Grid.Column="3"
+                                        Margin="0,12,0,0"
+                                        VerticalAlignment="Center"
+                                        FontSize="17"
+                                        Foreground="#ff2bedf1"
+                                        Text="{Binding testData.WriteChargeAdjustNum}" />
+                                </Grid>
+
+                            </GroupBox>
+                            <!--  放电电流校准  -->
+                            <GroupBox
+                                Grid.Row="1"
+                                Margin="10,0,10,15"
+                                Header="放电电流"
+                                Style="{StaticResource GroupBoxMachineTypeSty}">
+                                <Grid Margin="0,30,0,0">
+                                    <Grid.ColumnDefinitions>
+                                        <ColumnDefinition Width="1.5*" />
+                                        <ColumnDefinition Width="0.7*" />
+                                        <ColumnDefinition Width="1.5*" />
+                                        <ColumnDefinition Width="1*" />
+                                    </Grid.ColumnDefinitions>
+                                    <Grid.RowDefinitions>
+                                        <RowDefinition />
+                                        <RowDefinition />
+                                        <RowDefinition />
+                                    </Grid.RowDefinitions>
+                                    <!--  标准电流  -->
+                                    <TextBlock
+                                        Grid.Column="0"
+                                        Margin="0,12,0,0"
+                                        HorizontalAlignment="Center"
+                                        VerticalAlignment="Center"
+                                        FontSize="15"
+                                        Foreground="White"
+                                        Text="标准电流:" />
+                                    <TextBlock
+                                        Grid.Column="1"
+                                        Margin="0,12,0,0"
+                                        VerticalAlignment="Center"
+                                        FontSize="17"
+                                        Foreground="#ff2bedf1"
+                                        Text="{Binding BMS_Receive.ElectronicLoadCurrent}" />
+                                    <!--  BMS板电流  -->
+                                    <TextBlock
+                                        Grid.Column="2"
+                                        Margin="0,12,0,0"
+                                        HorizontalAlignment="Center"
+                                        VerticalAlignment="Center"
+                                        FontSize="15"
+                                        Foreground="White"
+                                        Text="BMS板电流:" />
+                                    <TextBlock
+                                        Grid.Column="3"
+                                        Margin="0,12,0,0"
+                                        VerticalAlignment="Center"
+                                        FontSize="17"
+                                        Foreground="#ff2bedf1"
+                                        Text="{Binding BMSCurrent}" />
+
+                                    <!--  BMS板校准前电流  -->
+                                    <TextBlock
+                                        Grid.Row="1"
+                                        Grid.Column="0"
+                                        Margin="0,12,0,0"
+                                        HorizontalAlignment="Center"
+                                        VerticalAlignment="Center"
+                                        FontSize="15"
+                                        Foreground="White"
+                                        Text=" BMS板校准前电流:" />
+                                    <TextBlock
+                                        Grid.Row="1"
+                                        Grid.Column="1"
+                                        Margin="0,12,0,0"
+                                        VerticalAlignment="Center"
+                                        FontSize="17"
+                                        Foreground="#ff2bedf1"
+                                        Text="{Binding testData.DisChargeCom2Current}" />
+
+                                    <!--  校准后电流电流  -->
+                                    <TextBlock
+                                        Grid.Row="1"
+                                        Grid.Column="2"
+                                        Margin="0,12,0,0"
+                                        HorizontalAlignment="Center"
+                                        VerticalAlignment="Center"
+                                        FontSize="15"
+                                        Foreground="White"
+                                        Text="BMS板校准后电流:" />
+                                    <TextBlock
+                                        Grid.Row="1"
+                                        Grid.Column="3"
+                                        Margin="0,12,0,0"
+                                        VerticalAlignment="Center"
+                                        FontSize="17"
+                                        Foreground="#ff2bedf1"
+                                        Text="{Binding testData.DisChargeCom2CurrentResult}" />
+                                    <!--  原来校准系数  -->
+                                    <TextBlock
+                                        Grid.Row="2"
+                                        Grid.Column="0"
+                                        Margin="0,12,0,0"
+                                        HorizontalAlignment="Center"
+                                        VerticalAlignment="Center"
+                                        FontSize="15"
+                                        Foreground="White"
+                                        Text=" 原来校准系数:" />
+                                    <TextBlock
+                                        Grid.Row="2"
+                                        Grid.Column="1"
+                                        Margin="0,12,0,0"
+                                        VerticalAlignment="Center"
+                                        FontSize="17"
+                                        Foreground="#ff2bedf1"
+                                        Text="{Binding testData.DisChargeAdjustNum}" />
+
+                                    <!--  校准后电流电流  -->
+                                    <TextBlock
+                                        Grid.Row="2"
+                                        Grid.Column="2"
+                                        Margin="0,12,0,0"
+                                        HorizontalAlignment="Center"
+                                        VerticalAlignment="Center"
+                                        FontSize="15"
+                                        Foreground="White"
+                                        Text="新设校准系数:" />
+                                    <TextBlock
+                                        Grid.Row="2"
+                                        Grid.Column="3"
+                                        Margin="0,12,0,0"
+                                        VerticalAlignment="Center"
+                                        FontSize="17"
+                                        Foreground="#ff2bedf1"
+                                        Text="{Binding testData.WriteDisChargeAdjustNum}" />
+                                </Grid>
+
+                            </GroupBox>
+                            <!--  充电限流  -->
+                            <GroupBox
+                                Grid.Row="1"
+                                Margin="10,0,10,15"
+                                Header="充电限流"
+                                Style="{StaticResource GroupBoxMachineTypeSty}">
+                                <Grid Margin="0,30,0,0">
+                                    <Grid.ColumnDefinitions>
+                                        <ColumnDefinition Width="1.5*" />
+                                        <ColumnDefinition Width="0.7*" />
+                                        <ColumnDefinition Width="1.5*" />
+                                        <ColumnDefinition Width="1*" />
+                                    </Grid.ColumnDefinitions>
+                                    <Grid.RowDefinitions>
+                                        <RowDefinition />
+                                        <RowDefinition />
+
+                                    </Grid.RowDefinitions>
+                                    <!--  限流前标准电流  -->
+                                    <TextBlock
+                                        Grid.Column="0"
+                                        Margin="0,20,0,0"
+                                        HorizontalAlignment="Center"
+                                        VerticalAlignment="Center"
+                                        FontSize="15"
+                                        Foreground="White"
+                                        Text="限流前标准电流:" />
+                                    <TextBlock
+                                        Grid.Column="1"
+                                        Margin="0,12,0,0"
+                                        VerticalAlignment="Center"
+                                        FontSize="17"
+                                        Foreground="#ff2bedf1"
+                                        Text="{Binding testData.LimitDc2Source}" />
+                                    <!--  限流后标准电流  -->
+                                    <TextBlock
+                                        Grid.Column="2"
+                                        Margin="0,12,0,0"
+                                        HorizontalAlignment="Center"
+                                        VerticalAlignment="Center"
+                                        FontSize="15"
+                                        Foreground="White"
+                                        Text="限流后标准电流:" />
+                                    <TextBlock
+                                        Grid.Column="3"
+                                        Margin="0,12,0,0"
+                                        VerticalAlignment="Center"
+                                        FontSize="17"
+                                        Foreground="#ff2bedf1"
+                                        Text="{Binding testData.LimitDc2SourceResult}" />
+
+                                    <!--  限流前BMS电流  -->
+                                    <TextBlock
+                                        Grid.Row="1"
+                                        Grid.Column="0"
+                                        Margin="0,12,0,0"
+                                        HorizontalAlignment="Center"
+                                        VerticalAlignment="Center"
+                                        FontSize="15"
+                                        Foreground="White"
+                                        Text=" 限流前BMS电流:" />
+                                    <TextBlock
+                                        Grid.Row="1"
+                                        Grid.Column="1"
+                                        Margin="0,12,0,0"
+                                        VerticalAlignment="Center"
+                                        FontSize="17"
+                                        Foreground="#ff2bedf1"
+                                        Text="{Binding testData.LimitBmsSource}" />
+
+                                    <!--  限流后BMS电流  -->
+                                    <TextBlock
+                                        Grid.Row="1"
+                                        Grid.Column="2"
+                                        Margin="0,12,0,0"
+                                        HorizontalAlignment="Center"
+                                        VerticalAlignment="Center"
+                                        FontSize="15"
+                                        Foreground="White"
+                                        Text="限流后BMS电流:" />
+                                    <TextBlock
+                                        Grid.Row="1"
+                                        Grid.Column="3"
+                                        Margin="0,12,0,0"
+                                        VerticalAlignment="Center"
+                                        FontSize="17"
+                                        Foreground="#ff2bedf1"
+                                        Text="{Binding testData.LimitBmsSourceResult}" />
+
+                                </Grid>
+
+                            </GroupBox>
+                            <!--  电芯电压  -->
+                            <GroupBox
+                                Grid.Row="1"
+                                Margin="10,0,10,15"
+                                Header="电芯电压"
+                                Style="{StaticResource GroupBoxMachineTypeSty}">
+                                <Grid Margin="0,30,0,0">
+                                    <Grid.ColumnDefinitions>
+                                        <ColumnDefinition />
+                                        <ColumnDefinition Width="2*" />
+                                        <ColumnDefinition />
+                                        <ColumnDefinition Width="2*" />
+                                        <ColumnDefinition />
+                                        <ColumnDefinition Width="2*" />
+                                        <ColumnDefinition />
+                                        <ColumnDefinition Width="2*" />
+                                        <ColumnDefinition />
+
+                                    </Grid.ColumnDefinitions>
+                                    <Grid.RowDefinitions>
+                                        <RowDefinition />
+                                        <RowDefinition />
+                                        <RowDefinition />
+                                        <RowDefinition />
+                                    </Grid.RowDefinitions>
+                                    <!--  电芯电压1-4  -->
+                                    <TextBlock
+                                        Grid.Column="0"
+                                        Margin="0,12,0,0"
+                                        HorizontalAlignment="Center"
+                                        VerticalAlignment="Center"
+                                        FontSize="15"
+                                        Foreground="White"
+                                        Text="1:" />
+                                    <TextBlock
+                                        Grid.Column="1"
+                                        Margin="0,12,0,0"
+                                        VerticalAlignment="Center"
+                                        FontSize="17"
+                                        Foreground="{Binding testData.DianxinVoltageTest[0], Converter={StaticResource IntColorConverter}}"
+                                        Text="{Binding testData.DianxinVoltage[0]}" />
+                                    <!--  限流后标准电流  -->
+                                    <TextBlock
+                                        Grid.Column="2"
+                                        Margin="0,12,0,0"
+                                        HorizontalAlignment="Center"
+                                        VerticalAlignment="Center"
+                                        FontSize="15"
+                                        Foreground="White"
+                                        Text="2:" />
+                                    <TextBlock
+                                        Grid.Column="3"
+                                        Margin="0,12,0,0"
+                                        VerticalAlignment="Center"
+                                        FontSize="17"
+                                        Foreground="{Binding testData.DianxinVoltageTest[1], Converter={StaticResource IntColorConverter}}"
+                                        Text="{Binding testData.DianxinVoltage[1]}" />
+
+                                    <!--  限流前BMS电流  -->
+                                    <TextBlock
+                                        Grid.Row="0"
+                                        Grid.Column="4"
+                                        Margin="0,12,0,0"
+                                        HorizontalAlignment="Center"
+                                        VerticalAlignment="Center"
+                                        FontSize="15"
+                                        Foreground="White"
+                                        Text="3:" />
+                                    <TextBlock
+                                        Grid.Row="0"
+                                        Grid.Column="5"
+                                        Margin="0,12,0,0"
+                                        VerticalAlignment="Center"
+                                        FontSize="17"
+                                        Foreground="{Binding testData.DianxinVoltageTest[2], Converter={StaticResource IntColorConverter}}"
+                                        Text="{Binding testData.DianxinVoltage[2]}" />
+
+                                    <!--  限流后BMS电流  -->
+                                    <TextBlock
+                                        Grid.Row="0"
+                                        Grid.Column="6"
+                                        Margin="0,12,0,0"
+                                        HorizontalAlignment="Center"
+                                        VerticalAlignment="Center"
+                                        FontSize="15"
+                                        Foreground="White"
+                                        Text="4:" />
+                                    <TextBlock
+                                        Grid.Row="0"
+                                        Grid.Column="7"
+                                        Margin="0,12,0,0"
+                                        VerticalAlignment="Center"
+                                        FontSize="17"
+                                        Foreground="{Binding testData.DianxinVoltageTest[3], Converter={StaticResource IntColorConverter}}"
+                                        Text="{Binding testData.DianxinVoltage[3]}" />
+
+                                    <!--  电芯电压5-8  -->
+                                    <TextBlock
+                                        Grid.Row="1"
+                                        Grid.Column="0"
+                                        Margin="0,12,0,0"
+                                        HorizontalAlignment="Center"
+                                        VerticalAlignment="Center"
+                                        FontSize="15"
+                                        Foreground="White"
+                                        Text="5:" />
+                                    <TextBlock
+                                        Grid.Row="1"
+                                        Grid.Column="1"
+                                        Margin="0,12,0,0"
+                                        VerticalAlignment="Center"
+                                        FontSize="17"
+                                        Foreground="{Binding testData.DianxinVoltageTest[4], Converter={StaticResource IntColorConverter}}"
+                                        Text="{Binding testData.DianxinVoltage[4]}" />
+                                    <!--  限流后标准电流  -->
+                                    <TextBlock
+                                        Grid.Row="1"
+                                        Grid.Column="2"
+                                        Margin="0,12,0,0"
+                                        HorizontalAlignment="Center"
+                                        VerticalAlignment="Center"
+                                        FontSize="15"
+                                        Foreground="White"
+                                        Text="6:" />
+                                    <TextBlock
+                                        Grid.Row="1"
+                                        Grid.Column="3"
+                                        Margin="0,12,0,0"
+                                        VerticalAlignment="Center"
+                                        FontSize="17"
+                                        Foreground="{Binding testData.DianxinVoltageTest[5], Converter={StaticResource IntColorConverter}}"
+                                        Text="{Binding testData.DianxinVoltage[5]}" />
+
+                                    <!--  限流前BMS电流  -->
+                                    <TextBlock
+                                        Grid.Row="1"
+                                        Grid.Column="4"
+                                        Margin="0,12,0,0"
+                                        HorizontalAlignment="Center"
+                                        VerticalAlignment="Center"
+                                        FontSize="15"
+                                        Foreground="White"
+                                        Text="7:" />
+                                    <TextBlock
+                                        Grid.Row="1"
+                                        Grid.Column="5"
+                                        Margin="0,12,0,0"
+                                        VerticalAlignment="Center"
+                                        FontSize="17"
+                                        Foreground="{Binding testData.DianxinVoltageTest[6], Converter={StaticResource IntColorConverter}}"
+                                        Text="{Binding testData.DianxinVoltage[6]}" />
+
+                                    <!--  限流后BMS电流  -->
+                                    <TextBlock
+                                        Grid.Row="1"
+                                        Grid.Column="6"
+                                        Margin="0,12,0,0"
+                                        HorizontalAlignment="Center"
+                                        VerticalAlignment="Center"
+                                        FontSize="15"
+                                        Foreground="White"
+                                        Text="8:" />
+                                    <TextBlock
+                                        Grid.Row="1"
+                                        Grid.Column="7"
+                                        Margin="0,12,0,0"
+                                        VerticalAlignment="Center"
+                                        FontSize="17"
+                                        Foreground="{Binding testData.DianxinVoltageTest[7], Converter={StaticResource IntColorConverter}}"
+                                        Text="{Binding testData.DianxinVoltage[7]}" />
+                                    <!--  电芯电压9-13  -->
+                                    <TextBlock
+                                        Grid.Row="2"
+                                        Grid.Column="0"
+                                        Margin="0,12,0,0"
+                                        HorizontalAlignment="Center"
+                                        VerticalAlignment="Center"
+                                        FontSize="15"
+                                        Foreground="White"
+                                        Text="9:" />
+                                    <TextBlock
+                                        Grid.Row="2"
+                                        Grid.Column="1"
+                                        Margin="0,12,0,0"
+                                        VerticalAlignment="Center"
+                                        FontSize="17"
+                                        Foreground="{Binding testData.DianxinVoltageTest[8], Converter={StaticResource IntColorConverter}}"
+                                        Text="{Binding testData.DianxinVoltage[8]}" />
+                                    <!--  限流后标准电流  -->
+                                    <TextBlock
+                                        Grid.Row="2"
+                                        Grid.Column="2"
+                                        Margin="0,12,0,0"
+                                        HorizontalAlignment="Center"
+                                        VerticalAlignment="Center"
+                                        FontSize="15"
+                                        Foreground="White"
+                                        Text="10:" />
+                                    <TextBlock
+                                        Grid.Row="2"
+                                        Grid.Column="3"
+                                        Margin="0,12,0,0"
+                                        VerticalAlignment="Center"
+                                        FontSize="17"
+                                        Foreground="{Binding testData.DianxinVoltageTest[9], Converter={StaticResource IntColorConverter}}"
+                                        Text="{Binding testData.DianxinVoltage[9]}" />
+
+                                    <!--  限流前BMS电流  -->
+                                    <TextBlock
+                                        Grid.Row="2"
+                                        Grid.Column="4"
+                                        Margin="0,12,0,0"
+                                        HorizontalAlignment="Center"
+                                        VerticalAlignment="Center"
+                                        FontSize="15"
+                                        Foreground="White"
+                                        Text=" 11:" />
+                                    <TextBlock
+                                        Grid.Row="2"
+                                        Grid.Column="5"
+                                        Margin="0,12,0,0"
+                                        VerticalAlignment="Center"
+                                        FontSize="17"
+                                        Foreground="{Binding testData.DianxinVoltageTest[10], Converter={StaticResource IntColorConverter}}"
+                                        Text="{Binding testData.DianxinVoltage[10]}" />
+
+                                    <!--  限流后BMS电流  -->
+                                    <TextBlock
+                                        Grid.Row="2"
+                                        Grid.Column="6"
+                                        Margin="0,12,0,0"
+                                        HorizontalAlignment="Center"
+                                        VerticalAlignment="Center"
+                                        FontSize="15"
+                                        Foreground="White"
+                                        Text="12:" />
+                                    <TextBlock
+                                        Grid.Row="2"
+                                        Grid.Column="7"
+                                        Margin="0,12,0,0"
+                                        VerticalAlignment="Center"
+                                        FontSize="17"
+                                        Foreground="{Binding testData.DianxinVoltageTest[11], Converter={StaticResource IntColorConverter}}"
+                                        Text="{Binding testData.DianxinVoltage[11]}" />
+                                    <!--  电芯电压14-18  -->
+                                    <TextBlock
+                                        Grid.Row="3"
+                                        Grid.Column="0"
+                                        Margin="0,12,0,0"
+                                        HorizontalAlignment="Center"
+                                        VerticalAlignment="Center"
+                                        FontSize="15"
+                                        Foreground="White"
+                                        Text="13:" />
+                                    <TextBlock
+                                        Grid.Row="3"
+                                        Grid.Column="1"
+                                        Margin="0,12,0,0"
+                                        VerticalAlignment="Center"
+                                        FontSize="17"
+                                        Foreground="{Binding testData.DianxinVoltageTest[15], Converter={StaticResource IntColorConverter}}"
+                                        Text="{Binding testData.DianxinVoltage[12]}" />
+                                    <!--  限流后标准电流  -->
+                                    <TextBlock
+                                        Grid.Row="3"
+                                        Grid.Column="2"
+                                        Margin="0,12,0,0"
+                                        HorizontalAlignment="Center"
+                                        VerticalAlignment="Center"
+                                        FontSize="17"
+                                        Foreground="White"
+                                        Text="14:" />
+                                    <TextBlock
+                                        Grid.Row="3"
+                                        Grid.Column="3"
+                                        Margin="0,12,0,0"
+                                        VerticalAlignment="Center"
+                                        FontSize="17"
+                                        Foreground="{Binding testData.DianxinVoltageTest[13], Converter={StaticResource IntColorConverter}}"
+                                        Text="{Binding testData.DianxinVoltage[13]}" />
+
+                                    <!--  限流前BMS电流  -->
+                                    <TextBlock
+                                        Grid.Row="3"
+                                        Grid.Column="4"
+                                        Margin="0,12,0,0"
+                                        HorizontalAlignment="Center"
+                                        VerticalAlignment="Center"
+                                        FontSize="17"
+                                        Foreground="White"
+                                        Text=" 15:" />
+                                    <TextBlock
+                                        Grid.Row="3"
+                                        Grid.Column="5"
+                                        Margin="0,12,0,0"
+                                        VerticalAlignment="Center"
+                                        FontSize="17"
+                                        Foreground="{Binding testData.DianxinVoltageTest[14], Converter={StaticResource IntColorConverter}}"
+                                        Text="{Binding testData.DianxinVoltage[14]}" />
+
+                                    <!--  限流后BMS电流  -->
+                                    <TextBlock
+                                        Grid.Row="3"
+                                        Grid.Column="6"
+                                        Margin="0,12,0,0"
+                                        HorizontalAlignment="Center"
+                                        VerticalAlignment="Center"
+                                        FontSize="15"
+                                        Foreground="White"
+                                        Text="16:" />
+                                    <TextBlock
+                                        Grid.Row="3"
+                                        Grid.Column="7"
+                                        Margin="0,12,0,0"
+                                        VerticalAlignment="Center"
+                                        FontSize="17"
+                                        Foreground="{Binding testData.DianxinVoltageTest[15], Converter={StaticResource IntColorConverter}}"
+                                        Text="{Binding testData.DianxinVoltage[15]}" />
+                                </Grid>
+
+                            </GroupBox>
+                        </StackPanel>
+
+                    </Grid>
+                    <Expander IsExpanded="{Binding _IsExpand1}">
+                        <GroupBox
+                            Grid.Row="1"
+                            Margin="10,10,10,15"
+                            Style="{StaticResource GroupBoxMachineTypeSty}">
+                            <Grid Margin="0">
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="1.5*" />
+                                    <ColumnDefinition Width="0.7*" />
+                                    <ColumnDefinition Width="1*" />
+                                    <ColumnDefinition Width="1*" />
+                                </Grid.ColumnDefinitions>
+                                <Grid.RowDefinitions>
+                                    <RowDefinition />
+                                    <RowDefinition />
+                                    <RowDefinition />
+                                    <RowDefinition />
+                                    <RowDefinition />
+                                    <RowDefinition />
+                                    <RowDefinition />
+                                    <RowDefinition />
+                                    <RowDefinition />
+                                    <RowDefinition />
+                                    <RowDefinition />
+                                </Grid.RowDefinitions>
+                                <!--  DC电压  -->
+                                <TextBlock
+                                    Grid.Column="0"
+                                    Margin="0,12,0,0"
+                                    HorizontalAlignment="Center"
+                                    VerticalAlignment="Center"
+                                    FontSize="15"
+                                    Foreground="White"
+                                    Text="DC1当前电压:" />
+                                <TextBlock
+                                    Grid.Column="1"
+                                    Margin="0,12,0,0"
+                                    VerticalAlignment="Center"
+                                    FontSize="17"
+                                    Foreground="#ff2bedf1"
+                                    Text="{Binding BMS_Receive.DcSource1Voltage}" />
+                                <TextBlock
+                                    Grid.Column="2"
+                                    Margin="0,12,0,0"
+                                    VerticalAlignment="Center"
+                                    FontSize="15"
+                                    Foreground="White"
+                                    Text="DC1设置电压:" />
+                                <TextBox
+                                    Grid.Column="3"
+                                    Margin="0,12,0,0"
+                                    VerticalAlignment="Center"
+                                    Background="#33ffffff"
+                                    FontSize="17"
+                                    Foreground="White"
+                                    Text="{Binding DcSourceControlVoltage}" />
+                                <!--  DC电流  -->
+                                <TextBlock
+                                    Grid.Row="1"
+                                    Grid.Column="0"
+                                    Margin="5"
+                                    HorizontalAlignment="Center"
+                                    VerticalAlignment="Center"
+                                    FontSize="15"
+                                    Foreground="White"
+                                    Text="DC1当前电流:" />
+                                <TextBlock
+                                    Grid.Row="1"
+                                    Grid.Column="1"
+                                    VerticalAlignment="Center"
+                                    FontSize="17"
+                                    Foreground="#ff2bedf1"
+                                    Text="{Binding BMS_Receive.DcSource1Current}" />
+                                <TextBlock
+                                    Grid.Row="1"
+                                    Grid.Column="2"
+                                    VerticalAlignment="Center"
+                                    FontSize="15"
+                                    Foreground="White"
+                                    Text="DC1设置电流:" />
+                                <TextBox
+                                    Grid.Row="1"
+                                    Grid.Column="3"
+                                    VerticalAlignment="Center"
+                                    Background="#33ffffff"
+                                    FontSize="17"
+                                    Foreground="White"
+                                    Text="{Binding DcSourceControlCurrent}" />
+                                <!--  DC2电压  -->
+                                <TextBlock
+                                    Grid.Row="2"
+                                    Grid.Column="0"
+                                    Margin="0,12,0,0"
+                                    HorizontalAlignment="Center"
+                                    VerticalAlignment="Center"
+                                    FontSize="15"
+                                    Foreground="White"
+                                    Text="DC2当前电压:" />
+                                <TextBlock
+                                    Grid.Row="2"
+                                    Grid.Column="1"
+                                    Margin="0,12,0,0"
+                                    VerticalAlignment="Center"
+                                    FontSize="17"
+                                    Foreground="#ff2bedf1"
+                                    Text="{Binding BMS_Receive.DcSource2Voltage}" />
+                                <TextBlock
+                                    Grid.Row="2"
+                                    Grid.Column="2"
+                                    Margin="0,12,0,0"
+                                    VerticalAlignment="Center"
+                                    FontSize="15"
+                                    Foreground="White"
+                                    Text="DC2设置电压:" />
+                                <TextBox
+                                    Grid.Row="2"
+                                    Grid.Column="3"
+                                    Margin="0,12,0,0"
+                                    VerticalAlignment="Center"
+                                    Background="#33ffffff"
+                                    FontSize="17"
+                                    Foreground="White"
+                                    Text="{Binding DcSource2ControlVoltage}" />
+                                <!--  DC电流  -->
+                                <TextBlock
+                                    Grid.Row="3"
+                                    Grid.Column="0"
+                                    Margin="5"
+                                    HorizontalAlignment="Center"
+                                    VerticalAlignment="Center"
+                                    FontSize="15"
+                                    Foreground="White"
+                                    Text="DC2当前电流:" />
+                                <TextBlock
+                                    Grid.Row="3"
+                                    Grid.Column="1"
+                                    VerticalAlignment="Center"
+                                    FontSize="17"
+                                    Foreground="#ff2bedf1"
+                                    Text="{Binding BMS_Receive.DcSource2Current}" />
+                                <TextBlock
+                                    Grid.Row="3"
+                                    Grid.Column="2"
+                                    VerticalAlignment="Center"
+                                    FontSize="15"
+                                    Foreground="White"
+                                    Text="DC2设置电流:" />
+                                <TextBox
+                                    Grid.Row="3"
+                                    Grid.Column="3"
+                                    VerticalAlignment="Center"
+                                    Background="#33ffffff"
+                                    FontSize="17"
+                                    Foreground="White"
+                                    Text="{Binding DcSource2ControlCurrent}" />
+                                <!--  BMS电流 & 低功耗电流  -->
+                                <TextBlock
+                                    Grid.Row="4"
+                                    Grid.Column="0"
+                                    Margin="5"
+                                    HorizontalAlignment="Center"
+                                    VerticalAlignment="Center"
+                                    FontSize="15"
+                                    Foreground="White"
+                                    Text="BMS电流:" />
+                                <TextBlock
+                                    Grid.Row="4"
+                                    Grid.Column="1"
+                                    VerticalAlignment="Center"
+                                    FontSize="17"
+                                    Foreground="#ff2bedf1"
+                                    Text="{Binding BMSCurrent}" />
+                                <TextBlock
+                                    Grid.Row="4"
+                                    Grid.Column="2"
+                                    VerticalAlignment="Center"
+                                    FontSize="15"
+                                    Foreground="White"
+                                    Text="低功耗电压:" />
+                                <TextBlock
+                                    Grid.Row="4"
+                                    Grid.Column="3"
+                                    VerticalAlignment="Center"
+                                    FontSize="17"
+                                    Foreground="#ff2bedf1"
+                                    Text="{Binding BMS_Receive.LowPowerVoltage}" />
+
+                                <!--  充电电流校准系数  -->
+                                <TextBlock
+                                    Grid.Row="5"
+                                    Grid.Column="0"
+                                    Margin="5"
+                                    HorizontalAlignment="Center"
+                                    VerticalAlignment="Center"
+                                    FontSize="15"
+                                    Foreground="White"
+                                    Text="充电校准系数:" />
+                                <TextBlock
+                                    Grid.Row="5"
+                                    Grid.Column="1"
+                                    VerticalAlignment="Center"
+                                    FontSize="17"
+                                    Foreground="#ff2bedf1"
+                                    Text="{Binding ChargeCurrentAdj}" />
+                                <TextBlock
+                                    Grid.Row="5"
+                                    Grid.Column="2"
+                                    VerticalAlignment="Center"
+                                    FontSize="15"
+                                    Foreground="White"
+                                    Text="设置系数值:" />
+                                <TextBox
+                                    Grid.Row="5"
+                                    Grid.Column="3"
+                                    VerticalAlignment="Center"
+                                    Background="#33ffffff"
+                                    FontSize="17"
+                                    Foreground="White"
+                                    Text="{Binding SetChargeCurrentAdj}" />
+
+                                <!--  放电电流校准系数  -->
+                                <TextBlock
+                                    Grid.Row="6"
+                                    Grid.Column="0"
+                                    HorizontalAlignment="Center"
+                                    VerticalAlignment="Center"
+                                    FontSize="15"
+                                    Foreground="White"
+                                    Text="放电校准系数:" />
+                                <TextBlock
+                                    Grid.Row="6"
+                                    Grid.Column="1"
+                                    VerticalAlignment="Center"
+                                    FontSize="17"
+                                    Foreground="#ff2bedf1"
+                                    Text="{Binding DischargeCurrentAdj}" />
+                                <TextBlock
+                                    Grid.Row="6"
+                                    Grid.Column="2"
+                                    VerticalAlignment="Center"
+                                    FontSize="15"
+                                    Foreground="White"
+                                    Text="设置系数值:" />
+                                <TextBox
+                                    Grid.Row="6"
+                                    Grid.Column="3"
+                                    VerticalAlignment="Center"
+                                    Background="#33ffffff"
+                                    FontSize="17"
+                                    Foreground="White"
+                                    Text="{Binding SetDischargeCurrentAdj}" />
+                                <!--  放电电流校准系数  -->
+                                <TextBlock
+                                    Grid.Row="7"
+                                    Grid.Column="0"
+                                    HorizontalAlignment="Center"
+                                    VerticalAlignment="Center"
+                                    FontSize="15"
+                                    Foreground="White"
+                                    Text="当前:" />
+                                <TextBlock
+                                    Grid.Row="7"
+                                    Grid.Column="1"
+                                    VerticalAlignment="Center"
+                                    FontSize="17"
+                                    Foreground="#ff2bedf1"
+                                    Text="{Binding BMS_Receive.ElectronicLoadCurrent}" />
+                                <TextBlock
+                                    Grid.Row="7"
+                                    Grid.Column="2"
+                                    VerticalAlignment="Center"
+                                    FontSize="15"
+                                    Foreground="White"
+                                    Text="电子负载电流  :" />
+                                <TextBox
+                                    Grid.Row="7"
+                                    Grid.Column="3"
+                                    VerticalAlignment="Center"
+                                    Background="#33ffffff"
+                                    FontSize="17"
+                                    Foreground="White"
+                                    Text="{Binding SetElectronicLoadCurrent}" />
+                                <UniformGrid
+                                    Grid.Row="8"
+                                    Grid.ColumnSpan="4"
+                                    Margin="10"
+                                    Columns="2">
+                                    <Button
+                                        Height="40"
+                                        Margin="4"
+                                        Command="{Binding ReadChargeCurrentAdjustParameterCmd}"
+                                        Content="读取充电校准系数"
+                                        FontSize="17"
+                                        Style="{StaticResource BtnStyle}" />
+                                    <Button
+                                        Margin="4"
+                                        Command="{Binding ReadDischargeCurrentAdjustParameterCmd}"
+                                        Content="读取放电校准系数"
+                                        FontSize="17"
+                                        Style="{StaticResource BtnStyle}" />
+                                    <Button
+                                        Margin="4"
+                                        Command="{Binding WriteChargeCurrentAdjustParameterCmd}"
+                                        Content="写入充电校准系数"
+                                        FontSize="17"
+                                        Style="{StaticResource BtnStyle}" />
+                                    <Button
+                                        Margin="4"
+                                        Command="{Binding WriteDischargeCurrentAdjustParameterCmd}"
+                                        Content="写入放电校准系数"
+                                        FontSize="17"
+                                        Style="{StaticResource BtnStyle}" />
+                                    <Button
+                                        Margin="4"
+                                        Command="{Binding OpenLimitedCurrentCmd}"
+                                        Content="开启限流开关"
+                                        FontSize="17"
+                                        Style="{StaticResource BtnStyle}" />
+                                    <Button
+                                        Margin="4"
+                                        Command="{Binding CloseLimitedCurrentCmd}"
+                                        Content="关闭限流开关"
+                                        FontSize="17"
+                                        Style="{StaticResource BtnStyle}" />
+                                    <Button
+                                        Margin="4"
+                                        Command="{Binding ReadCurrentCmd}"
+                                        Content="读取电流"
+                                        FontSize="17"
+                                        Style="{StaticResource BtnStyle}" />
+                                    <Button
+                                        Margin="4"
+                                        Command="{Binding ShowMessageCommand}"
+                                        Content="测试"
+                                        FontSize="17"
+                                        Style="{StaticResource BtnStyle}" />
+                                    <Button
+                                        Margin="4"
+                                        Command="{Binding OpenDcSourceSwitchCmd}"
+                                        Content="DC电源1开"
+                                        FontSize="17"
+                                        Foreground="{Binding BMS_Receive.DcSource1Switch, Converter={StaticResource ColorConverter}}"
+                                        Style="{StaticResource BtnStyle5}" />
+                                    <Button
+                                        Margin="4"
+                                        Command="{Binding CloseDcSourceSwitchTestCmd}"
+                                        Content="DC电源1关"
+                                        FontSize="17"
+                                        Foreground="{Binding BMS_Receive.DcSource1Switch, Converter={StaticResource ColorConverter2}}"
+                                        Style="{StaticResource BtnStyle5}" />
+                                    <Button
+                                        Margin="4"
+                                        Command="{Binding OpenDcSource2SwitchCom}"
+                                        Content="DC电源2开"
+                                        FontSize="17"
+                                        Foreground="{Binding BMS_Receive.DcSource2Switch, Converter={StaticResource ColorConverter}}"
+                                        Style="{StaticResource BtnStyle5}" />
+                                    <Button
+                                        Margin="4"
+                                        Command="{Binding CloseDcSource2SwitchTestCom}"
+                                        Content="DC电源2关"
+                                        FontSize="17"
+                                        Foreground="{Binding BMS_Receive.DcSource2Switch, Converter={StaticResource ColorConverter2}}"
+                                        Style="{StaticResource BtnStyle5}" />
+
+                                </UniformGrid>
+
+                            </Grid>
+                        </GroupBox>
+                    </Expander>
+                    <Expander IsExpanded="{Binding _IsExpand2}">
+                        <!--  串口一  -->
+                        <GroupBox Margin="10,13,10,0" Style="{StaticResource GroupBoxMachineTypeSty}">
+                            <UniformGrid Margin="10" Columns="2">
+                                <!--<Button
+                                    Height="40"
+                                    Margin="4"
+                                    Command="{Binding OpenCharge}"
+                                    Content="直流源1开启"
+                                    FontSize="17"
+                                    Foreground="{Binding BMS_Receive.DcSource1Switch, Converter={StaticResource ColorConverter}}"
+                                    Style="{StaticResource BtnStyle5}" />
+                                <Button
+                                    Margin="4"
+                                    Command="{Binding CloseCharge}"
+                                    Content="直流源1关闭"
+                                    FontSize="17"
+                                    Foreground="{Binding BMS_Receive.DcSource1Switch, Converter={StaticResource ColorConverter2}}"
+                                    Style="{StaticResource BtnStyle5}" />
+                                <Button
+                                    Margin="4"
+                                    Command="{Binding OpenDcSource2SwitchCom}"
+                                    Content="直流源2开启"
+                                    FontSize="17"
+                                    Foreground="{Binding BMS_Receive.DcSource2Switch, Converter={StaticResource ColorConverter}}"
+                                    Style="{StaticResource BtnStyle5}" />
+                                <Button
+                                    Margin="4"
+                                    Command="{Binding CloseDcSource2SwitchTestCom}"
+                                    Content="直流源2关闭"
+                                    FontSize="17"
+                                    Foreground="{Binding BMS_Receive.DcSource2Switch, Converter={StaticResource ColorConverter2}}"
+                                    Style="{StaticResource BtnStyle5}" />-->
+                                <Button
+                                    Height="40"
+                                    Margin="4"
+                                    Command="{Binding OpenElectronicLoadModeCom}"
+                                    Content="CC模式"
+                                    FontSize="17"
+                                    Foreground="{Binding BMS_Receive.ElectronicLoadMode, Converter={StaticResource ColorConverter}}"
+                                    Style="{StaticResource BtnStyle5}" />
+                                <Button
+                                    Margin="4"
+                                    Command="{Binding CloseElectronicLoadModeCom}"
+                                    Content="非CC模式"
+                                    FontSize="17"
+                                    Foreground="{Binding BMS_Receive.ElectronicLoadMode, Converter={StaticResource ColorConverter2}}"
+                                    Style="{StaticResource BtnStyle5}" />
+                                <Button
+                                    Margin="4"
+                                    Command="{Binding OpenReserved1}"
+                                    Content="电子负载输出开启"
+                                    FontSize="17"
+                                    Foreground="{Binding BMS_Receive.Reserved1, Converter={StaticResource ColorConverter}}"
+                                    Style="{StaticResource BtnStyle5}" />
+                                <Button
+                                    Margin="4"
+                                    Command="{Binding CloseReserved1}"
+                                    Content="电子负载输出关闭"
+                                    FontSize="17"
+                                    Foreground="{Binding BMS_Receive.Reserved1, Converter={StaticResource ColorConverter2}}"
+                                    Style="{StaticResource BtnStyle5}" />
+                                <Button
+                                    Margin="4"
+                                    Command="{Binding OpenReserved2}"
+                                    Content="预留2开启"
+                                    FontSize="17"
+                                    Foreground="{Binding BMS_Receive.Reserved2, Converter={StaticResource ColorConverter}}"
+                                    Style="{StaticResource BtnStyle5}" />
+                                <Button
+                                    Margin="4"
+                                    Command="{Binding CloseReserved2}"
+                                    Content="预留2关闭"
+                                    FontSize="17"
+                                    Foreground="{Binding BMS_Receive.Reserved2, Converter={StaticResource ColorConverter2}}"
+                                    Style="{StaticResource BtnStyle5}" />
+                                <Button
+                                    Margin="4"
+                                    Command="{Binding OpenReserved3}"
+                                    Content="预留3开启"
+                                    FontSize="17"
+                                    Foreground="{Binding BMS_Receive.Reserved3, Converter={StaticResource ColorConverter}}"
+                                    Style="{StaticResource BtnStyle5}" />
+                                <Button
+                                    Margin="4"
+                                    Command="{Binding CloseReserved3}"
+                                    Content="预留3关闭"
+                                    FontSize="17"
+                                    Foreground="{Binding BMS_Receive.Reserved3, Converter={StaticResource ColorConverter2}}"
+                                    Style="{StaticResource BtnStyle5}" />
+                                <Button
+                                    Margin="4"
+                                    Command="{Binding OpenResistorBankMosfetStatus}"
+                                    Content="电阻棒MOS开启"
+                                    FontSize="17"
+                                    Foreground="{Binding BMS_Receive.ResistorBankMosfetStatus, Converter={StaticResource ColorConverter}}"
+                                    Style="{StaticResource BtnStyle5}" />
+                                <Button
+                                    Margin="4"
+                                    Command="{Binding CloseResistorBankMosfetStatus}"
+                                    Content="电阻棒MOS关闭"
+                                    FontSize="17"
+                                    Foreground="{Binding BMS_Receive.ResistorBankMosfetStatus, Converter={StaticResource ColorConverter2}}"
+                                    Style="{StaticResource BtnStyle5}" />
+                                <Button
+                                    Margin="4"
+                                    Command="{Binding OpenChargeRelayStatus}"
+                                    Content="充电继电器开启"
+                                    FontSize="17"
+                                    Foreground="{Binding BMS_Receive.ChargeRelayStatus, Converter={StaticResource ColorConverter}}"
+                                    Style="{StaticResource BtnStyle5}" />
+                                <Button
+                                    Margin="4"
+                                    Command="{Binding CloseChargeRelayStatus}"
+                                    Content="充电继电器关闭"
+                                    FontSize="17"
+                                    Foreground="{Binding BMS_Receive.ChargeRelayStatus, Converter={StaticResource ColorConverter2}}"
+                                    Style="{StaticResource BtnStyle5}" />
+                                <Button
+                                    Margin="4"
+                                    Command="{Binding OpenDischargeRelayStatus}"
+                                    Content="放电继电器开启"
+                                    FontSize="17"
+                                    Foreground="{Binding BMS_Receive.DischargeRelayStatus, Converter={StaticResource ColorConverter}}"
+                                    Style="{StaticResource BtnStyle5}" />
+                                <Button
+                                    Margin="4"
+                                    Command="{Binding CloseDischargeRelayStatus}"
+                                    Content="放电继电器关闭"
+                                    FontSize="17"
+                                    Foreground="{Binding BMS_Receive.DischargeRelayStatus, Converter={StaticResource ColorConverter2}}"
+                                    Style="{StaticResource BtnStyle5}" />
+                                <Button
+                                    Margin="4"
+                                    Command="{Binding OpenChargeCurrentLimitNegativeRelayStatus}"
+                                    Content="充电限流负极开启"
+                                    FontSize="17"
+                                    Foreground="{Binding BMS_Receive.ChargeCurrentLimitNegativeRelayStatus, Converter={StaticResource ColorConverter}}"
+                                    Style="{StaticResource BtnStyle5}" />
+                                <Button
+                                    Margin="4"
+                                    Command="{Binding CloseChargeCurrentLimitNegativeRelayStatus}"
+                                    Content="充电限流负极关闭"
+                                    FontSize="17"
+                                    Foreground="{Binding BMS_Receive.ChargeCurrentLimitNegativeRelayStatus, Converter={StaticResource ColorConverter2}}"
+                                    Style="{StaticResource BtnStyle5}" />
+
+
+                                <Button
+                                    Margin="4"
+                                    Command="{Binding LowPowerVoltageAndCurrentCmd}"
+                                    Content="低功耗继电器开启"
+                                    FontSize="17"
+                                    Foreground="{Binding BMS_Receive.LowPowerRelayStatus, Converter={StaticResource ColorConverter}}"
+                                    Style="{StaticResource BtnStyle5}" />
+                                <Button
+                                    Margin="4"
+                                    Command="{Binding CloseLowPowerVoltageAndCurrentCmd}"
+                                    Content="低功耗继电器关闭"
+                                    FontSize="17"
+                                    Foreground="{Binding BMS_Receive.LowPowerRelayStatus, Converter={StaticResource ColorConverter2}}"
+                                    Style="{StaticResource BtnStyle5}" />
+                                <Button
+                                    Margin="4"
+                                    Command="{Binding Relay2ControlTestCmd}"
+                                    Content="预留继电器2开启"
+                                    FontSize="17"
+                                    Foreground="{Binding BMS_Receive.Reserved1RelayStatus, Converter={StaticResource ColorConverter}}"
+                                    Style="{StaticResource BtnStyle5}" />
+                                <Button
+                                    Margin="4"
+                                    Command="{Binding CloseRelay2ControlTestCmd}"
+                                    Content="预留继电器2关闭"
+                                    FontSize="17"
+                                    Foreground="{Binding BMS_Receive.Reserved1RelayStatus, Converter={StaticResource ColorConverter2}}"
+                                    Style="{StaticResource BtnStyle5}" />
+                                <Button
+                                    Margin="4"
+                                    Command="{Binding Relay3ControlTestCmd}"
+                                    Content="预留继电器3开启"
+                                    FontSize="17"
+                                    Foreground="{Binding BMS_Receive.Reserved2RelayStatus, Converter={StaticResource ColorConverter}}"
+                                    Style="{StaticResource BtnStyle5}" />
+                                <Button
+                                    Margin="4"
+                                    Command="{Binding CloseRelay3ControlTestCmd}"
+                                    Content="预留继电器3关闭"
+                                    FontSize="17"
+                                    Foreground="{Binding BMS_Receive.Reserved2RelayStatus, Converter={StaticResource ColorConverter2}}"
+                                    Style="{StaticResource BtnStyle5}" />
+                                <Button
+                                    Margin="4"
+                                    Command="{Binding Relay4ControlTestCmd}"
+                                    Content="预留继电器4开启"
+                                    FontSize="17"
+                                    Foreground="{Binding BMS_Receive.Reserved3RelayStatus, Converter={StaticResource ColorConverter}}"
+                                    Style="{StaticResource BtnStyle5}" />
+                                <Button
+                                    Margin="4"
+                                    Command="{Binding CloseRelay4ControlTestCmd}"
+                                    Content="预留继电器4关闭"
+                                    FontSize="17"
+                                    Foreground="{Binding BMS_Receive.Reserved3RelayStatus, Converter={StaticResource ColorConverter2}}"
+                                    Style="{StaticResource BtnStyle5}" />
+                            </UniformGrid>
+                        </GroupBox>
+
+                    </Expander>
+
+
+
+                </StackPanel>
+
+            </ScrollViewer>
+
+
+            <Button
+                Grid.Row="1"
+                Margin="5"
+                Command="{Binding StartCommand}"
+                Content="开始"
+                FontSize="45"
+                Style="{StaticResource BtnStyle2}"
+                Tag="&#xe622;"
+                Visibility="{Binding StartVisible}" />
+            <Button
+                Grid.Row="1"
+                Margin="5"
+                Command="{Binding StopCommand}"
+                Content="停止"
+                FontSize="45"
+                Style="{StaticResource BtnStyle3}"
+                Tag="&#xe691;"
+                Visibility="{Binding StopVisible}" />
+
+
+
+
+        </Grid>
+        <!--  底边  -->
+        <Border
+            Grid.Row="2"
+            Grid.ColumnSpan="4"
+            Height="10"
+            Margin="5"
+            Background="#1118aabd"
+            CornerRadius="5" />
+    </Grid>
+</UserControl>
