@@ -912,6 +912,15 @@ namespace WpfApp2.ViewModels
                     }
                     //读取系统时间
                     ReadTime();
+                    //写入设计容量100%，满充容量100%，剩余容量30%
+                    writeSuccess = WriteSOC();
+                    if (!writeSuccess)
+                    {
+                        LShowMessage($"写入剩余容量30%失败", "警告", MessageIcon.Warning);
+                        return false;
+                    }
+
+
                     return true;
                 case "软件版本":
                     //读取出厂日期、软件版本、硬件版本
@@ -1243,7 +1252,7 @@ namespace WpfApp2.ViewModels
                         interSuccess = CloseParameter(parametersSending.Reserved3RelayStatus, "Reserved3RelayStatus", "预留继电器4");
                         Thread.Sleep(1000);
                     } while (!interSuccess);
-                    AddLog("等待五秒");
+                    AddLog("等待5秒");
                     Thread.Sleep(5000);
                     //五秒后关低功耗继电器
                     ERROR_COUNT = 0;
@@ -1275,7 +1284,7 @@ namespace WpfApp2.ViewModels
                         AddLog($"低功耗检测：电压{BMS_Receive.LowPowerVoltage},电流：{BMS_Receive.LowPowerCurrent}");
                         //记录测试数据
                         testData.LowPowerCurrent = BMS_Receive.LowPowerCurrent; testData.LowPowerVoltage = BMS_Receive.LowPowerVoltage;
-                        if (BMS_Receive.LowPowerCurrent <= 400)
+                        if (BMS_Receive.LowPowerCurrent <= 450)
                         {
                             if (BMS_Receive.LowPowerVoltage != 0 && ERROR_COUNT >= 5)
                             {
@@ -2513,7 +2522,7 @@ namespace WpfApp2.ViewModels
                     if (successCount > 3)
                         succeed = true;
                     int ad = ReadAdParameter();
-                    if (ad > 85 && ad < 105)
+                    if (0<ad &&ad < 400)
                     {
                         AdSuccess++;
                     }
@@ -4382,6 +4391,41 @@ namespace WpfApp2.ViewModels
                 return false;
             }
             AddLog("写入成功");
+            return true;
+        }
+
+        /// <summary>
+        /// 测试后写入剩余容量
+        /// </summary>
+        /// <returns></returns>
+        private bool WriteSOC()
+        {
+            AddLog("正在写入剩余容量");
+            //写入参数
+            bool interSuccess = false;
+            int ERROR_COUNT = 0;
+            //获取当前时间，转换成字节格式
+            byte[] com = new byte[] { 0x01, 0x10, 0x00, 0xFC, 0x00, 0x04, 0x08, 0x27, 0x10, 0x27, 0x10, 0x0B, 0xB8, 0x00, 0x00, 0xF2, 0x41 };
+            do
+            {
+                ERROR_COUNT++;
+                byte[] receive = SerialCommunicationService2.SendTestCommand2(com, 17);
+                if (receive.Length == 0)
+                {
+                    AddLog("写入剩余容量：写入剩余容量返回异常");
+                }
+                if (receive.Length == 17)
+                    interSuccess = true;
+                //interSuccess = InterTestMode(1);
+                Thread.Sleep(200);
+            } while (!interSuccess && ERROR_COUNT < 10);//最多发十次
+
+            if (!interSuccess)
+            {
+                AddLog("写入剩余容量失败");
+                return false;
+            }
+            AddLog("写入剩余容量成功");
             return true;
         }
 

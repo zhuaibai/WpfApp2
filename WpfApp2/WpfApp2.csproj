@@ -8,6 +8,7 @@
     <UseWPF>true</UseWPF>
     <ApplicationIcon>Images\xv11a-knsia-001.ico</ApplicationIcon>
     <AssemblyName>BMS-ATE-01</AssemblyName>
+    <AssemblyVersion>1.0.0.1</AssemblyVersion>
   </PropertyGroup>
 
   <ItemGroup>
