@@ -1972,7 +1972,7 @@ namespace WpfApp2.ViewModels
             if (!(BMS_Receive.ChargeRelayStatus == 1 && BMS_Receive.DischargeRelayStatus == 0 && BMS_Receive.ResistorBankMosfetStatus == 0 && BMS_Receive.ChargeCurrentLimitNegativeRelayStatus == 0 && BMS_Receive.Reserved1 == 0))
             {
                 string charge = BMS_Receive.ChargeRelayStatus != 1 ? "充电继电器没开启" : "";
-                string disCharge = BMS_Receive.DischargeRelayStatus != 0 ? "充电继电器没关闭" : "";
+                string disCharge = BMS_Receive.DischargeRelayStatus != 0 ? "放电继电器没关闭" : "";
                 string resistorBankMosfetStatus = BMS_Receive.ResistorBankMosfetStatus != 0 ? "电阻棒MOS管没关闭" : "";
                 string chargeCurrentLimitNegativeRelayStatus = BMS_Receive.ChargeCurrentLimitNegativeRelayStatus != 0 ? "充电限流负极继电器没关闭" : "";
                 string relay1Status = BMS_Receive.Reserved1 != 0 ? "电子负载没关闭" : "";
@@ -2362,7 +2362,7 @@ namespace WpfApp2.ViewModels
             if (!(BMS_Receive.ChargeRelayStatus == 0 && BMS_Receive.DischargeRelayStatus == 1 && BMS_Receive.ResistorBankMosfetStatus == 0 && BMS_Receive.ChargeCurrentLimitNegativeRelayStatus == 0 && BMS_Receive.Reserved1 == 0))
             {
                 string charge = BMS_Receive.ChargeRelayStatus != 0 ? "充电继电器没关闭" : "";
-                string disCharge = BMS_Receive.DischargeRelayStatus != 1 ? "充电继电器没开启" : "";
+                string disCharge = BMS_Receive.DischargeRelayStatus != 1 ? "放电继电器没开启" : "";
                 string resistorBankMosfetStatus = BMS_Receive.ResistorBankMosfetStatus != 0 ? "电阻棒MOS管没关闭" : "";
                 string chargeCurrentLimitNegativeRelayStatus = BMS_Receive.ChargeCurrentLimitNegativeRelayStatus != 0 ? "充电限流负极继电器没关闭" : "";
                 string relay1Status = BMS_Receive.Reserved1 != 0 ? "电子负载没关闭" : "";
@@ -2799,10 +2799,36 @@ namespace WpfApp2.ViewModels
             Thread.Sleep(2000);
 
             //判断条件
-            BMS_Receive = SendPacked(parametersSending);
-            if (!(BMS_Receive.ChargeRelayStatus == 1 && BMS_Receive.DischargeRelayStatus == 0 && BMS_Receive.ResistorBankMosfetStatus == 0 && BMS_Receive.ChargeCurrentLimitNegativeRelayStatus == 1 && BMS_Receive.Relay1Status == 0))
+            failCount = 0;
+            succeed = false;
+            do
             {
+                if (failCount++ == 10)
+                {
+                    AddLog($"获取前置条件失败！");
+                    return false;
+                }
+                BMS_Receive = SendPacked(parametersSending);
+                if (BMS_Receive != null)
+                {
+                    succeed = true;
+                }
+                Thread.Sleep(1000);
+            } while (!succeed);
+
+            if (!(BMS_Receive.ChargeRelayStatus == 1 && BMS_Receive.DischargeRelayStatus == 0 && BMS_Receive.ResistorBankMosfetStatus == 0 && BMS_Receive.ChargeCurrentLimitNegativeRelayStatus == 1 && BMS_Receive.Relay1Status == 0))
+            { 
+                string charge = BMS_Receive.ChargeRelayStatus != 1 ? "充电继电器没开启" : "";
+                string disCharge = BMS_Receive.DischargeRelayStatus != 0 ? "放电继电器没关闭" : "";
+                string resistorBankMosfetStatus = BMS_Receive.ResistorBankMosfetStatus != 0 ? "电阻棒MOS管没关闭" : "";
+                string chargeCurrentLimitNegativeRelayStatus = BMS_Receive.ChargeCurrentLimitNegativeRelayStatus != 1 ? "充电限流负极继电器没开启" : "";
+                string relay1Status = BMS_Receive.Reserved1 != 0 ? "电子负载没关闭" : "";
                 AddLog($"前置条件不符！");
+                AddLog($"{charge}");
+                AddLog($"{disCharge}");
+                AddLog($"{resistorBankMosfetStatus}");
+                AddLog($"{chargeCurrentLimitNegativeRelayStatus}");
+                AddLog($"{relay1Status}");
                 return false;
             }
 
@@ -3022,7 +3048,7 @@ namespace WpfApp2.ViewModels
 
             BMS_Receive = SendPacked(parametersSending);
 
-            if (BMS_Receive.ResistorBankMosfetStatus == 1)
+            if (BMS_Receive?.ResistorBankMosfetStatus == 1)
             {
                 //关闭电阻棒
                 do
@@ -3043,7 +3069,7 @@ namespace WpfApp2.ViewModels
                 }
             }
 
-            if (BMS_Receive.Reserved1 == 1)
+            if (BMS_Receive?.Reserved1 == 1)
             {
                 //关闭电子负载继电器
                 failCount = 0;
@@ -3067,7 +3093,7 @@ namespace WpfApp2.ViewModels
             }
 
 
-            if (BMS_Receive.DischargeRelayStatus == 1)
+            if (BMS_Receive?.DischargeRelayStatus == 1)
             {
                 //关闭放电继电器
                 failCount = 0;
@@ -3090,7 +3116,7 @@ namespace WpfApp2.ViewModels
                 }
             }
 
-            if (BMS_Receive.ChargeRelayStatus == 1)
+            if (BMS_Receive?.ChargeRelayStatus == 1)
             {
                 //关闭充电继电器
                 failCount = 0;
@@ -3113,7 +3139,7 @@ namespace WpfApp2.ViewModels
                 }
             }
 
-            if (BMS_Receive.ChargeCurrentLimitNegativeRelayStatus == 1)
+            if (BMS_Receive?.ChargeCurrentLimitNegativeRelayStatus == 1)
             {
                 //关闭充电限流负极继电器
                 failCount = 0;
@@ -3148,7 +3174,7 @@ namespace WpfApp2.ViewModels
             Thread.Sleep(1000);
             BMS_Receive = SendPacked(parametersSending);
 
-            if (BMS_Receive.LowPowerRelayStatus == 1)
+            if (BMS_Receive?.LowPowerRelayStatus == 1)
             {
                 //关闭低功耗继电器
                 failCount = 0;
@@ -3169,7 +3195,7 @@ namespace WpfApp2.ViewModels
                 }
             }
 
-            if (BMS_Receive.Reserved1RelayStatus == 1)
+            if (BMS_Receive?.Reserved1RelayStatus == 1)
             {
                 //关闭预留继电器2
                 failCount = 0;
@@ -3190,7 +3216,7 @@ namespace WpfApp2.ViewModels
                 }
             }
 
-            if (BMS_Receive.Reserved2RelayStatus == 1)
+            if (BMS_Receive?.Reserved2RelayStatus == 1)
             {
                 //关闭预留继电器3
                 failCount = 0;
@@ -3211,7 +3237,7 @@ namespace WpfApp2.ViewModels
                 }
             }
 
-            if (BMS_Receive.Reserved3RelayStatus == 1)
+            if (BMS_Receive?.Reserved3RelayStatus == 1)
             {
                 //关闭预留继电4
                 failCount = 0;
