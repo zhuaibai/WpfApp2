@@ -1408,7 +1408,6 @@ namespace WpfApp2.ViewModels
                             Thread.Sleep(2000);
                         } while (!succeed);
 
-
                         failCount = 0;
                         succeed = false;
                         do
@@ -1425,7 +1424,6 @@ namespace WpfApp2.ViewModels
                         } while (!succeed);
                         return false;
                         
-
                     }
                     else
                     {
@@ -1454,6 +1452,20 @@ namespace WpfApp2.ViewModels
                             //关闭电阻棒MOS管
                             parametersSending.ResistorBankMosfetStatus = 0;
                             succeed = CloseParameter(parametersSending.ResistorBankMosfetStatus, "ResistorBankMosfetStatus", "确保电阻棒MOS管");
+                            Thread.Sleep(1000);
+                        } while (!succeed);
+
+                        failCount = 0;
+                        succeed = false;
+                        do
+                        {
+                            if (failCount++ == 10)
+                            {
+                                return false;
+                            }
+                            //限流负极继电器
+                            parametersSending.ChargeCurrentLimitNegativeRelayStatus = 0;
+                            succeed = OpenParameter(parametersSending.ChargeCurrentLimitNegativeRelayStatus, "ChargeCurrentLimitNegativeRelayStatus", "充电限流负极继电器");
                             Thread.Sleep(1000);
                         } while (!succeed);
 
@@ -2816,19 +2828,47 @@ namespace WpfApp2.ViewModels
                 Thread.Sleep(1000);
             } while (!succeed);
 
-            if (!(BMS_Receive.ChargeRelayStatus == 1 && BMS_Receive.DischargeRelayStatus == 0 && BMS_Receive.ResistorBankMosfetStatus == 0 && BMS_Receive.ChargeCurrentLimitNegativeRelayStatus == 1 && BMS_Receive.Relay1Status == 0))
-            { 
+            if (!(BMS_Receive.ChargeRelayStatus == 1 && BMS_Receive.DischargeRelayStatus == 0 && BMS_Receive.ResistorBankMosfetStatus == 0 && BMS_Receive.ChargeCurrentLimitNegativeRelayStatus == 1 && BMS_Receive.Reserved1 == 0))
+            {
+                AddLog($"前置条件不符！");
+
+                if (BMS_Receive == null)
+                {
+                    AddLog("返回空");
+                    return false;
+                }
+                if(BMS_Receive.ChargeRelayStatus != 1)
+                {
+                    AddLog("充电继电器没开启");
+                }
+                if (BMS_Receive.DischargeRelayStatus != 0)
+                {
+                    AddLog("放电继电器没关闭");
+                }
+                if (BMS_Receive.ResistorBankMosfetStatus != 0)
+                {
+                    AddLog("电阻棒MOS管没关闭");
+                }
+                if (BMS_Receive.ChargeCurrentLimitNegativeRelayStatus!=1)
+                {
+                    AddLog("充电限流负极继电器没开启");
+                }
+                if (BMS_Receive.Reserved1 != 0)
+                {
+                    AddLog("电子负载没关闭");
+                }
+                
                 string charge = BMS_Receive.ChargeRelayStatus != 1 ? "充电继电器没开启" : "";
                 string disCharge = BMS_Receive.DischargeRelayStatus != 0 ? "放电继电器没关闭" : "";
                 string resistorBankMosfetStatus = BMS_Receive.ResistorBankMosfetStatus != 0 ? "电阻棒MOS管没关闭" : "";
                 string chargeCurrentLimitNegativeRelayStatus = BMS_Receive.ChargeCurrentLimitNegativeRelayStatus != 1 ? "充电限流负极继电器没开启" : "";
                 string relay1Status = BMS_Receive.Reserved1 != 0 ? "电子负载没关闭" : "";
-                AddLog($"前置条件不符！");
-                AddLog($"{charge}");
-                AddLog($"{disCharge}");
-                AddLog($"{resistorBankMosfetStatus}");
-                AddLog($"{chargeCurrentLimitNegativeRelayStatus}");
-                AddLog($"{relay1Status}");
+                
+                //AddLog($"{charge}");
+                //AddLog($"{disCharge}");
+                //AddLog($"{resistorBankMosfetStatus}");
+                //AddLog($"{chargeCurrentLimitNegativeRelayStatus}");
+                //AddLog($"{relay1Status}");
                 return false;
             }
 
