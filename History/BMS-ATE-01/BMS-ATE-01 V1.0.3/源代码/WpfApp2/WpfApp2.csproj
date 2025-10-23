@@ -26,7 +26,6 @@
   </ItemGroup>
 
   <ItemGroup>
-    <PackageReference Include="CommunityToolkit.Mvvm" Version="8.4.0" />
     <PackageReference Include="Microsoft.Extensions.DependencyInjection" Version="9.0.8" />
     <PackageReference Include="System.Data.SQLite.Core" Version="1.0.119" />
     <PackageReference Include="System.IO.Ports" Version="9.0.4" />
@@ -39,18 +38,6 @@
   <ItemGroup>
     <Resource Include="Images\Logo.png" />
     <Resource Include="Resource\Fonts\iconfont.ttf" />
-  </ItemGroup>
-
-  <ItemGroup>
-    <Compile Update="UserControls\HoleTsetViewUC.xaml.cs">
-      <SubType>Code</SubType>
-    </Compile>
-  </ItemGroup>
-
-  <ItemGroup>
-    <Page Update="UserControls\HoleTsetViewUC.xaml">
-      <SubType>Designer</SubType>
-    </Page>
   </ItemGroup>
 
 </Project>

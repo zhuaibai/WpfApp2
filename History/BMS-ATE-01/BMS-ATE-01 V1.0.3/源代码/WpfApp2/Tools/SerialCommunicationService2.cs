@@ -301,7 +301,6 @@ namespace WpfApp2.Tools
                 //AddReceiveFrame(totalBytesRead);
                 //获取返回转字符串
                 string DataBuffer = Encoding.ASCII.GetString(buffer);
-                if(totalBytesRead == 191) { return "ACK"; };
                 return DataBuffer;
             }
             catch (TimeoutException ex)

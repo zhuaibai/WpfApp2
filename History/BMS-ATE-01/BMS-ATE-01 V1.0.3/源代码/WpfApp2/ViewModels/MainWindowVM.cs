@@ -45,7 +45,6 @@ namespace WpfApp2.ViewModels
             //初始化UC
             TestUC = new TestViewUC();
             TestUC.DataContext = this;
-            holeTset = new HoleTsetViewUC() { DataContext=this};
             SetViewUC = new SetProtolViewUC();
 
             //初始化命令
@@ -59,8 +58,6 @@ namespace WpfApp2.ViewModels
             BMS_Receive = new BmsSystemparametersReceive();
             //测试数据
             testData = new TestData();
-            //整机测试
-            SendingViewModel = new SendingCommandSettingsViewModel() { ShowBoubleWithTime = ShowBubbles };
 
         }
         #endregion
@@ -414,7 +411,6 @@ namespace WpfApp2.ViewModels
 
         SetProtolViewUC SetViewUC;
         TestViewUC TestUC;
-        HoleTsetViewUC holeTset;//整机测试
 
         private UserControl _ContentControl;
 
@@ -482,30 +478,10 @@ namespace WpfApp2.ViewModels
                         return;
                     }
                     //打开成功跳转测试界面
-                    if (SelectedValue == "选项4")
-                    {
-                        ContentControl = holeTset;
-                    }else
                     ContentControl = TestUC;
                     UC_Tga = true;
                 }
 
-            }
-        }
-
-        #endregion
-
-        #region 整机测试
-
-        private SendingCommandSettingsViewModel sendingCommandSettingsViewModel;
-
-        public SendingCommandSettingsViewModel SendingViewModel
-        {
-            get { return sendingCommandSettingsViewModel; }
-            set
-            {
-                sendingCommandSettingsViewModel = value;
-                this.RaiseProperChanged(nameof(SendingViewModel));
             }
         }
 
@@ -746,7 +722,7 @@ namespace WpfApp2.ViewModels
             bool finallySucceess = false;
             parametersSending = new BmsSystemParametersSending() { CommunicationVersion = 1001, LowPowerRelayStatus = 1, Reserved1RelayStatus = 1, Reserved2RelayStatus = 1, Reserved3RelayStatus = 1, DcSource1Current = 10, DcSource1Voltage = 5000, DcSource1Switch = 1, DcSource2Current = 100 }; //发送指令实体类初始化
             do
-            {             
+            {
                 //先开机，确保开机属性
                 BMS_Receive = SendPacked(parametersSending);
                 if (BMS_Receive == null)
@@ -756,14 +732,7 @@ namespace WpfApp2.ViewModels
                     IsRunning = false;
                     SwitchButtonVisible(true);
                     return;
-                    
                 }
-                if (SelectedValue == "选项4")
-                {
-                    flag = true;
-                    break;
-                }
-                    
                 if (BMS_Receive.DcSource1Switch == 1 && BMS_Receive.LowPowerRelayStatus == 1 && BMS_Receive.Reserved1RelayStatus == 1 && BMS_Receive.Reserved2RelayStatus == 1 && BMS_Receive.Reserved3RelayStatus == 1)
                 {
                     flag = true;
@@ -1548,158 +1517,6 @@ namespace WpfApp2.ViewModels
 
                     }
                     return interSuccess;
-                case "整机-BMS232通讯":
-                    AddLog("正在测试BMS232通讯");
-                    //进入测试模式1
-                    interSuccess = false;
-                    ERROR_COUNT = 0;
-                    interSuccess = EnterTestMode();
-
-                    if (interSuccess)
-                    {
-                        ERROR_COUNT = 0;
-                        //已进入测试模式
-                        do
-                        {
-                            interSuccess = Bms232CommunicationTset();//BMS232通讯
-                            Thread.Sleep(1000);
-                        } while (!interSuccess && ERROR_COUNT < 10);
-                        if (!interSuccess)
-                        {
-                            AddLog("BMS232通讯异常");
-                            return false;
-                        }
-                        //读取系统时间
-                        ReadTime();
-                        //读取出厂日期、软件版本、硬件版本
-                        flag = ReadThreeData();
-                        if (!flag)
-                        {
-                            LShowMessage("读取软件版本失败", "警告", MessageIcon.Warning);
-                            return false;
-                        }
-
-                        if (testData.TestSofterWare != testData.SoftwareVersion)
-                        {
-                            LShowMessage($"软件版本冲突，当前板子软件版本为：{testData.SoftwareVersion},测试软件版本为：{testData.TestSofterWare}", "警告", MessageIcon.Warning);
-                            return false;
-                        }
-                        //读取是否激活
-                        if (!WriteBeforeTest())
-                        {
-                            LShowMessage("当前BMS板未激活，请先激活", "警告", MessageIcon.Warning);
-                            return false;
-                        }
-                        //读取电芯电压
-                        if (ReadDianxinVoltage())
-                        {
-                            string result = testData.AnalyseDianxinVoltage();
-                            if (result != "")
-                            {
-                                AddLog($"电芯电压异常:{result}");
-                                LShowMessage($"电芯电压异常:{result}", "电芯电压异常", MessageIcon.Warning);
-                                return false;
-                            }
-                            return true;
-                        }
-                        else
-                            return false;
-
-                        //写入出厂日期
-                        //WriteProductDate(
-                       
-                    }
-                    else
-                    {
-                        //进入测试模式失败
-                        AddLog("进入测试模式异常");
-                       
-                        return false;
-                    }   
-                case "整机-CAN通讯":
-                    AddLog("正在测试CAN通讯");
-                    ERROR_COUNT = 0;
-                    //已进入测试模式
-                    do
-                    {
-                        ERROR_COUNT++;
-                        interSuccess = CanCommunicationTset();//CAN通讯
-                        Thread.Sleep(1000);
-                    } while (!interSuccess && ERROR_COUNT < 10);
-                    if (!interSuccess)
-                    {
-                        AddLog("CAN测试异常过多");
-                        LShowMessage("请确保拨码开关值为1", "ERROR", MessageIcon.Error);
-                        return false;
-                    }
-                    return true;
-                case "整机-BMS逆变器通讯":
-                    AddLog("正在测试BMS逆变器通讯");
-                    //进入测试模式1
-                    interSuccess = false;
-                    ERROR_COUNT = 0;
-                    interSuccess = EnterTestMode();
-
-                    if (interSuccess)
-                    {
-                        ERROR_COUNT = 0;
-                        //已进入测试模式
-                        do
-                        {
-                            ERROR_COUNT++;
-                            interSuccess = BmsInverterCommunicationTset();//BMS逆变器通讯
-                            Thread.Sleep(500);
-                        } while (!interSuccess && ERROR_COUNT < 10);
-                        if (!interSuccess)
-                        {
-                            AddLog("BMS逆变器通讯测试异常过多");
-                            LShowMessage("请确保拨码开关值为1", "ERROR", MessageIcon.Error);
-                            return false;
-                        }
-                        return true;
-                    }
-                    else
-                    {
-                        //进入测试模式失败
-                        AddLog("进入测试模式异常");
-                        LShowMessage("请确保拨码开关值为1", "ERROR", MessageIcon.Error);
-                        return false;
-                    }                  
-                case "整机-BMS并机通讯":
-                    AddLog("正在测试BMS并机通讯");
-                    //MessageResult boxResult = LShowMessage("准备测试BMS并机通讯，请把最左边的拨码打开，确保拨码值为1！", "测试暂停", MessageIcon.Information);
-
-                    //进入测试模式1
-                    interSuccess = false;
-                    ERROR_COUNT = 0;
-                    interSuccess = EnterTestMode();
-
-                    if (interSuccess)
-                    {
-                        ERROR_COUNT = 0;
-                        //已进入测试模式
-                        do
-                        {
-                            ERROR_COUNT++;
-                            interSuccess = BmsParallelCommunicationTset();//BMS并机通讯
-                            Thread.Sleep(1000);
-                        } while (!interSuccess && ERROR_COUNT < 10);
-                        if (!interSuccess)
-                        {
-                            AddLog("BMS并机通讯测试异常过多");
-                            AddLog("请确保拨码值为1");
-                            LShowMessage("请确保拨码开关值为1", "ERROR", MessageIcon.Error);
-                            return false;
-                        }
-                        return true;
-                    }
-                    else
-                    {
-                        LShowMessage("请确保拨码开关值为1", "ERROR", MessageIcon.Error);
-                        //进入测试模式失败
-                        AddLog("进入测试模式异常");
-                        return false;
-                    }
                 default:
                     return false;
             }

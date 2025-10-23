@@ -1,0 +1,9 @@
+﻿<ResourceDictionary xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+                    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+                    xmlns:s="clr-namespace:System;assembly=mscorlib">
+    <s:String x:Key="串口号">PortName:</s:String>
+    <s:String x:Key="波特率">BaudRate:</s:String>
+    <s:String x:Key="数据位">DataBits:</s:String>
+    <s:String x:Key="停止位">StopBits:</s:String>
+    <s:String x:Key="校验位">Parity:</s:String>
+</ResourceDictionary>

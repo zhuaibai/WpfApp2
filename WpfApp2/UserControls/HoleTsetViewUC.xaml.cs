@@ -20,9 +20,9 @@ namespace WpfApp2.UserControls
     /// <summary>
     /// TestViewUC.xaml 的交互逻辑
     /// </summary>
-    public partial class TestViewUC : UserControl
+    public partial class HoleTsetViewUC : UserControl
     {
-        public TestViewUC()
+        public HoleTsetViewUC()
         {
             InitializeComponent();
             

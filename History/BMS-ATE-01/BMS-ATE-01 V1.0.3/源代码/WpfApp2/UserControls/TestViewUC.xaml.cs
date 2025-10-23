@@ -82,6 +82,8 @@ namespace WpfApp2.UserControls
         #endregion
 
 
+
+
         #region 测试项自动滚动
 
         public void SetupScrolling2()

@@ -2,20 +2,21 @@
 using System.Collections.Generic;
 using System.IO.Ports;
 using System.Linq;
+using System.Reflection.Metadata;
 using System.Text;
+using System.Threading;
 using System.Threading.Tasks;
 using WpfApp2.Models;
-
 namespace WpfApp2.Tools
 {
-    public class SerialCommunicationService2
+    public  class  SerialCommunicationService
     {
-        //串口
+       //串口
         static SerialPort SerialPort { get; set; }
         //串口类
         static SerialPortSettings SerialPortModel { get; set; }
         //串口发送帧数
-        public static Action<int> AddSendFrame;
+        public static Action<int> AddSendFrame; 
         //串口接收帧数
         public static Action<int> AddReceiveFrame;
         //设置CRC抗干扰开关
@@ -27,14 +28,13 @@ namespace WpfApp2.Tools
         //校验抗干扰校验关闭
         private static int IsReceiveCRC_CLose = 0;
         // 异步竞争
-        private static SemaphoreSlim _semaphore = new SemaphoreSlim(1, 1);
+        private static SemaphoreSlim _semaphore = new SemaphoreSlim(1, 1); 
         //机器类型
         public static string _MachineType = "";
         public static string MachineType
         {
             get { return _MachineType; }
-            set
-            {
+            set {
                 if (value.Length >= 9)
                 {
                     value = value.Substring(0, 9);
@@ -44,12 +44,11 @@ namespace WpfApp2.Tools
                     else if (value == "(HPVINV04") _MachineType = "D";
                 }
                 else
-                    _MachineType = value;
-            }
+                _MachineType = value; }
         }
 
 
-
+       
         /// <summary>
         /// 初始化串口
         /// </summary>
@@ -97,7 +96,7 @@ namespace WpfApp2.Tools
                 }
                 catch (Exception ex)
                 {
-                    
+                   
                     return false;
                 }
                 return true;
@@ -109,7 +108,7 @@ namespace WpfApp2.Tools
         }
 
         /// <summary>
-        /// 打开串口(会关闭已打开的串口
+        /// 打开串口(会关闭原先打开着的串口
         /// </summary>
         /// <returns></returns>
         public static bool OpenCom()
@@ -118,13 +117,12 @@ namespace WpfApp2.Tools
             {
                 try
                 {
-
                     SerialPort.Open();
                     return true;
                 }
                 catch (Exception ex)
                 {
-                    throw new Exception("串口通讯二打开失败", ex);
+                    throw new Exception("串口通讯一打开失败", ex);
                     return false;
                 }
             }
@@ -138,7 +136,7 @@ namespace WpfApp2.Tools
                 }
                 catch (Exception ex)
                 {
-                    throw new Exception("串口通讯二打开失败",ex);
+                    throw new Exception("串口通讯一打开失败", ex);
                     return false;
                 }
             }
@@ -164,7 +162,7 @@ namespace WpfApp2.Tools
                     Receive_CRC_Check = false;
                 }
             }
-
+            
         }
 
         /// <summary>
@@ -172,7 +170,7 @@ namespace WpfApp2.Tools
         /// </summary>
         /// <param name="DestinationReceive"></param>
         /// <param name="ActualReceive"></param>
-        private static void ChangeCRCR_Receive(int DestinationReceive, int ActualReceive)
+        private static void ChangeCRCR_Receive(int DestinationReceive,int ActualReceive)
         {
             //第一种情况(已开启抗干扰但上位机不知道
             if (DestinationReceive < ActualReceive)
@@ -210,12 +208,12 @@ namespace WpfApp2.Tools
 
 
         /// <summary>
-        /// 发送指令
+        /// 发送指令(字符串)
         /// </summary>
         /// <param name="command">字符串指令</param>
         /// <param name="returnCount">返回字节数</param>
         /// <returns></returns>
-        public static string SendCommand(string command, int returnCount)
+        public static string SendCommand(string command ,int returnCount)
         {
             _semaphore.Wait();
             //在写命令之前先清空一下接受缓存
@@ -224,17 +222,23 @@ namespace WpfApp2.Tools
             //写命令
             byte[] Command = Encoding.ASCII.GetBytes(command);
             //接收帧数
-            int totalBytesRead = 0;
-            
+            int totalBytesRead =0;
+            //判断是否需要接收校验CRC
+            if(Receive_CRC_Check)
+            {
+                //添加两个校验字节
+                returnCount += 2;
+            }
             //收报文
             try
             {
                 SerialPort.Write(Command, 0, Command.Length);
-               
+                //添加发送帧数
+                AddSendFrame(Command.Length);
                 // 设置读取超时时间【1s】
                 SerialPort.ReadTimeout = 1000;
                 // 需要读取的字节数
-                int bytesToRead = returnCount;
+                int bytesToRead =  returnCount;
                 //读取输入缓冲区
                 byte[] buffer = new byte[bytesToRead];
                 totalBytesRead = 0;
@@ -244,6 +248,21 @@ namespace WpfApp2.Tools
                     int bytesRead = SerialPort.Read(buffer, totalBytesRead, bytesToRead - totalBytesRead);
                     totalBytesRead += bytesRead;
                 }
+
+                //增加接收返回帧数
+                AddReceiveFrame(totalBytesRead);
+
+                //对返回字节进行CRC校验
+                if (Receive_CRC_Check)
+                {
+                   bool CRC_Pass = CheckReceive_CRC(buffer);
+                    if (!CRC_Pass)
+                    {
+                        //CRC校验不通过
+                        return string.Empty;
+                    }
+                }
+
                 //获取返回转字符串
                 string DataBuffer = Encoding.ASCII.GetString(buffer);
                 return DataBuffer;
@@ -253,7 +272,7 @@ namespace WpfApp2.Tools
                 // 超时未
                 //MessageBox.Show("超时未收到ACK");
                 //增加接收返回帧数
-               
+                AddReceiveFrame(totalBytesRead);
                 return string.Empty;
             }
             finally
@@ -272,7 +291,7 @@ namespace WpfApp2.Tools
         {
             _semaphore.Wait();
             int totalBytesRead = 0;
-
+            
             //收报文
             try
             {
@@ -283,7 +302,7 @@ namespace WpfApp2.Tools
                 byte[] Command = command;
                 SerialPort.Write(Command, 0, Command.Length);
                 //添加发送帧数
-                //AddSendFrame(Command.Length);
+                AddSendFrame(Command.Length);
                 // 设置读取超时时间【1s】
                 SerialPort.ReadTimeout = 1000;
                 // 需要读取的字节数
@@ -298,10 +317,9 @@ namespace WpfApp2.Tools
                     totalBytesRead += bytesRead;
                 }
                 //增加接收返回帧数
-                //AddReceiveFrame(totalBytesRead);
+                AddReceiveFrame(totalBytesRead);
                 //获取返回转字符串
                 string DataBuffer = Encoding.ASCII.GetString(buffer);
-                if(totalBytesRead == 191) { return "ACK"; };
                 return DataBuffer;
             }
             catch (TimeoutException ex)
@@ -309,12 +327,11 @@ namespace WpfApp2.Tools
                 // 超时未
                 //MessageBox.Show("超时未收到ACK");
                 //增加接收返回帧数
-                //AddReceiveFrame(totalBytesRead);
+                AddReceiveFrame(totalBytesRead);
                 return string.Empty;
             }
             catch (Exception ex)
             {
-                
                 return string.Empty;
             }
             finally
@@ -331,14 +348,14 @@ namespace WpfApp2.Tools
         /// <param name="frontCommand"></param>
         /// <param name="setValue"></param>
         /// <returns></returns>
-        public static string SendSettingCommand(string frontCommand, string setValue)
+        public static string SendSettingCommand(string frontCommand,string setValue)
         {
             //指令与设置值结合
             string Command = frontCommand + setValue;
             //转成字节
             byte[] bytes = Encoding.ASCII.GetBytes(Command);
             //获取CRC校验字节
-            byte[] CRC = getCRC16(bytes);
+            byte[] CRC = getCRC(bytes);
             //拼接
             byte[] buffer = bytes.Concat(CRC).ToArray();
             //末尾的字节
@@ -346,7 +363,7 @@ namespace WpfApp2.Tools
             //完成指令
             byte[] sendCommand = buffer.Concat(endCommand).ToArray();
             //发送指令
-            string receive = SendCommand(sendCommand, 7);
+            string receive = SendCommand(sendCommand,7);
             return receive;
         }
 
@@ -356,7 +373,7 @@ namespace WpfApp2.Tools
         /// <param name="command">测试指令(字节数组)</param>
         /// <param name="returnCount">返回字节长度</param>
         /// <returns>提取的数据(或异常字节编码)</returns>
-        public static byte[] SendTestCommand(byte[] command, int returnCount)
+        public static byte[] SendTestCommand(byte[] command,int returnCount)
         {
             _semaphore.Wait();
             int totalBytesRead = 0;
@@ -369,8 +386,8 @@ namespace WpfApp2.Tools
                 SerialPort.WriteTimeout = 1000;
                 //写命令
                 byte[] Command = command;
-                SerialPort.Write(Command, 0, Command.Length);
-
+                SerialPort.Write(Command, 0, command.Length);
+                
                 // 设置读取超时时间【1s】
                 SerialPort.ReadTimeout = 1000;
                 // 需要读取的字节数
@@ -390,33 +407,23 @@ namespace WpfApp2.Tools
 
                 if (CRC_CHECK)
                 {
-                    byte[] bms = new byte[2];
-                    if (returnCount == 8)
-                    {
-                         bms = new byte[returnCount - 6];
-                        Array.Copy(buffer, 4, bms, 0, returnCount - 6);
-                    }
-                    else if(returnCount == 7)
-                    {
-                        bms = new byte[returnCount - 5];
-                        Array.Copy(buffer, 3, bms, 0, returnCount - 5);
-                    }
-                    
+                    byte[] bms = new byte[returnCount-5];
+                    Array.Copy(buffer, 3, bms, 0, returnCount-5);
                     return bms;
                 }
                 else
                 {
-                    return new byte[] { 0x01 };//CRC校验不通过
+                    return new byte[] {0x01};//CRC校验不通过
                 }
 
-
+                
             }
             catch (TimeoutException ex)
             {
                 // 超时未
                 //MessageBox.Show("超时未收到ACK");
-
-                return new byte[] { 0x02 };//超时
+                
+                return new byte[] {0x02};//超时
             }
             catch (Exception ex)
             {
@@ -429,101 +436,7 @@ namespace WpfApp2.Tools
         }
 
         /// <summary>
-        /// 发送测试指令
-        /// </summary>
-        /// <param name="command">测试指令(字节数组)</param>
-        /// <param name="returnCount">返回字节长度</param>
-        /// <returns>返回的数据(或异常字节编码)</returns>
-        public static byte[] SendTestCommand2(byte[] command, int returnCount)
-        {
-            _semaphore.Wait();
-            int totalBytesRead = 0;
-
-            //收报文
-            try
-            {
-                //在写命令之前先清空一下接受缓存
-                SerialPort.DiscardInBuffer();
-                SerialPort.WriteTimeout = 1000;
-                //写命令
-                byte[] Command = command;
-                SerialPort.Write(Command, 0, Command.Length);
-
-                // 设置读取超时时间【1s】
-                SerialPort.ReadTimeout = 1000;
-                // 需要读取的字节数
-                int bytesToRead = returnCount;
-                //读取输入缓冲区
-                byte[] buffer = new byte[bytesToRead];
-                totalBytesRead = 0;
-                //设置读取超时，1s内达不到所需字节就触发超时异常
-                while (totalBytesRead < bytesToRead)
-                {
-                    int bytesRead = SerialPort.Read(buffer, totalBytesRead, bytesToRead - totalBytesRead);
-                    totalBytesRead += bytesRead;
-                }
-
-                //进行CRC校验
-                bool CRC_CHECK = CheckReceive_CRC16(buffer);
-
-                if (CRC_CHECK)
-                {
-                    
-                    return buffer;
-                }
-                else
-                {
-                    return new byte[] { 0x01 };//CRC校验不通过
-                }
-
-
-            }
-            catch (TimeoutException ex)
-            {
-                // 超时未
-                //MessageBox.Show("超时未收到ACK");
-
-                return new byte[] { 0x02 };//超时
-            }
-            catch (Exception ex)
-            {
-                return Array.Empty<byte>();
-            }
-            finally
-            {
-                _semaphore.Release();
-            }
-        }
-
-        /// <summary>
-        /// CRC校验(无后缀)
-        /// </summary>
-        /// <param name="bytes"></param>
-        /// <returns></returns>
-        private static bool CheckReceive_CRC16(byte[] bytes)
-        {
-            if (bytes == null) return false;
-            int CRC_length = bytes.Length - 2;
-            // 创建新的字节数组进行 CRC 校验
-            byte[] buffer = new byte[CRC_length];
-            byte[] CRC_Receuve = new byte[2];
-
-            // 复制除 CRC 校验码外的数据到 buffer 数组
-            Array.Copy(bytes, 0, buffer, 0, CRC_length);
-
-            // 从 bytes 数组中提取接收到的 CRC 校验码到 CRC_Receuve 数组
-            Array.Copy(bytes, CRC_length, CRC_Receuve, 0, 2);
-
-            // 获取 CRC 校验码
-            byte[] CRC_Build = getCRC16(buffer);
-
-            // 判断两个校验码是否一致
-            bool isEqual = CRC_Build.SequenceEqual(CRC_Receuve);
-            return isEqual;
-        }
-
-        /// <summary>
-        /// CRC校验
+        /// CRC校验(有后缀\r)
         /// </summary>
         /// <param name="bytes"></param>
         /// <returns></returns>
@@ -555,13 +468,40 @@ namespace WpfApp2.Tools
             Array.Copy(bytes, CRC_length, CRC_Receuve, 0, 2);
 
             // 获取 CRC 校验码
-            byte[] CRC_Build = getCRC(buffer);
+            byte[] CRC_Build = getCRC16(buffer);
 
             // 判断两个校验码是否一致
             bool isEqual = CRC_Build.SequenceEqual(CRC_Receuve);
             return isEqual;
         }
 
+
+        /// <summary>
+        /// CRC校验(无后缀)
+        /// </summary>
+        /// <param name="bytes"></param>
+        /// <returns></returns>
+        private static bool CheckReceive_CRC16(byte[] bytes)
+        {
+            if (bytes == null) return false;
+            int CRC_length = bytes.Length - 2;
+            // 创建新的字节数组进行 CRC 校验
+            byte[] buffer = new byte[CRC_length];
+            byte[] CRC_Receuve = new byte[2];
+
+            // 复制除 CRC 校验码外的数据到 buffer 数组
+            Array.Copy(bytes, 0, buffer, 0, CRC_length);
+
+            // 从 bytes 数组中提取接收到的 CRC 校验码到 CRC_Receuve 数组
+            Array.Copy(bytes, CRC_length, CRC_Receuve, 0, 2);
+
+            // 获取 CRC 校验码
+            byte[] CRC_Build = getCRC16(buffer);
+
+            // 判断两个校验码是否一致
+            bool isEqual = CRC_Build.SequenceEqual(CRC_Receuve);
+            return isEqual;
+        }
 
 
         #region CRC校验
@@ -587,19 +527,6 @@ namespace WpfApp2.Tools
             return checkSumResult;
         }
 
-        /// <summary>
-        /// 获取CRC16校验码(查表)
-        /// </summary>
-        /// <param name="data"></param>
-        /// <returns></returns>
-        public static byte[] getCRC16(byte[] data)
-        {
-            int value = RTU_CalCRC16(data, data.Length);
-            byte[] CRC = new byte[2];
-            CRC[1] = U16_MSB(value);//获取高位校验码
-            CRC[0] = U16_LSB(value);//获取地位校验码
-            return CRC;
-        }
 
         /// <summary>
         /// 获取CRC校验码
@@ -614,6 +541,22 @@ namespace WpfApp2.Tools
             CRC[1] = U16_LSB(value);//获取地位校验码
             return CRC;
         }
+
+        /// <summary>
+        /// 获取CRC16校验码(查表)
+        /// </summary>
+        /// <param name="data"></param>
+        /// <returns></returns>
+        public static byte[] getCRC16(byte[] data) 
+        {
+            int value = RTU_CalCRC16(data,data.Length);
+            byte[] CRC = new byte[2];
+            CRC[1] = U16_MSB(value);//获取高位校验码
+            CRC[0] = U16_LSB(value);//获取地位校验码
+            return CRC;
+        }
+
+
         //RTU_CRC
         static int RTU_CalCRC16(byte[] pucFrame, int usDataLen)
         {
@@ -845,4 +788,3 @@ namespace WpfApp2.Tools
         #endregion
     }
 }
-
