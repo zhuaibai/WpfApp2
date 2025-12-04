@@ -48,8 +48,6 @@ namespace WpfApp2.Tools
             }
         }
 
-
-
         /// <summary>
         /// 初始化串口
         /// </summary>
@@ -81,7 +79,6 @@ namespace WpfApp2.Tools
         {
             return SerialPort.PortName;
         }
-
 
         /// <summary>
         /// 关闭串口
@@ -144,7 +141,6 @@ namespace WpfApp2.Tools
             }
         }
 
-
         /// <summary>
         /// 打开或者关闭接收校验
         /// </summary>
@@ -206,8 +202,6 @@ namespace WpfApp2.Tools
             }
 
         }
-
-
 
         /// <summary>
         /// 发送指令
@@ -322,8 +316,6 @@ namespace WpfApp2.Tools
                 _semaphore.Release();
             }
         }
-
-
 
         /// <summary>
         /// 发送设置指令

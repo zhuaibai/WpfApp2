@@ -339,7 +339,7 @@
             Margin="5"
             Background="#1118aabd"
             CornerRadius="10" />
-        <!-- 给ListView设置宽度的-->
+        <!--  给ListView设置宽度的  -->
         <Grid
             Grid.Row="1"
             Grid.Column="2"

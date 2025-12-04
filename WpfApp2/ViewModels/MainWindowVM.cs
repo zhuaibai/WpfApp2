@@ -133,9 +133,7 @@ namespace WpfApp2.ViewModels
             }
         }
 
-
-
-        //测试机器
+        //测试机器(详情)
         private MachineType _testMachine;
         public MachineType testMachine
         {
@@ -284,7 +282,6 @@ namespace WpfApp2.ViewModels
         {
             //加载新的数据表
             _service = new TestItemService(table);
-
 
             // 初始化数据库表
             _service.CreateTable();
@@ -610,7 +607,7 @@ namespace WpfApp2.ViewModels
         private CancellationTokenSource _cts = new CancellationTokenSource();//取消线程专用
         private ManualResetEventSlim _pauseEvent = new ManualResetEventSlim(true);//暂停线程专用
         private readonly SemaphoreSlim _semaphore = new SemaphoreSlim(1, 1); // 异步竞争	                                 
-        private BmsSystemParametersSending parametersSending = new BmsSystemParametersSending() { CommunicationVersion = 1001, LowPowerRelayStatus = 1, Reserved1RelayStatus = 1, Reserved2RelayStatus = 1, Reserved3RelayStatus = 1, DcSource1Current = 100, DcSource1Voltage = 5000, DcSource1Switch = 1, DcSource2Current = 100 };
+        private BmsSystemParametersSending parametersSending = new BmsSystemParametersSending() { CommunicationVersion = 1001};
         //
         #region 开始、停止按钮的互相切换
         private Visibility _visibility = Visibility.Visible;
@@ -744,10 +741,57 @@ namespace WpfApp2.ViewModels
             int i = 0;//计数
             bool flag = false;//测试成功与否
             bool finallySucceess = false;
-            parametersSending = new BmsSystemParametersSending() { CommunicationVersion = 1001, LowPowerRelayStatus = 1, Reserved1RelayStatus = 1, Reserved2RelayStatus = 1, Reserved3RelayStatus = 1, DcSource1Current = 10, DcSource1Voltage = 5000, DcSource1Switch = 1, DcSource2Current = 100 }; //发送指令实体类初始化
+            parametersSending = new BmsSystemParametersSending() { CommunicationVersion = 1001,  DcSource1Current = 100, DcSource1Switch = 0, DcSource2Current = 100 }; //发送指令实体类初始化
             do
-            {             
+            {
+                int passVoltage = 0;
+                parametersSending.TestMode = 0;
+                if (testMachine.BatVol == "24")
+                {
+                    parametersSending.DcSource1Voltage = 2500;
+                    passVoltage = 250;
+                }else if(testMachine.BatVol == "48")
+                {
+                    parametersSending.DcSource1Voltage = 5000;
+                    passVoltage = 500;
+                }
+                int voltage = 0;
+                int successCount = 0;
+                do
+                {
+                    BMS_Receive = SendPacked(parametersSending);
+                    if (BMS_Receive == null)
+                    {
+                        AddLog($"上位机通讯返回异常,请检查串口是否连接正确");
+                        LShowMessage("上位机通讯返回异常,请检查串口是否连接正确", "异常", MessageIcon.Error);
+                        IsRunning = false;
+                        SwitchButtonVisible(true);
+                        return;
+
+                    }
+                    AddLog($"设置源{parametersSending.DcSource1Voltage} ;源1电压{BMS_Receive.DcSource1Voltage}");
+                    Thread.Sleep(1000);
+                    BMS_Receive = SendPacked(parametersSending);
+                    voltage++;
+                    if(Math.Abs(BMS_Receive.DcSource1Voltage - passVoltage) < 50)
+                    {
+                        successCount++;
+                    }
+                    parametersSending.DcSource1Switch = 1;
+                } while (voltage < 30 && successCount<3);
+                if (successCount < 3)
+                {
+                    AddLog($"源1电压达不到开机要求");
+                    LShowMessage("请检查源1是否连接正确", "异常", MessageIcon.Error);
+                    IsRunning = false;
+                    SwitchButtonVisible(true);
+                    return;
+                }
+                 parametersSending.Reserved1RelayStatus = 1; parametersSending.Reserved2RelayStatus = 1;parametersSending.Reserved3RelayStatus = 1;
                 //先开机，确保开机属性
+                BMS_Receive = SendPacked(parametersSending);
+                Thread.Sleep(1000);
+                parametersSending.LowPowerRelayStatus = 1;
                 BMS_Receive = SendPacked(parametersSending);
                 if (BMS_Receive == null)
                 {
@@ -762,8 +806,7 @@ namespace WpfApp2.ViewModels
                 {
                     flag = true;
                     break;
-                }
-                    
+                }               
                 if (BMS_Receive.DcSource1Switch == 1 && BMS_Receive.LowPowerRelayStatus == 1 && BMS_Receive.Reserved1RelayStatus == 1 && BMS_Receive.Reserved2RelayStatus == 1 && BMS_Receive.Reserved3RelayStatus == 1)
                 {
                     flag = true;
@@ -893,7 +936,8 @@ namespace WpfApp2.ViewModels
                     bool interSuccess = false;
                     int ERROR_COUNT = 0;
                     interSuccess = EnterTestMode();
-
+                    BMS_Receive = SendPacked(parametersSending);
+                    AddLog($"设置源{parametersSending.DcSource1Voltage} ;源1电压{BMS_Receive.DcSource1Voltage}");
                     if (interSuccess)
                     {
                         ERROR_COUNT = 0;
@@ -920,9 +964,12 @@ namespace WpfApp2.ViewModels
                     }
                 case "重置参数":
                     //重置参数
+                    BMS_Receive = SendPacked(parametersSending);
                     bool reset = ResetBeforeTest();
                     return reset;
                 case "激活状态":
+                    BMS_Receive = SendPacked(parametersSending);
+                    AddLog($"设置源{parametersSending.DcSource1Voltage} ;源1电压{BMS_Receive.DcSource1Voltage}");
                     //读取是否激活
                     if (!WriteBeforeTest())
                     {
@@ -933,6 +980,8 @@ namespace WpfApp2.ViewModels
                         return true;
                 case "系统时间":
                     //读取系统时间
+                    BMS_Receive = SendPacked(parametersSending);
+                    AddLog($"设置源{parametersSending.DcSource1Voltage} ;源1电压{BMS_Receive.DcSource1Voltage}");
                     ReadTime();
                     //写入系统时间
                     bool writeSuccess = WriteTimeAfterTest();
@@ -950,10 +999,10 @@ namespace WpfApp2.ViewModels
                         LShowMessage($"写入剩余容量30%失败", "警告", MessageIcon.Warning);
                         return false;
                     }
-
-
                     return true;
                 case "软件版本":
+                    BMS_Receive = SendPacked(parametersSending);
+                    AddLog($"设置源{parametersSending.DcSource1Voltage} ;源1电压{BMS_Receive.DcSource1Voltage}");
                     //读取出厂日期、软件版本、硬件版本
                     bool flag = ReadThreeData();
                     if (!flag)
@@ -973,7 +1022,7 @@ namespace WpfApp2.ViewModels
                     //读取电芯电压
                     if (ReadDianxinVoltage())
                     {
-                        string result = testData.AnalyseDianxinVoltage();
+                        string result = testData.AnalyseDianxinVoltage(testMachine.BatVol);
                         if (result != "")
                         {
                             AddLog($"电芯电压异常:{result}");
@@ -1035,7 +1084,6 @@ namespace WpfApp2.ViewModels
                 case "BMS并机通讯":
                     AddLog("正在测试BMS并机通讯");
                     //MessageResult boxResult = LShowMessage("准备测试BMS并机通讯，请把最左边的拨码打开，确保拨码值为1！", "测试暂停", MessageIcon.Information);
-
                     //进入测试模式1
                     interSuccess = false;
                     ERROR_COUNT = 0;
@@ -1593,7 +1641,7 @@ namespace WpfApp2.ViewModels
                         //读取电芯电压
                         if (ReadDianxinVoltage())
                         {
-                            string result = testData.AnalyseDianxinVoltage();
+                            string result = testData.AnalyseDianxinVoltage(testMachine.BatVol);
                             if (result != "")
                             {
                                 AddLog($"电芯电压异常:{result}");
@@ -1703,7 +1751,6 @@ namespace WpfApp2.ViewModels
                 default:
                     return false;
             }
-
         }
 
 
@@ -2933,10 +2980,18 @@ namespace WpfApp2.ViewModels
 
             //第四步 设置dc1和dc2的电流电压
             parametersSending.DcSource1Current = 4000;//(50A)
-            parametersSending.DcSource1Voltage = 5000;//(50V)
-
-            parametersSending.DcSource2Current = 4000;//(50A)
-            parametersSending.DcSource2Voltage = 5200;//(52V)
+            if (testMachine.BatVol == "24")
+            {
+                parametersSending.DcSource1Voltage = 2500;//(25V)
+                parametersSending.DcSource2Voltage = 2700;//(27V)
+            }
+            else if (testMachine.BatVol == "48")
+            {
+                parametersSending.DcSource1Voltage = 5000;//(50V)
+                parametersSending.DcSource2Voltage = 5200;//(52V)
+            }
+            parametersSending.DcSource2Current = 4000;//(40A)
+            
 
             //第五步 dc源1/2开
             failCount = 0;
@@ -3234,6 +3289,9 @@ namespace WpfApp2.ViewModels
                 }
                 Thread.Sleep(1000);
             } while (!succeed);
+
+            //测试成功清除历史记录
+            ClearHistoryAfterTest();
 
             return true;
         }
@@ -4556,6 +4614,49 @@ namespace WpfApp2.ViewModels
                 return false;
             }
             AddLog("重置参数成功");
+            return true;
+        }
+
+        /// <summary>
+        /// 清除历史记录
+        /// </summary>
+        /// <returns></returns>
+        private bool ClearHistoryAfterTest()
+        {
+            //写入参数
+            bool interSuccess = false;
+            int ERROR_COUNT = 0;
+            AddLog("正在清除历史记录");
+            //重置参数
+            //发 01 20 00 02 00 01 e0 0d
+            do
+            {
+                ERROR_COUNT++;
+                byte[] receive = SerialCommunicationService2.SendTestCommand2(new byte[] { 0x01, 0x20, 0x00, 0x03, 0x00, 0x01, 0xB1, 0xCD }, 8);
+                if (receive.Length == 0)
+                {
+                    AddLog("重置参数：指令返回异常");
+                }
+                else if (receive.Length == 1 && receive[0] == 1)
+                {
+                    AddLog("重置参数：返回校验码不合");
+                }
+                else if ((receive[0] == 2))
+                {
+                    AddLog("重置参数：返回超时");
+                }
+                if (receive.Length == 8)
+                    interSuccess = true;
+                //interSuccess = InterTestMode(1);
+                Thread.Sleep(200);
+            } while (!interSuccess && ERROR_COUNT < 10);//最多发十次
+
+            if (!interSuccess)
+            {
+                AddLog("清除历史记录失败");
+                return false;
+            }
+            AddLog("清除历史记录成功");
             return true;
         }
 
@@ -6425,9 +6526,19 @@ namespace WpfApp2.ViewModels
 
         private void OnShowMessage()
         {
-            parametersSending = new BmsSystemParametersSending() { CommunicationVersion = 1001, LowPowerRelayStatus = 1, Reserved1RelayStatus = 1, Reserved2RelayStatus = 1, Reserved3RelayStatus = 1, DcSource1Current = 10, DcSource1Voltage = 5000, DcSource1Switch = 1, DcSource2Current = 100 }; //发送指令实体类初始化
+            
+            parametersSending = new BmsSystemParametersSending() { CommunicationVersion = 1001, LowPowerRelayStatus = 1, Reserved1RelayStatus = 1, Reserved2RelayStatus = 1, Reserved3RelayStatus = 1, DcSource1Current = 10, DcSource1Switch = 1, DcSource2Current = 100 }; //发送指令实体类初始化
 
+            if (testMachine.BatVol == "24")
+            {
+                parametersSending.DcSource1Voltage = 2500;
 
+            }
+            else if (testMachine.BatVol == "48")
+            {
+                parametersSending.DcSource1Voltage = 5000;
+
+            }
             BMS_Receive = SendPacked(parametersSending);
             if (BMS_Receive == null)
             {
@@ -6476,8 +6587,6 @@ namespace WpfApp2.ViewModels
             return result;
 
         }
-
-
 
         /// <summary>
         /// 文本输入消息框

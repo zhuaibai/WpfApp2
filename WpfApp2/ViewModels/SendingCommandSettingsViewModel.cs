@@ -30,9 +30,6 @@ namespace WpfApp2.ViewModels
         {
             PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
         }
-
-
-
         public SendingCommandSettingsViewModel()
         {
             SendingCommands = LoadSettings();
@@ -46,8 +43,6 @@ namespace WpfApp2.ViewModels
             //初始化串口
             SerialPort1 = new SerialPortSettingViewModel();
         }
-
-
 
         #region 功能方法
         //配置文件信息
@@ -203,7 +198,7 @@ namespace WpfApp2.ViewModels
                     SelectedMachineItem = wrapper.machineName;
 
                     // 6. 直接保存
-                    SaveSettings(this);
+                    //SaveSettings(this);
 
                     return (ObservableCollection<SendingCommand>)serializer.Deserialize(dataStream);
                 }

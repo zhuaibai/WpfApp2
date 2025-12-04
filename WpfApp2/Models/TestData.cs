@@ -369,10 +369,19 @@ namespace WpfApp2.Models
         /// <summary>
         /// 分析各个电芯电压是否合格
         /// </summary>
-        public string AnalyseDianxinVoltage()
+        public string AnalyseDianxinVoltage(string Count)
         {
+            int count = 0;
+            if (Count == "24")
+            {
+                count = 8;
+            }
+            else if (Count == "48")
+            {
+                count = 16;
+            }
             string result = "";
-            for (int i = 0; i < 16; i++)
+            for (int i = 0; i < count; i++)
             {
                 if (DianxinVoltage[i] >= 2750 && DianxinVoltage[i] <= 3600)
                 {
