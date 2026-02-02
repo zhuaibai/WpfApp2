@@ -129,6 +129,20 @@ namespace WpfApp2.Models
             }
         }
 
+        // 环境温度
+        private float _En_Temp;
+
+        public float En_Temp
+        {
+            get { return _En_Temp; }
+            set
+            {
+                _En_Temp = value;
+                this.RaiseProperChanged(nameof(En_Temp));
+            }
+        }
+
+
         // 首次标准充电电流
         private ushort _ChargeCom1Current;
         public ushort ChargeCom1Current
@@ -369,17 +383,22 @@ namespace WpfApp2.Models
         /// <summary>
         /// 分析各个电芯电压是否合格
         /// </summary>
-        public string AnalyseDianxinVoltage(string Count)
+        public string AnalyseDianxinVoltage(MachineType machine)
         {
             int count = 0;
-            if (Count == "24")
+            if (machine.BatVol == "24")
             {
                 count = 8;
             }
-            else if (Count == "48")
+            else if (machine.BatVol == "48")
             {
                 count = 16;
             }
+            if(machine.MachineName == "机型二")
+            {
+                count = 4;
+            }
+            
             string result = "";
             for (int i = 0; i < count; i++)
             {

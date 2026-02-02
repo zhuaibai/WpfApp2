@@ -488,6 +488,60 @@ namespace WpfApp2.Tools
         }
 
         /// <summary>
+        /// 生成 Modbus 功能码 20 的发送帧
+        /// </summary>
+        /// <param name="slaveAddr">从站地址</param>
+        /// <param name="startAddr">功能选项</param>
+        /// <param name="regCount">历史记录</param>
+        /// <returns>完整的 Modbus RTU 帧（含 CRC）</returns>
+        public static byte[] BuildRead20Frame(byte slaveAddr, ushort startAddr, ushort regCount)
+        {
+            List<byte> frame = new List<byte>();
+
+            frame.Add(slaveAddr);                // 从站地址
+            frame.Add(0x20);                     // 功能码 03
+            frame.Add((byte)(startAddr >> 8));   // 起始地址高字节
+            frame.Add((byte)(startAddr & 0xFF)); // 起始地址低字节
+            frame.Add((byte)(regCount >> 8));    // 寄存器数量高字节
+            frame.Add((byte)(regCount & 0xFF));  // 寄存器数量低字节
+
+            // 计算 CRC
+            ushort crc = CRC16(frame.ToArray(), frame.Count);
+            frame.Add((byte)(crc & 0xFF));       // CRC 低字节
+            frame.Add((byte)(crc >> 8));
+            // CRC 高字节
+
+            return frame.ToArray();
+        }
+
+
+        /// <summary>
+        /// 生成 Modbus RTU 0x06 写单个寄存器指令
+        /// </summary>
+        /// <param name="devAddr">设备地址</param>
+        /// <param name="regAddr">寄存器地址</param>
+        /// <param name="value">写入值(int)</param>
+        /// <returns>Modbus数据帧</returns>
+        public static byte[] BuildWriteSingleRegisterFrame(byte devAddr, ushort regAddr, int value)
+        {
+            List<byte> frame = new List<byte>();
+
+            frame.Add(devAddr);                // 设备地址
+            frame.Add(0x06);                   // 功能码 06
+            frame.Add((byte)(regAddr >> 8));   // 寄存器高位
+            frame.Add((byte)(regAddr & 0xFF));// 寄存器低位
+
+            frame.Add((byte)(value & 0xFF));   // 数据低位
+            frame.Add((byte)(value >> 8));     // 数据高位
+
+            ushort crc = CRC16(frame.ToArray(), frame.Count);
+            frame.Add((byte)(crc & 0xFF));     // CRC低字节
+            frame.Add((byte)(crc >> 8));       // CRC高字节
+
+            return frame.ToArray();
+        }
+
+        /// <summary>
         /// CRC校验(无后缀)
         /// </summary>
         /// <param name="bytes"></param>
@@ -559,6 +613,28 @@ namespace WpfApp2.Tools
         #region CRC校验
 
         /**************************************校验*************************************************************/
+
+        /// <summary>
+        /// Modbus CRC16 计算（多项式 0xA001）
+        /// </summary>
+        private static ushort CRC16(byte[] data, int length)
+        {
+            ushort crc = 0xFFFF;
+
+            for (int i = 0; i < length; i++)
+            {
+                crc ^= data[i];
+                for (int j = 0; j < 8; j++)
+                {
+                    if ((crc & 0x0001) != 0)
+                        crc = (ushort)((crc >> 1) ^ 0xA001);
+                    else
+                        crc >>= 1;
+                }
+            }
+
+            return crc;
+        }
         /// <summary>
         /// 校验和
         /// </summary>
