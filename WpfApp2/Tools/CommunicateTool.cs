@@ -17,6 +17,7 @@ namespace WpfApp2.Tools
         {
             // 计算所有数组的总长度
             int totalLength = 0;
+            // 遍历传入的每个字节数组，累加它们的长度
             foreach (var array in arrays)
             {
                 if (array == null)

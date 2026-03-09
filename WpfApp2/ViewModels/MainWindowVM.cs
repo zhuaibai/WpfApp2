@@ -421,10 +421,6 @@ namespace WpfApp2.ViewModels
                 AddLog($"写入日志文件时出错: {ex.Message}");
             }
         }
-
-
-
-
         #endregion
 
         #region 主体界面
@@ -977,7 +973,7 @@ namespace WpfApp2.ViewModels
                         //已进入测试模式
                         do
                         {
-                            interSuccess = Bms232CommunicationTset();//BMS232通讯
+                            interSuccess = Bms232CommunicationTest();//BMS232通讯
                             Thread.Sleep(1000);
                         } while (!interSuccess && ERROR_COUNT < 10);
                         if (!interSuccess)
@@ -1642,7 +1638,7 @@ namespace WpfApp2.ViewModels
                         //已进入测试模式
                         do
                         {
-                            interSuccess = Bms232CommunicationTset();//BMS232通讯
+                            interSuccess = Bms232CommunicationTest();//BMS232通讯
                             Thread.Sleep(1000);
                         } while (!interSuccess && ERROR_COUNT < 10);
                         if (!interSuccess)
@@ -1876,7 +1872,7 @@ namespace WpfApp2.ViewModels
         /// BMS232通讯
         /// </summary>
         /// <returns></returns>
-        private bool Bms232CommunicationTset()
+        private bool Bms232CommunicationTest()
         {
             ////测试模式置1
             //parametersSending.TestMode = 1;
@@ -1890,36 +1886,45 @@ namespace WpfApp2.ViewModels
 
             ////解析
             //BmsSystemparametersReceive bms = AnalyseBmsReceive(result);
-
-            //测试模式置           
-            parametersSending.TestMode = 1;
-            parametersSending.Bms232Communication = 1;
-
-            //拼接报文                                                               
-            byte[] sengdingPack = CommunicateTool.ConcatByteArrays(Head, parametersSending.ToByteArray());                    //帧头 + 数据
-            sengdingPack = CommunicateTool.ConcatByteArrays(sengdingPack, SerialCommunicationService.getCRC16(sengdingPack)); //帧头 + 数据 + CRC校验码 
-
-            //发送字符串
-            byte[] result = SerialCommunicationService.SendTestCommand(sengdingPack, 77);
-
-            return true;
-            //解析成帧对象
-            BMS_Receive = AnalyseBmsReceive(result);
-
-            //判断
-            if (BMS_Receive == null)
+            try
             {
+                //设置测试模式和相关参数           
+                parametersSending.TestMode = 1;
+                parametersSending.Bms232Communication = 1;
+
+                //拼接发送报文：帧头 + 数据 + CRC校验码
+                //帧头 + 数据
+                byte[] sengdingPack = CommunicateTool.ConcatByteArrays(Head, parametersSending.ToByteArray());
+                //帧头 + 数据 + CRC校验码 
+                sengdingPack = CommunicateTool.ConcatByteArrays(sengdingPack, SerialCommunicationService.getCRC16(sengdingPack)); 
+
+                //发送命令字符串
+                byte[] result = SerialCommunicationService.SendTestCommand(sengdingPack, 77);
+
+                // 检查响应是否为空
+                if (result == null || result.Length == 0)
+                {
+                    return false;
+                }
+
+                // 解析接收到的响应数据
+                BMS_Receive = AnalyseBmsReceive(result);
+
+                // 判断解析结果和通信状态
+                if (BMS_Receive != null && BMS_Receive.Bms232Communication == 1)
+                {
+                    return true;    // 通信正常
+                }
+
+                return false;       // 通信异常
+            }
+            catch (Exception ex)
+            {
+                // 异常处理，记录日志等
+                Console.WriteLine($"BMS通信测试异常: {ex.Message}");
                 return false;
             }
-            else
-            {
-                //判断BMS232通讯是否正常
-                if (BMS_Receive.Bms232Communication == 1)
-                {
-                    return true;
-                }
-            }
-            return false;
+           
         }
 
         /// <summary>
