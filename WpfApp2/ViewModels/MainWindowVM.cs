@@ -531,7 +531,7 @@ namespace WpfApp2.ViewModels
         #region 串口工具
 
 
-
+ 
         /// <summary>
         /// 更新串口通讯配置
         /// </summary>
@@ -544,7 +544,7 @@ namespace WpfApp2.ViewModels
             //重新加载配置
             SerialPort1.LoadSettings();
             SerialPort2.LoadSettings();
-
+           
         }
 
         /// <summary>
@@ -741,7 +741,7 @@ namespace WpfApp2.ViewModels
         /// <summary>
         /// 停止后台通信
         /// </summary>
-        private void StopBackgroundThread()
+        private void  StopBackgroundThread()
         {
             _cts.Cancel();
             AddLog("后台通信停止请求已发送");
@@ -2346,6 +2346,7 @@ namespace WpfApp2.ViewModels
             } while (!succeed);
 
             Thread.Sleep(3000);
+
             //先设置电流为5A，
             failCount = 0;
             succeed = false;
@@ -5521,16 +5522,11 @@ namespace WpfApp2.ViewModels
             };
             byte[] adj;
             byte[] sendPack;
-            if (testMachine.MachineName == "机型二")
-            {
-                adj = CommunicateTool.ConcatByteArrays(command, ByteConverter.NumberToBytes(value));
-                sendPack = CommunicateTool.ConcatByteArrays(adj, SerialCommunicationService2.getCRC16(adj));
-            }
-            else
-            {
-                adj = CommunicateTool.ConcatByteArrays(command, ByteConverter.NumberToBytes(value));
-                sendPack = CommunicateTool.ConcatByteArrays(adj, SerialCommunicationService2.getCRC16(adj));
-            }
+
+
+            adj = CommunicateTool.ConcatByteArrays(command, ByteConverter.NumberToBytes(value));
+            sendPack = CommunicateTool.ConcatByteArrays(adj, SerialCommunicationService2.getCRC16(adj));
+
 
             //发送指令
             byte[] receive = SerialCommunicationService2.SendTestCommand(sendPack, 8);
@@ -5568,17 +5564,10 @@ namespace WpfApp2.ViewModels
             };
             byte[] adj;
             byte[] sendPack;
-            if (testMachine.MachineName == "机型二")
-            {
-                 adj= CommunicateTool.ConcatByteArrays(command, ByteConverter.NumberToBytes(value));
-                 sendPack = CommunicateTool.ConcatByteArrays(adj, SerialCommunicationService2.getCRC16(adj));
-            }
-            else
-            {
-                adj = CommunicateTool.ConcatByteArrays(command, ByteConverter.NumberToBytes(value));
-                sendPack = CommunicateTool.ConcatByteArrays(adj, SerialCommunicationService2.getCRC16(adj));
-            }
-            
+
+            adj= CommunicateTool.ConcatByteArrays(command, ByteConverter.NumberToBytes(value));
+            sendPack = CommunicateTool.ConcatByteArrays(adj, SerialCommunicationService2.getCRC16(adj));
+
 
             //发送指令
             byte[] receive = SerialCommunicationService2.SendTestCommand(sendPack, 8);
@@ -5591,11 +5580,11 @@ namespace WpfApp2.ViewModels
             {
                 if (receive[0] == 0x01)
                 {
-                    AddLog("写入充电校准系数没通过");
+                    AddLog("写入放电校准系数没通过");
                 }
                 else if (receive[0] == 0x02)
                 {
-                    AddLog("写入充电校准系数超时");
+                    AddLog("写入放电校准系数超时");
                 }
             }
 
