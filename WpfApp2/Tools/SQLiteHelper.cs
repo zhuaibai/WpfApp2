@@ -137,29 +137,36 @@ namespace WpfApp2.Tools
         /// <returns>返回数据集</returns>
         public static DataSet ExecuteDataSet(SQLiteCommand cmd)
         {
+            // 标记是否需要关闭连接
             bool mustCloseConnection = false;
+            // 检查当前连接状态
             if (cmd.Connection.State == ConnectionState.Closed)
             {
-                cmd.Connection.Open();
-                mustCloseConnection = true;
+                cmd.Connection.Open();// 打开数据库连接
+                mustCloseConnection = true;// 标记连接是本方法打开的，需要关闭
             }
-
+            // 创建DataSet对象，用于存储查询结果
             DataSet ds = new DataSet();
             try
             {
+                // 创建数据适配器，用于填充DataSet
+                // SQLiteDataAdapter会使用cmd来执行查询并将结果映射到DataSet
                 SQLiteDataAdapter da = new SQLiteDataAdapter(cmd);
+                // 执行查询并将结果填充到DataSet中
+                // Fill方法内部会执行SELECT语句，并将返回的数据行填充到DataSet的DataTable中
                 da.Fill(ds);
             }
             finally
             {
                 if (mustCloseConnection)
                 {
-                    cmd.Connection.Close();
+                    cmd.Connection.Close();// 关闭数据库连接，释放资源
                 }
-
+                // 释放命令对象资源
+                // Dispose方法会释放SQLiteCommand占用的非托管资源
                 cmd.Dispose();
             }
-
+            // 返回填充好的DataSet
             return ds;
         }
         #endregion
