@@ -780,10 +780,14 @@ namespace WpfApp2.ViewModels
                 }
                 else if (testMachine.BatVol == "24")
                 {
+                    //预留继电器2关闭，即8个电芯
+                    parametersSending.Reserved1RelayStatus = 0;
                     parametersSending.DcSource1Voltage = 2500;
                     passVoltage = 250;
                 }else if(testMachine.BatVol == "48")
                 {
+                    //预留继电器2开启，即16个电芯
+                    parametersSending.Reserved1RelayStatus = 1;
                     parametersSending.DcSource1Voltage = 5000;
                     passVoltage = 500;
                 }
@@ -820,7 +824,7 @@ namespace WpfApp2.ViewModels
                     SwitchButtonVisible(true);
                     return;
                 }
-                 parametersSending.Reserved1RelayStatus = 1; parametersSending.Reserved2RelayStatus = 1;parametersSending.Reserved3RelayStatus = 1;
+                 parametersSending.Reserved2RelayStatus = 1;parametersSending.Reserved3RelayStatus = 1;
                 //先开机，确保开机属性
                 BMS_Receive = SendPacked(parametersSending);
                 Thread.Sleep(1000);
@@ -836,7 +840,7 @@ namespace WpfApp2.ViewModels
                     
                 }
                              
-                if (BMS_Receive.DcSource1Switch == 1 && BMS_Receive.LowPowerRelayStatus == 1 && BMS_Receive.Reserved1RelayStatus == 1 && BMS_Receive.Reserved2RelayStatus == 1 && BMS_Receive.Reserved3RelayStatus == 1)
+                if (BMS_Receive.DcSource1Switch == 1 && BMS_Receive.LowPowerRelayStatus == 1  && BMS_Receive.Reserved2RelayStatus == 1 && BMS_Receive.Reserved3RelayStatus == 1)
                 {
                     flag = true;
                 }
