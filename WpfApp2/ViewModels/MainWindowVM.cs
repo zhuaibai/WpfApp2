@@ -5708,7 +5708,7 @@ namespace WpfApp2.ViewModels
             {
                 // 解析失败，弹出提示框
                 MessageBox.Show(
-                    "蓝牙地址格式不正确，应为12位十六进制数（可包含冒号或短横分隔）\n例如：00:1A:7D:DA:71:13",
+                    "蓝牙地址格式不正确",
                     "输入错误",
                     MessageBoxButton.OK,
                     MessageBoxImage.Warning);
@@ -5751,7 +5751,7 @@ namespace WpfApp2.ViewModels
             if (string.IsNullOrWhiteSpace(input))
                 return false;
 
-            string cleaned = Regex.Replace(input, @"[^0-9A-Fa-f]", "");
+            string cleaned = Regex.Replace(input, @"[^0-9 A-F a-f]", "");
             if (cleaned.Length != 12)
                 return false;
 

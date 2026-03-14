@@ -309,12 +309,12 @@
                             <StackPanel Orientation="Horizontal">
                                 <Button Content="设置" Foreground="White"  
                                         Style="{StaticResource BtnStyle5}" 
-                                        Margin="0,0,3,0"
+                                        Margin="5,0,3,0"
                                         Height="30"
-                                        Width="50"
-                                        FontSize="16"
+                                        Width="60"
+                                        FontSize="15"
                                         Command="{Binding WriteBulueToothAddressCmd}"></Button>
-                                <TextBox Height="20" Width="500"
+                                <TextBox Height="30" Width="250" Margin="10" FontSize="20" FontFamily="黑体"
                                           Text="{Binding SetBulueToothAddress}" ></TextBox>
                             </StackPanel>
                             
