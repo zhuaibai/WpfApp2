@@ -295,6 +295,20 @@
 
                         </Grid>
                     </GroupBox>
+                    <GroupBox
+                         Margin="5"
+                         Padding="10"
+                         BorderBrush="#9918aabd"
+                         BorderThickness="1"
+                         Foreground="White"
+                        Header="扫描条形码">
+                        <Grid>
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="*" />
+                            </Grid.ColumnDefinitions>
+                            <TextBox Height="20"></TextBox>
+                        </Grid>
+                    </GroupBox>
                 </StackPanel>
             </StackPanel>
             <!--  日志  -->

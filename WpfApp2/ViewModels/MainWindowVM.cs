@@ -12,6 +12,7 @@ using WpfApp2.Models;
 using WpfApp2.Models.Service;
 using WpfApp2.Tools;
 using WpfApp2.UserControls;
+using System.Text.RegularExpressions;
 using InputType = WpfApp2.CustomMessageBox.InputType;
 
 namespace WpfApp2.ViewModels
@@ -65,7 +66,6 @@ namespace WpfApp2.ViewModels
             testData = new TestData();
             //整机测试
             SendingViewModel = new SendingCommandSettingsViewModel() { ShowBoubleWithTime = ShowBubbles };
-
         }
         #endregion
 
@@ -953,7 +953,7 @@ namespace WpfApp2.ViewModels
                 }
             }
         }
-
+        
         /// <summary>
         /// 测试项目
         /// </summary>
@@ -2747,7 +2747,7 @@ namespace WpfApp2.ViewModels
                 {
                     return false;
                 }
-                //设置电子负载电流为30A
+                //设置电子负载电流为20A
                 parametersSending.ElectronicLoadCurrent = 20;
                 BMS_Receive = SendPacked(parametersSending);
                 int Current = BMS_Receive.ElectronicLoadCurrent;
@@ -2793,7 +2793,7 @@ namespace WpfApp2.ViewModels
                 {
                     return false;
                 }
-                //设置电子负载电流为30A
+                //设置电子负载电流为20A
                 parametersSending.ElectronicLoadCurrent = 20;
                 BMS_Receive = SendPacked(parametersSending);
                 int Current = BMS_Receive.ElectronicLoadCurrent;
@@ -2817,8 +2817,10 @@ namespace WpfApp2.ViewModels
             do
             {
                 BMS_Receive = SendPacked(parametersSending);
+                //com2电流—— BMS电流
                 com2Current = GetCurrentFormBMS();
                 BMSCurrent = (ushort)com2Current;
+                //com1电流—— 电子负载电流
                 com1Current = BMS_Receive.ElectronicLoadCurrent;
                 AddLog($"com1电流{com1Current};com2电流{com2Current}");
                 //记录第一次的数据
@@ -5061,7 +5063,7 @@ namespace WpfApp2.ViewModels
                 }
                 if (receive.Length == 8)
                     interSuccess = true;
-                //interSuccess = InterTestMode(1);
+                
                 Thread.Sleep(200);
             } while (!interSuccess && ERROR_COUNT < 10);//最多发十次
 
@@ -5336,6 +5338,8 @@ namespace WpfApp2.ViewModels
             // 组合为字节数组返回
             return new byte[] { year, month, day, hour, minute, second };
         }
+
+
 
 
         /// <summary>
@@ -5657,6 +5661,117 @@ namespace WpfApp2.ViewModels
 
         #endregion
 
+        #region 读写蓝牙地址
+
+        private string _setBulueToothAddress;
+        public string SetBulueToothAddress
+        {
+            get { return _setBulueToothAddress; }
+            set
+            {
+                _setBulueToothAddress = value;
+                this.RaiseProperChanged(nameof(SetBulueToothAddress));
+            }
+        }
+        public RelayCommand WriteBulueToothAddressCmd
+        {
+            get
+            {
+                return new RelayCommand(() =>
+                {
+                    bool isSuccess = WriteBluetoothAdr();
+                    if (isSuccess)
+                    {
+                        ShowBubbleWithTime("写蓝牙地址成功", 1000);
+                    }
+                    else
+                    {
+                        ShowBubbleWithTime("写蓝牙地址失败", 1000);
+                    }
+                });
+            }
+        }
+
+        /// <summary>
+        /// 写入蓝牙地址
+        /// </summary>
+        /// <returns></returns>
+        private bool WriteBluetoothAdr()
+        {
+            AddLog("正在写入蓝牙地址");
+            //写入参数
+            bool interSuccess = false;
+            int ERROR_COUNT = 0;
+            //蓝牙地址
+            byte[] head = new byte[] { 0x01, 0x10, 0x01, 0x29, 0x00, 0x03, 0x06 };
+            if (!TryParseBluetoothAddress(SetBulueToothAddress, out byte[] bluetoothBytes))
+            {
+                // 解析失败，弹出提示框
+                MessageBox.Show(
+                    "蓝牙地址格式不正确，应为12位十六进制数（可包含冒号或短横分隔）\n例如：00:1A:7D:DA:71:13",
+                    "输入错误",
+                    MessageBoxButton.OK,
+                    MessageBoxImage.Warning);
+                return false;
+            }
+            byte[] writeBluetooth = bluetoothBytes;
+            byte[] readBluetooth = Tools.CommunicateTool.ConcatByteArrays(head, writeBluetooth);
+            byte[] crc16 = SerialCommunicationService2.getCRC16(readBluetooth);
+            readBluetooth = CommunicateTool.ConcatByteArrays(readBluetooth, crc16);
+            do
+            {
+                ERROR_COUNT++;
+                byte[] receive = SerialCommunicationService2.SendTestCommand2(readBluetooth, 8);
+                if (receive.Length == 0)
+                {
+                    AddLog("写入蓝牙地址：写入蓝牙地址返回异常");
+                }
+                if (receive.Length == 8)
+                    interSuccess = true;
+
+                Thread.Sleep(200);
+            } while (!interSuccess && ERROR_COUNT < 5);//最多发5次
+
+            if (!interSuccess)
+            {
+                AddLog("写入蓝牙地址失败");
+                return false;
+            }
+            AddLog("写入成功");
+            return true;
+        }
+
+        /// <summary>
+        /// 获取蓝牙地址
+        /// </summary>
+        /// <returns></returns>
+        public bool TryParseBluetoothAddress(string input, out byte[] bytes)
+        {
+            bytes = null;
+            if (string.IsNullOrWhiteSpace(input))
+                return false;
+
+            string cleaned = Regex.Replace(input, @"[^0-9A-Fa-f]", "");
+            if (cleaned.Length != 12)
+                return false;
+
+            try
+            {
+                bytes = new byte[6];
+                for (int i = 0; i < 6; i++)
+                {
+                    string byteStr = cleaned.Substring(i * 2, 2);
+
+                    bytes[i] = byte.Parse(byteStr, System.Globalization.NumberStyles.HexNumber, null);
+                }
+                return true;
+            }
+            catch
+            {
+                return false;
+            }
+        }
+        #endregion
 
         #endregion
 
@@ -6418,6 +6533,8 @@ namespace WpfApp2.ViewModels
                 });
             }
         }
+        
+
 
         /// <summary>
         /// 开启限流开关

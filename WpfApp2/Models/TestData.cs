@@ -350,6 +350,19 @@ namespace WpfApp2.Models
             }
         }
 
+        //蓝牙地址
+        private string _Buletooth;
+
+        public string Buletooth
+        {
+            get { return _Buletooth; }
+            set
+            {
+                _Buletooth = value;
+                this.RaiseProperChanged(nameof(Buletooth));
+            }
+        }
+
         /// <summary>
         /// 16个电芯电压
         /// </summary>
@@ -442,8 +455,8 @@ namespace WpfApp2.Models
             LimitDc2SourceResult = 0;
             LimitBmsSource = 0;
             LimitBmsSourceResult = 0;
-
-            for(int i = 0; i < DianxinVoltage.Count; i++)
+            Buletooth = "00:00：00:00:00:00";
+            for (int i = 0; i < DianxinVoltage.Count; i++)
             {
                 DianxinVoltage[i] = 0;
             }

@@ -295,6 +295,31 @@
 
                         </Grid>
                     </GroupBox>
+                    <GroupBox
+                        Margin="5"
+                        Padding="10"
+                        BorderBrush="#9918aabd"
+                        BorderThickness="1"
+                        Foreground="White"
+                        Header="扫描条形码">
+                        <Grid>
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="*" />
+                            </Grid.ColumnDefinitions>
+                            <StackPanel Orientation="Horizontal">
+                                <Button Content="设置" Foreground="White"  
+                                        Style="{StaticResource BtnStyle5}" 
+                                        Margin="0,0,3,0"
+                                        Height="30"
+                                        Width="50"
+                                        FontSize="16"
+                                        Command="{Binding WriteBulueToothAddressCmd}"></Button>
+                                <TextBox Height="20" Width="500"
+                                          Text="{Binding SetBulueToothAddress}" ></TextBox>
+                            </StackPanel>
+                            
+                        </Grid>
+                    </GroupBox>
                 </StackPanel>
             </StackPanel>
             <!--  日志  -->
