@@ -583,7 +583,6 @@
                                         Foreground="White"
                                         Text="蓝牙地址:" Grid.ColumnSpan="2" />
                                     <TextBox
-                                        Name="buletooth"
                                         Grid.Column="3"
                                         Margin="58,14,20,0"
                                         VerticalAlignment="Top"
