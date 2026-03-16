@@ -2413,6 +2413,7 @@ namespace WpfApp2.ViewModels
             //Thread.Sleep(2000);
             int com2Current = 0;
             int com1Current = 0;
+            ushort currentData = 0;
 
             failCount = 0;
             succeed = false;
@@ -2430,6 +2431,21 @@ namespace WpfApp2.ViewModels
                 {
                     testData.ChargeCom1Current = (ushort)com1Current; testData.ChargeCom2Current = (ushort)com2Current;
                     testData.ChargeAdjustNum = ReadChargeCurrentAdjustParameter();
+                }
+                // 机型二需要采用滤波
+                if (testMachine.MachineName == "机型二")
+                {
+                    
+                    List<double> com2Currents = new List<double>();
+                    for(int i = 0; i < 10; i++)
+                    {
+                        currentData = GetCurrentFormBMS();
+                        AddLog($"滤波采集, com2电流[{i+1}]:{currentData}");
+                        com2Currents.Add(currentData);
+                        Thread.Sleep(1000);
+                    }
+                    com2Current = (int)HelpTools.FilterAverage(com2Currents);
+                    AddLog($"滤波采集, com2均值电流:{com2Current}");
                 }
 
 
@@ -2804,6 +2820,7 @@ namespace WpfApp2.ViewModels
             Thread.Sleep(1000);
             int com2Current = 0;
             int com1Current = 0;
+            ushort currentData = 0;
 
             failCount = 0;
             succeed = false;
@@ -2821,6 +2838,22 @@ namespace WpfApp2.ViewModels
                     testData.DisChargeCom1Current = (ushort)com1Current;
                     testData.DisChargeCom2Current = (ushort)com2Current;
                     testData.DisChargeAdjustNum = ReadDischargeCurrentAdjustParameter();
+                }
+
+                // 机型二需要采用滤波
+                if (testMachine.MachineName == "机型二")
+                {
+
+                    List<double> com2Currents = new List<double>();
+                    for (int i = 0; i < 10; i++)
+                    {
+                        currentData = GetCurrentFormBMS();
+                        AddLog($"滤波采集, com2电流[{i + 1}]:{currentData}");
+                        com2Currents.Add(currentData);
+                        Thread.Sleep(1000);
+                    }
+                    com2Current = (int)HelpTools.FilterAverage(com2Currents);
+                    AddLog($"滤波采集, com2均值电流:{com2Current}");
                 }
                 if (com1Current == 0 || com2Current == 0)
                 {
