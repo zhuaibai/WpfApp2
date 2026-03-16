@@ -1652,6 +1652,13 @@ namespace WpfApp2.ViewModels
                         }
                         //读取系统时间
                         ReadTime();
+                        //BulueToothAddress();
+                        //读取蓝牙地址
+                        if (!BulueToothAddress())
+                        {
+                            LShowMessage("读取蓝牙地址失败", "警告", MessageIcon.Warning);
+                            return false;
+                        }
                         //读取出厂日期、软件版本、硬件版本
                         flag = ReadThreeData();
                         if (!flag)
@@ -1840,6 +1847,9 @@ namespace WpfApp2.ViewModels
 
                     }
                     return interSuccess;
+
+
+
                 default:
                     return false;
             }
@@ -5241,8 +5251,6 @@ namespace WpfApp2.ViewModels
             
             if (receive.Length == 2)
             {
-                //解析出读取的电流
-                //current = ByteConverter.BytesToNumber(receive);
                 ushort test = ByteConverter.BytesToNumber(receive);
                 short value = CommunicateTool.BytesToShort(receive);
                 testData.En_Temp = value/10;
@@ -5364,7 +5372,7 @@ namespace WpfApp2.ViewModels
             {
                 //解析出读取的电流
                 //current = ByteConverter.BytesToNumber(receive);
-                ushort test = ByteConverter.BytesToNumber(receive);
+                //ushort test = ByteConverter.BytesToNumber(receive);
                 short value = CommunicateTool.BytesToShort(receive);
                 if (value < 0)
                 {
@@ -5690,6 +5698,59 @@ namespace WpfApp2.ViewModels
                     }
                 });
             }
+        }
+
+        private string _BuleTooth;
+
+        public string BuleTooth
+        {
+            get { return _BuleTooth; }
+            set
+            {
+                _BuleTooth = value;
+                this.RaiseProperChanged(nameof(BuleTooth));
+            }
+        }
+        private bool BulueToothAddress()
+        {
+            AddLog("读取蓝牙地址");
+            //发送指令
+            byte[] receive = SerialCommunicationService2.SendTestCommand(new byte[] { 0x01, 0x03, 0x01, 0x29, 0x00, 0x03, 0xB5, 0x9F }, 11);
+
+            //解析
+            if (receive.Length == 6)
+            {
+                byte[] bluetoothBytes = new byte[6];
+                bluetoothBytes[0] = (byte)(receive[0] & 0xFF);       // 寄存器297的低字节
+                bluetoothBytes[1] = (byte)(receive[0] >> 8);         // 寄存器297的高字节
+                bluetoothBytes[2] = (byte)(receive[1] & 0xFF);
+                bluetoothBytes[3] = (byte)(receive[1] >> 8);
+                bluetoothBytes[4] = (byte)(receive[2] & 0xFF);
+                bluetoothBytes[5] = (byte)(receive[2] >> 8);
+
+                string bluetoothStr = string.Format("{0:X2}:{1:X2}:{2:X2}:{3:X2}:{4:X2}:{5:X2}",
+                       bluetoothBytes[0], bluetoothBytes[1], bluetoothBytes[2],
+                       bluetoothBytes[3], bluetoothBytes[4], bluetoothBytes[5]);
+
+                BuleTooth = bluetoothStr;
+            }
+            else if (receive.Length == 1)
+            {
+                if (receive[0] == 0x01)
+                {
+                    ShowBubbles("CRC校验失败，读取蓝牙地址失败", 2000);
+                    AddLog("读取蓝牙地址返回CRC校验失败");
+                }
+                else if (receive[0] == 0x02)
+                {
+                    AddLog("读取蓝牙地址返回超时");
+                    ShowBubbles("读取蓝牙地址返回超时，读取蓝牙地址失败", 2000);
+                }
+                return false;
+            }
+
+
+            return true;
         }
 
         /// <summary>
@@ -7094,7 +7155,7 @@ namespace WpfApp2.ViewModels
         {
             string result = string.Empty;
             if (Application.Current.Dispatcher.CheckAccess())
-            {
+            {                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                             
                 // 当前是UI线程直接调用
                 result = _messageService.ShowInputDialog(
                 message,
