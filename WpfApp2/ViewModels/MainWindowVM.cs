@@ -1652,13 +1652,6 @@ namespace WpfApp2.ViewModels
                         }
                         //读取系统时间
                         ReadTime();
-                        //BulueToothAddress();
-                        //读取蓝牙地址
-                        if (!BulueToothAddress())
-                        {
-                            LShowMessage("读取蓝牙地址失败", "警告", MessageIcon.Warning);
-                            return false;
-                        }
                         //读取出厂日期、软件版本、硬件版本
                         flag = ReadThreeData();
                         if (!flag)
@@ -1847,8 +1840,20 @@ namespace WpfApp2.ViewModels
 
                     }
                     return interSuccess;
-
-
+                case "写入蓝牙地址":
+                    bool isSuccess = WriteBluetoothAdr();
+                    if (isSuccess)
+                    {
+                        ShowBubbleWithTime("写蓝牙地址成功", 1000);
+                        SetBulueToothAddress = string.Empty; 
+                        return true;
+                    }
+                    else
+                    {
+                        ShowBubbleWithTime("写蓝牙地址失败", 1000);
+                        SetBulueToothAddress = string.Empty;
+                        return false;
+                    }
 
                 default:
                     return false;
@@ -5380,9 +5385,6 @@ namespace WpfApp2.ViewModels
             return new byte[] { year, month, day, hour, minute, second };
         }
 
-
-
-
         /// <summary>
         /// 读取电流
         /// </summary>
@@ -5714,27 +5716,8 @@ namespace WpfApp2.ViewModels
                 this.RaiseProperChanged(nameof(SetBulueToothAddress));
             }
         }
-        public RelayCommand WriteBulueToothAddressCmd
-        {
-            get
-            {
-                return new RelayCommand(() =>
-                {
-                    bool isSuccess = WriteBluetoothAdr();
-                    if (isSuccess)
-                    {
-                        ShowBubbleWithTime("写蓝牙地址成功", 1000);
-                    }
-                    else
-                    {
-                        ShowBubbleWithTime("写蓝牙地址失败", 1000);
-                    }
-                });
-            }
-        }
-
+/*
         private string _BuleTooth;
-
         public string BuleTooth
         {
             get { return _BuleTooth; }
@@ -5785,7 +5768,7 @@ namespace WpfApp2.ViewModels
 
             return true;
         }
-
+*/
         /// <summary>
         /// 写入蓝牙地址
         /// </summary>

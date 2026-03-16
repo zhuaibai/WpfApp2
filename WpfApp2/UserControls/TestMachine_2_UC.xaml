@@ -295,31 +295,7 @@
 
                         </Grid>
                     </GroupBox>
-                    <GroupBox
-                        Margin="5"
-                        Padding="10"
-                        BorderBrush="#9918aabd"
-                        BorderThickness="1"
-                        Foreground="White"
-                        Header="扫描条形码">
-                        <Grid>
-                            <Grid.ColumnDefinitions>
-                                <ColumnDefinition Width="*" />
-                            </Grid.ColumnDefinitions>
-                            <StackPanel Orientation="Horizontal">
-                                <Button Content="设置" Foreground="White"  
-                                        Style="{StaticResource BtnStyle5}" 
-                                        Margin="5,0,3,0"
-                                        Height="30"
-                                        Width="60"
-                                        FontSize="15"
-                                        Command="{Binding WriteBulueToothAddressCmd}"></Button>
-                                <TextBox Height="30" Width="250" Margin="10" FontSize="20" FontFamily="黑体"
-                                          Text="{Binding SetBulueToothAddress}" ></TextBox>
-                            </StackPanel>
-                            
-                        </Grid>
-                    </GroupBox>
+
                 </StackPanel>
             </StackPanel>
             <!--  日志  -->
@@ -567,53 +543,53 @@
                                 </Grid>
 
                             </GroupBox>
-                            <!--  低功耗检测结果  -->
+                            <!--  环境温度和蓝牙地址  -->
                             <GroupBox
                                 Margin="10,10,10,15"
                                 Header="环境温度"
                                 Style="{StaticResource GroupBoxMachineTypeSty}">
                                 <Grid Margin="0,30,0,0">
                                     <Grid.ColumnDefinitions>
-                                        <ColumnDefinition Width="1.5*" />
-                                        <ColumnDefinition Width="0.7*" />
-                                        <ColumnDefinition Width="1*" />
-                                        <ColumnDefinition Width="1*" />
+                                        <ColumnDefinition Width="154*" />
+                                        <ColumnDefinition Width="10*" />
+                                        <ColumnDefinition Width="61*"/>
+                                        <ColumnDefinition Width="102*" />
+                                        <ColumnDefinition Width="102*" />
                                     </Grid.ColumnDefinitions>
                                     <Grid.RowDefinitions>
                                         <RowDefinition Height="40" />
                                     </Grid.RowDefinitions>
-                                    <!--  低功耗电压电压  -->
+
                                     <TextBlock
                                         Grid.Column="0"
-                                        Margin="0,12,0,0"
-                                        HorizontalAlignment="Center"
-                                        VerticalAlignment="Center"
+                                        Margin="29,16,0,0"
+                                        HorizontalAlignment="Left"
+                                        VerticalAlignment="Top"
                                         FontSize="15"
                                         Foreground="White"
                                         Text="温度(℃) :" />
                                     <TextBox
-                                        Grid.Column="1"
-                                        Margin="0,12,0,0"
-                                        VerticalAlignment="Center"
+                                        Margin="100,14,49,0"
+                                        VerticalAlignment="Top"
                                         FontSize="17"
                                         Foreground="Black"
-                                        Text="{Binding En_Temp}" />
+                                        Text="{Binding En_Temp}" Grid.ColumnSpan="3" />
                                     <TextBlock
                                         Grid.Column="2"
-                                        Margin="0,12,0,0"
-                                        HorizontalAlignment="Center"
-                                        VerticalAlignment="Center"
+                                        Margin="51,16,0,0"
+                                        HorizontalAlignment="Left"
+                                        VerticalAlignment="Top"
                                         FontSize="15"
                                         Foreground="White"
-                                        Text="蓝牙地址:" />
-                                    <TextBlock
-                                        Grid.Column="4"
-                                        Margin="0,12,0,0"
-                                        HorizontalAlignment="Center"
-                                        VerticalAlignment="Center"
-                                        FontSize="15"
-                                        Foreground="White"
-                                        Text="{Binding }" />
+                                        Text="蓝牙地址:" Grid.ColumnSpan="2" />
+                                    <TextBox
+                                        Name="buletooth"
+                                        Grid.Column="3"
+                                        Margin="58,14,20,0"
+                                        VerticalAlignment="Top"
+                                        FontSize="17"
+                                        Foreground="Black"
+                                        Text="{Binding SetBulueToothAddress}" Grid.ColumnSpan="2" />
                                 </Grid>
 
                             </GroupBox>
