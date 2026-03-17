@@ -1841,25 +1841,27 @@ namespace WpfApp2.ViewModels
                     }
                     return interSuccess;
                 case "写入蓝牙地址":
-                    if (!TryParseBluetoothAddress(SetBulueToothAddress, out byte[] bluetoothBytes))
-                    { 
-                        
+                    if (!TryParseBluetoothAddress(SetBulueToothAddress, out _))
+                    {
+                        LShowBlueToothMessage("输入蓝牙地址格式有误，请重新输入", SetBulueToothAddress, "蓝牙地址格式不正确");
                     }
                     if (string.IsNullOrEmpty(SetBulueToothAddress))
                     LShowBlueToothMessage("请输入测试的蓝牙地址", SetBulueToothAddress, "蓝牙地址格式不正确");
-                    string _lastWrittenBluetoothAddress;
-                    _lastWrittenBluetoothAddress = SetBulueToothAddress;
-                    if (!string.IsNullOrEmpty(_lastWrittenBluetoothAddress) && _lastWrittenBluetoothAddress.Equals(SetBulueToothAddress, StringComparison.OrdinalIgnoreCase))
+                    // 检查是否与上一次成功写入的地址重复
+                    if (!string.IsNullOrEmpty(LastSuccessAddress) &&
+                        string.Equals(LastSuccessAddress, SetBulueToothAddress, StringComparison.OrdinalIgnoreCase))
                     {
-                        // 给出提醒，询问用户是否继续
                         var result = MessageBox.Show("您输入的蓝牙地址与上一次相同，是否继续？", "重复地址", MessageBoxButton.YesNo, MessageBoxImage.Question);
                         if (result == MessageBoxResult.No)
-                            return false; 
+                        {
+                            return false;
+                        }
                     }
                     bool isSuccess = WriteBluetoothAdr();
                     if (isSuccess)
                     {
                         ShowBubbleWithTime("写蓝牙地址成功", 1000);
+                        LastSuccessAddress = SetBulueToothAddress;
                         SetBulueToothAddress = string.Empty; 
                         return true;
                     }
@@ -5729,6 +5731,17 @@ namespace WpfApp2.ViewModels
             {
                 _setBulueToothAddress = value;
                 this.RaiseProperChanged(nameof(SetBulueToothAddress));
+            }
+        }
+
+        private string _lastSuccessAddress;
+        public string LastSuccessAddress
+        {
+            get { return _lastSuccessAddress; }
+            set
+            {
+                _lastSuccessAddress = value;
+                this.RaiseProperChanged(nameof(LastSuccessAddress));
             }
         }
         /// <summary>
