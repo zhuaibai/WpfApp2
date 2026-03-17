@@ -1841,6 +1841,16 @@ namespace WpfApp2.ViewModels
                     }
                     return interSuccess;
                 case "写入蓝牙地址":
+                    LShowBlueToothMessage("请输入测试的蓝牙地址", SetBulueToothAddress, "至少12位字符");
+                    string _lastWrittenBluetoothAddress;
+                    _lastWrittenBluetoothAddress = SetBulueToothAddress;
+                    if (!string.IsNullOrEmpty(_lastWrittenBluetoothAddress) && _lastWrittenBluetoothAddress.Equals(SetBulueToothAddress, StringComparison.OrdinalIgnoreCase))
+                    {
+                        // 给出提醒，询问用户是否继续
+                        var result = MessageBox.Show("您输入的蓝牙地址与上一次相同，是否继续？", "重复地址", MessageBoxButton.YesNo, MessageBoxImage.Question);
+                        if (result == MessageBoxResult.No)
+                            return false; // 不执行写入
+                    }
                     bool isSuccess = WriteBluetoothAdr();
                     if (isSuccess)
                     {
@@ -4843,7 +4853,7 @@ namespace WpfApp2.ViewModels
         /// </summary>
         /// <param name="result">数据报文</param>
         /// <returns>指令实体类(null代表异常)</returns>
-        private BmsSystemparametersReceive AnalyseBmsReceive(byte[] result)
+        private BmsSystemparametersReceive      AnalyseBmsReceive(byte[] result)
         {
             //解析字符串
             if (result.Length == 0)
@@ -5716,59 +5726,6 @@ namespace WpfApp2.ViewModels
                 this.RaiseProperChanged(nameof(SetBulueToothAddress));
             }
         }
-/*
-        private string _BuleTooth;
-        public string BuleTooth
-        {
-            get { return _BuleTooth; }
-            set
-            {
-                _BuleTooth = value;
-                this.RaiseProperChanged(nameof(BuleTooth));
-            }
-        }
-        private bool BulueToothAddress()
-        {
-            AddLog("读取蓝牙地址");
-            //发送指令
-            byte[] receive = SerialCommunicationService2.SendTestCommand(new byte[] { 0x01, 0x03, 0x01, 0x29, 0x00, 0x03, 0xB5, 0x9F }, 11);
-
-            //解析
-            if (receive.Length == 6)
-            {
-                byte[] bluetoothBytes = new byte[6];
-                bluetoothBytes[0] = (byte)(receive[0] & 0xFF);       // 寄存器297的低字节
-                bluetoothBytes[1] = (byte)(receive[0] >> 8);         // 寄存器297的高字节
-                bluetoothBytes[2] = (byte)(receive[1] & 0xFF);
-                bluetoothBytes[3] = (byte)(receive[1] >> 8);
-                bluetoothBytes[4] = (byte)(receive[2] & 0xFF);
-                bluetoothBytes[5] = (byte)(receive[2] >> 8);
-
-                string bluetoothStr = string.Format("{0:X2}:{1:X2}:{2:X2}:{3:X2}:{4:X2}:{5:X2}",
-                       bluetoothBytes[0], bluetoothBytes[1], bluetoothBytes[2],
-                       bluetoothBytes[3], bluetoothBytes[4], bluetoothBytes[5]);
-
-                BuleTooth = bluetoothStr;
-            }
-            else if (receive.Length == 1)
-            {
-                if (receive[0] == 0x01)
-                {
-                    ShowBubbles("CRC校验失败，读取蓝牙地址失败", 2000);
-                    AddLog("读取蓝牙地址返回CRC校验失败");
-                }
-                else if (receive[0] == 0x02)
-                {
-                    AddLog("读取蓝牙地址返回超时");
-                    ShowBubbles("读取蓝牙地址返回超时，读取蓝牙地址失败", 2000);
-                }
-                return false;
-            }
-
-
-            return true;
-        }
-*/
         /// <summary>
         /// 写入蓝牙地址
         /// </summary>
@@ -7161,7 +7118,7 @@ namespace WpfApp2.ViewModels
         }
 
         /// <summary>
-        /// 文本输入消息框
+        /// 软件文本输入消息框
         /// </summary>
         /// <param name="message">消息</param>
         /// <param name="title">标题</param>
@@ -7192,6 +7149,45 @@ namespace WpfApp2.ViewModels
                 InputType.Text,
                 "软件版本",
                 validator: input => input.Length >= 4,
+                validationMessage: error,
+                fontSize: 50);
+                }));
+            }
+            return result;
+        }
+
+        /// <summary>
+        /// 蓝牙地址文本输入消息框
+        /// </summary>
+        /// <param name="message">消息</param>
+        /// <param name="title">标题</param>
+        /// <param name="error">输入错误提示</param>
+        /// <returns></returns>
+        private string LShowBlueToothMessage(string message, string title, string error)
+        {
+            string result = string.Empty;
+            if (Application.Current.Dispatcher.CheckAccess())
+            {
+                // 当前是UI线程直接调用
+                result = _messageService.ShowInputDialog(
+                message,
+                title,
+                InputType.Text,
+                SetBulueToothAddress,
+                validator: input => input.Length >= 12,
+                validationMessage: error,
+                fontSize: 50);
+            }
+            else
+            {
+                Application.Current.Dispatcher.Invoke(new Action(() =>
+                {
+                    result = _messageService.ShowInputDialog(
+                message,
+                title,
+                InputType.Text,
+                SetBulueToothAddress,
+                validator: input => input.Length >= 12,
                 validationMessage: error,
                 fontSize: 50);
                 }));
