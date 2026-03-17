@@ -11,8 +11,12 @@
         WindowStartupLocation="CenterScreen"
         Background="Transparent"
          Height="550" Width="800">
+    <Window.InputBindings>
+        <KeyBinding Key="Space" Command="{Binding OkCommand}"/>
+        <KeyBinding Key="Escape" Command="{Binding CancelCommand}"/>
+    </Window.InputBindings>
     <Window.Resources>
-
+        
         <!-- 添加这个阴影效果资源 -->
         <DropShadowEffect x:Key="DialogShadow" 
                       BlurRadius="10" 
@@ -83,12 +87,14 @@
 
             <!-- 按钮区域 -->
             <StackPanel Grid.Row="2" Orientation="Horizontal" HorizontalAlignment="Right" >
+                
                 <Button Command="{Binding CancelCommand}" Content="取消" Margin="0,0,20,0"
                         Style="{StaticResource BtnStyle7}"/>
                 
                 <Button Command="{Binding OkCommand}" Content="确定"  
                         Style="{StaticResource BtnStyle6}"/>
             </StackPanel>
+            
         </Grid>
     </Border>
 </Window>

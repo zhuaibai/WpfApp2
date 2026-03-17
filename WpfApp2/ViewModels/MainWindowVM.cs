@@ -4886,7 +4886,7 @@ namespace WpfApp2.ViewModels
         /// </summary>
         /// <param name="result">数据报文</param>
         /// <returns>指令实体类(null代表异常)</returns>
-        private BmsSystemparametersReceive      AnalyseBmsReceive(byte[] result)
+        private BmsSystemparametersReceive AnalyseBmsReceive(byte[] result)
         {
             //解析字符串
             if (result.Length == 0)
