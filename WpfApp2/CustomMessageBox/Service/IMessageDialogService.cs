@@ -12,8 +12,8 @@ namespace WpfApp2.CustomMessageBox.Service
                           MessageIcon icon = MessageIcon.Information,
                           double fontSize = 18);
 
-        string ShowInputDialog(
-       string message,
+      string ShowInputDialog(
+      string message,
       string title = "请输入",
       InputType inputType = InputType.Text,
       string defaultInput = "",
