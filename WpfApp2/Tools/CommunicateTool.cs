@@ -17,6 +17,7 @@ namespace WpfApp2.Tools
         {
             // 计算所有数组的总长度
             int totalLength = 0;
+            // 遍历传入的每个字节数组，累加它们的长度
             foreach (var array in arrays)
             {
                 if (array == null)
@@ -24,9 +25,10 @@ namespace WpfApp2.Tools
                 totalLength += array.Length;
             }
 
-            // 创建结果数组
+            
+            // 创建一个新的字节数组，大小等于所有数组长度之和
             byte[] result = new byte[totalLength];
-            int currentPosition = 0;
+            int currentPosition = 0; // 记录当前已复制到的位置
 
             // 依次将每个数组复制到结果数组中
             foreach (var array in arrays)
@@ -34,7 +36,10 @@ namespace WpfApp2.Tools
                 if (array == null)
                     continue; // 跳过null数组
 
+                // Buffer.BlockCopy 是高效的字节复制方法
+                // 参数说明：源数组, 源起始位置, 目标数组, 目标起始位置, 要复制的字节数
                 Buffer.BlockCopy(array, 0, result, currentPosition, array.Length);
+                // 更新当前位置指针，指向下一个要写入的位置
                 currentPosition += array.Length;
             }
 

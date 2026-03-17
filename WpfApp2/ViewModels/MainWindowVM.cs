@@ -12,6 +12,7 @@ using WpfApp2.Models;
 using WpfApp2.Models.Service;
 using WpfApp2.Tools;
 using WpfApp2.UserControls;
+using System.Text.RegularExpressions;
 using InputType = WpfApp2.CustomMessageBox.InputType;
 
 namespace WpfApp2.ViewModels
@@ -65,7 +66,6 @@ namespace WpfApp2.ViewModels
             testData = new TestData();
             //整机测试
             SendingViewModel = new SendingCommandSettingsViewModel() { ShowBoubleWithTime = ShowBubbles };
-
         }
         #endregion
 
@@ -421,10 +421,6 @@ namespace WpfApp2.ViewModels
                 AddLog($"写入日志文件时出错: {ex.Message}");
             }
         }
-
-
-
-
         #endregion
 
         #region 主体界面
@@ -535,7 +531,7 @@ namespace WpfApp2.ViewModels
         #region 串口工具
 
 
-
+ 
         /// <summary>
         /// 更新串口通讯配置
         /// </summary>
@@ -548,7 +544,7 @@ namespace WpfApp2.ViewModels
             //重新加载配置
             SerialPort1.LoadSettings();
             SerialPort2.LoadSettings();
-
+           
         }
 
         /// <summary>
@@ -745,7 +741,7 @@ namespace WpfApp2.ViewModels
         /// <summary>
         /// 停止后台通信
         /// </summary>
-        private void StopBackgroundThread()
+        private void  StopBackgroundThread()
         {
             _cts.Cancel();
             AddLog("后台通信停止请求已发送");
@@ -957,7 +953,7 @@ namespace WpfApp2.ViewModels
                 }
             }
         }
-
+        
         /// <summary>
         /// 测试项目
         /// </summary>
@@ -981,7 +977,7 @@ namespace WpfApp2.ViewModels
                         //已进入测试模式
                         do
                         {
-                            interSuccess = Bms232CommunicationTset();//BMS232通讯
+                            interSuccess = Bms232CommunicationTest();//BMS232通讯
                             Thread.Sleep(1000);
                         } while (!interSuccess && ERROR_COUNT < 10);
                         if (!interSuccess)
@@ -1646,7 +1642,7 @@ namespace WpfApp2.ViewModels
                         //已进入测试模式
                         do
                         {
-                            interSuccess = Bms232CommunicationTset();//BMS232通讯
+                            interSuccess = Bms232CommunicationTest();//BMS232通讯
                             Thread.Sleep(1000);
                         } while (!interSuccess && ERROR_COUNT < 10);
                         if (!interSuccess)
@@ -1844,6 +1840,63 @@ namespace WpfApp2.ViewModels
 
                     }
                     return interSuccess;
+                case "写入蓝牙地址":
+                    string inputAddress = SetBulueToothAddress;
+                    byte[] bluetoothBytes = null;
+                    while (true)// 格式校验
+                    {
+                        if (TryParseBluetoothAddress(inputAddress, out bluetoothBytes))
+                            break; // 格式正确，退出循环
+
+                        // 格式错误，弹出对话框让用户重新输入
+                        string newInput = ShowBluetoothAddressDialog(
+                            "蓝牙地址格式不正确，请重新输入",
+                            inputAddress,
+                            "蓝牙地址格式不正确"
+                        );
+
+                        if (string.IsNullOrEmpty(newInput)) // 用户取消
+                        {
+                            SetBulueToothAddress = string.Empty;
+                            return false;
+                        }
+                        inputAddress = newInput.Trim();
+                    }
+
+                    // 更新绑定属性
+                    SetBulueToothAddress = inputAddress;
+
+                    // 重复地址提醒
+                    if (!string.IsNullOrEmpty(LastSuccessAddress) &&
+                        string.Equals(LastSuccessAddress, inputAddress, StringComparison.OrdinalIgnoreCase))
+                    {
+                        var result = MessageBox.Show("您输入的蓝牙地址与上一次相同，是否继续？",
+                                                     "重复地址",
+                                                     MessageBoxButton.YesNo,
+                                                     MessageBoxImage.Question);
+                        if (result == MessageBoxResult.No)
+                        {
+                            SetBulueToothAddress = string.Empty;
+                            return false;
+                        }
+                    }
+
+                    // 执行写入操作
+                    bool isSuccess = WriteBluetoothAdr(bluetoothBytes);
+
+                    if (isSuccess)
+                    {
+                        ShowBubbleWithTime("写蓝牙地址成功", 1000);
+                        LastSuccessAddress = inputAddress; // 记录成功地址
+                        SetBulueToothAddress = string.Empty;
+                        return true;
+                    }
+                    else
+                    {
+                        ShowBubbleWithTime("写蓝牙地址失败", 1000);
+                        SetBulueToothAddress = string.Empty;
+                        return false;
+                    }
 
                 default:
                     return false;
@@ -1881,7 +1934,7 @@ namespace WpfApp2.ViewModels
         /// BMS232通讯
         /// </summary>
         /// <returns></returns>
-        private bool Bms232CommunicationTset()
+        private bool Bms232CommunicationTest()
         {
             ////测试模式置1
             //parametersSending.TestMode = 1;
@@ -1895,36 +1948,45 @@ namespace WpfApp2.ViewModels
 
             ////解析
             //BmsSystemparametersReceive bms = AnalyseBmsReceive(result);
-
-            //测试模式置           
-            parametersSending.TestMode = 1;
-            parametersSending.Bms232Communication = 1;
-
-            //拼接报文                                                               
-            byte[] sengdingPack = CommunicateTool.ConcatByteArrays(Head, parametersSending.ToByteArray());                    //帧头 + 数据
-            sengdingPack = CommunicateTool.ConcatByteArrays(sengdingPack, SerialCommunicationService.getCRC16(sengdingPack)); //帧头 + 数据 + CRC校验码 
-
-            //发送字符串
-            byte[] result = SerialCommunicationService.SendTestCommand(sengdingPack, 77);
-
-            return true;
-            //解析成帧对象
-            BMS_Receive = AnalyseBmsReceive(result);
-
-            //判断
-            if (BMS_Receive == null)
+            try
             {
+                //设置测试模式和相关参数           
+                parametersSending.TestMode = 1;
+                parametersSending.Bms232Communication = 1;
+
+                //拼接发送报文：帧头 + 数据 + CRC校验码
+                //帧头 + 数据
+                byte[] sengdingPack = CommunicateTool.ConcatByteArrays(Head, parametersSending.ToByteArray());
+                //帧头 + 数据 + CRC校验码 
+                sengdingPack = CommunicateTool.ConcatByteArrays(sengdingPack, SerialCommunicationService.getCRC16(sengdingPack)); 
+
+                //发送命令字符串
+                byte[] result = SerialCommunicationService.SendTestCommand(sengdingPack, 77);
+
+                // 检查响应是否为空
+                if (result == null || result.Length == 0)
+                {
+                    return false;
+                }
+
+                // 解析接收到的响应数据
+                BMS_Receive = AnalyseBmsReceive(result);
+
+                // 判断解析结果和通信状态
+                if (BMS_Receive != null && BMS_Receive.Bms232Communication == 1)
+                {
+                    return true;    // 通信正常
+                }
+
+                return false;       // 通信异常
+            }
+            catch (Exception ex)
+            {
+                // 异常处理，记录日志等
+                Console.WriteLine($"BMS通信测试异常: {ex.Message}");
                 return false;
             }
-            else
-            {
-                //判断BMS232通讯是否正常
-                if (BMS_Receive.Bms232Communication == 1)
-                {
-                    return true;
-                }
-            }
-            return false;
+           
         }
 
         /// <summary>
@@ -2342,6 +2404,7 @@ namespace WpfApp2.ViewModels
             } while (!succeed);
 
             Thread.Sleep(3000);
+
             //先设置电流为5A，
             failCount = 0;
             succeed = false;
@@ -2758,7 +2821,7 @@ namespace WpfApp2.ViewModels
                 {
                     return false;
                 }
-                //设置电子负载电流为30A
+                //设置电子负载电流为20A
                 parametersSending.ElectronicLoadCurrent = 20;
                 BMS_Receive = SendPacked(parametersSending);
                 int Current = BMS_Receive.ElectronicLoadCurrent;
@@ -2804,7 +2867,7 @@ namespace WpfApp2.ViewModels
                 {
                     return false;
                 }
-                //设置电子负载电流为30A
+                //设置电子负载电流为20A
                 parametersSending.ElectronicLoadCurrent = 20;
                 BMS_Receive = SendPacked(parametersSending);
                 int Current = BMS_Receive.ElectronicLoadCurrent;
@@ -2829,8 +2892,10 @@ namespace WpfApp2.ViewModels
             do
             {
                 BMS_Receive = SendPacked(parametersSending);
+                //com2电流—— BMS电流
                 com2Current = GetCurrentFormBMS();
                 BMSCurrent = (ushort)com2Current;
+                //com1电流—— 电子负载电流
                 com1Current = BMS_Receive.ElectronicLoadCurrent;
                 AddLog($"com1电流{com1Current};com2电流{com2Current}");
                 //记录第一次的数据
@@ -4821,7 +4886,7 @@ namespace WpfApp2.ViewModels
         /// </summary>
         /// <param name="result">数据报文</param>
         /// <returns>指令实体类(null代表异常)</returns>
-        private BmsSystemparametersReceive AnalyseBmsReceive(byte[] result)
+        private BmsSystemparametersReceive      AnalyseBmsReceive(byte[] result)
         {
             //解析字符串
             if (result.Length == 0)
@@ -5089,7 +5154,7 @@ namespace WpfApp2.ViewModels
                 }
                 if (receive.Length == 8)
                     interSuccess = true;
-                //interSuccess = InterTestMode(1);
+                
                 Thread.Sleep(200);
             } while (!interSuccess && ERROR_COUNT < 10);//最多发十次
 
@@ -5267,8 +5332,6 @@ namespace WpfApp2.ViewModels
             
             if (receive.Length == 2)
             {
-                //解析出读取的电流
-                //current = ByteConverter.BytesToNumber(receive);
                 ushort test = ByteConverter.BytesToNumber(receive);
                 short value = CommunicateTool.BytesToShort(receive);
                 testData.En_Temp = value/10;
@@ -5365,7 +5428,6 @@ namespace WpfApp2.ViewModels
             return new byte[] { year, month, day, hour, minute, second };
         }
 
-
         /// <summary>
         /// 读取电流
         /// </summary>
@@ -5388,7 +5450,7 @@ namespace WpfApp2.ViewModels
             {
                 //解析出读取的电流
                 //current = ByteConverter.BytesToNumber(receive);
-                ushort test = ByteConverter.BytesToNumber(receive);
+                //ushort test = ByteConverter.BytesToNumber(receive);
                 short value = CommunicateTool.BytesToShort(receive);
                 if (value < 0)
                 {
@@ -5550,16 +5612,11 @@ namespace WpfApp2.ViewModels
             };
             byte[] adj;
             byte[] sendPack;
-            if (testMachine.MachineName == "机型二")
-            {
-                adj = CommunicateTool.ConcatByteArrays(command, ByteConverter.NumberToBytes(value));
-                sendPack = CommunicateTool.ConcatByteArrays(adj, SerialCommunicationService2.getCRC16(adj));
-            }
-            else
-            {
-                adj = CommunicateTool.ConcatByteArrays(command, ByteConverter.NumberToBytes(value));
-                sendPack = CommunicateTool.ConcatByteArrays(adj, SerialCommunicationService2.getCRC16(adj));
-            }
+
+
+            adj = CommunicateTool.ConcatByteArrays(command, ByteConverter.NumberToBytes(value));
+            sendPack = CommunicateTool.ConcatByteArrays(adj, SerialCommunicationService2.getCRC16(adj));
+
 
             //发送指令
             byte[] receive = SerialCommunicationService2.SendTestCommand(sendPack, 8);
@@ -5597,17 +5654,10 @@ namespace WpfApp2.ViewModels
             };
             byte[] adj;
             byte[] sendPack;
-            if (testMachine.MachineName == "机型二")
-            {
-                 adj= CommunicateTool.ConcatByteArrays(command, ByteConverter.NumberToBytes(value));
-                 sendPack = CommunicateTool.ConcatByteArrays(adj, SerialCommunicationService2.getCRC16(adj));
-            }
-            else
-            {
-                adj = CommunicateTool.ConcatByteArrays(command, ByteConverter.NumberToBytes(value));
-                sendPack = CommunicateTool.ConcatByteArrays(adj, SerialCommunicationService2.getCRC16(adj));
-            }
-            
+
+            adj= CommunicateTool.ConcatByteArrays(command, ByteConverter.NumberToBytes(value));
+            sendPack = CommunicateTool.ConcatByteArrays(adj, SerialCommunicationService2.getCRC16(adj));
+
 
             //发送指令
             byte[] receive = SerialCommunicationService2.SendTestCommand(sendPack, 8);
@@ -5620,11 +5670,11 @@ namespace WpfApp2.ViewModels
             {
                 if (receive[0] == 0x01)
                 {
-                    AddLog("写入充电校准系数没通过");
+                    AddLog("写入放电校准系数没通过");
                 }
                 else if (receive[0] == 0x02)
                 {
-                    AddLog("写入充电校准系数超时");
+                    AddLog("写入放电校准系数超时");
                 }
             }
 
@@ -5697,6 +5747,99 @@ namespace WpfApp2.ViewModels
 
         #endregion
 
+        #region 读写蓝牙地址
+
+        private string _setBulueToothAddress;
+        public string SetBulueToothAddress
+        {
+            get { return _setBulueToothAddress; }
+            set
+            {
+                _setBulueToothAddress = value;
+                this.RaiseProperChanged(nameof(SetBulueToothAddress));
+            }
+        }
+
+        private string _lastSuccessAddress;
+        public string LastSuccessAddress
+        {
+            get { return _lastSuccessAddress; }
+            set
+            {
+                _lastSuccessAddress = value;
+                this.RaiseProperChanged(nameof(LastSuccessAddress));
+            }
+        }
+        /// <summary>
+        /// 写入蓝牙地址
+        /// </summary>
+        /// <returns></returns>
+        private bool WriteBluetoothAdr(byte[] bluetoothBytes)
+        {
+            AddLog("正在写入蓝牙地址");
+            //写入参数
+            bool interSuccess = false;
+            int ERROR_COUNT = 0;
+            //蓝牙地址
+            byte[] head = new byte[] { 0x01, 0x10, 0x01, 0x29, 0x00, 0x03, 0x06 };
+            byte[] writeBluetooth = bluetoothBytes;
+            byte[] readBluetooth = Tools.CommunicateTool.ConcatByteArrays(head, writeBluetooth);
+            byte[] crc16 = SerialCommunicationService2.getCRC16(readBluetooth);
+            readBluetooth = CommunicateTool.ConcatByteArrays(readBluetooth, crc16);
+            do
+            {
+                ERROR_COUNT++;
+                byte[] receive = SerialCommunicationService2.SendTestCommand2(readBluetooth, 8);
+                if (receive.Length == 0)
+                {
+                    AddLog("写入蓝牙地址：写入蓝牙地址返回异常");
+                }
+                if (receive.Length == 8)
+                    interSuccess = true;
+
+                Thread.Sleep(200);
+            } while (!interSuccess && ERROR_COUNT < 5);//最多发5次
+
+            if (!interSuccess)
+            {
+                AddLog("写入蓝牙地址失败");
+                return false;
+            }
+            AddLog("写入成功");
+            return true;
+        }
+
+        /// <summary>
+        /// 获取蓝牙地址
+        /// </summary>
+        /// <returns></returns>
+        public bool TryParseBluetoothAddress(string input, out byte[] bytes)
+        {
+            bytes = null;
+            if (string.IsNullOrWhiteSpace(input))
+                return false;
+
+            string cleaned = Regex.Replace(input, @"[^0-9 A-F a-f]", "");
+            if (cleaned.Length != 12)
+                return false;
+
+            try
+            {
+                bytes = new byte[6];
+                for (int i = 0; i < 6; i++)
+                {
+                    string byteStr = cleaned.Substring(i * 2, 2);
+
+                    bytes[i] = byte.Parse(byteStr, System.Globalization.NumberStyles.HexNumber, null);
+                }
+                return true;
+            }
+            catch
+            {
+                return false;
+            }
+        }
+        #endregion
 
         #endregion
 
@@ -6458,6 +6601,8 @@ namespace WpfApp2.ViewModels
                 });
             }
         }
+        
+
 
         /// <summary>
         /// 开启限流开关
@@ -7007,7 +7152,7 @@ namespace WpfApp2.ViewModels
         }
 
         /// <summary>
-        /// 文本输入消息框
+        /// 软件文本输入消息框
         /// </summary>
         /// <param name="message">消息</param>
         /// <param name="title">标题</param>
@@ -7017,7 +7162,7 @@ namespace WpfApp2.ViewModels
         {
             string result = string.Empty;
             if (Application.Current.Dispatcher.CheckAccess())
-            {
+            {                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                             
                 // 当前是UI线程直接调用
                 result = _messageService.ShowInputDialog(
                 message,
@@ -7042,6 +7187,47 @@ namespace WpfApp2.ViewModels
                 fontSize: 50);
                 }));
             }
+            return result;
+        }
+
+        /// <summary>
+        /// 蓝牙地址文本输入消息框
+        /// </summary>
+        /// <param name="message">消息</param>
+        /// <param name="title">标题</param>
+        /// <param name="error">输入错误提示</param>
+        /// <returns></returns>
+        // 返回用户输入的字符串，若用户取消则返回 null
+        private string ShowBluetoothAddressDialog(string prompt, string defaultValue, string errorMessage)
+        {
+            string result = null;
+            Action showDialog = () =>
+            {
+                result = _messageService.ShowInputDialog(
+                    prompt,
+                    "输入蓝牙地址",   // 对话框标题
+                    InputType.Text,
+                    defaultValue,
+                    validator: input =>
+                    {
+                        if (string.IsNullOrWhiteSpace(input))
+                            return false;
+                        string trimmed = input.Trim();
+                        return System.Text.RegularExpressions.Regex.IsMatch(
+                            trimmed,
+                            @"^([0-9A-Fa-f]{2}:){5}[0-9A-Fa-f]{2}$"
+                        );
+                    },
+                    validationMessage: errorMessage,
+                    fontSize: 50
+                );
+            };
+
+            if (Application.Current.Dispatcher.CheckAccess())
+                showDialog();
+            else
+                Application.Current.Dispatcher.Invoke(showDialog);
+
             return result;
         }
 
