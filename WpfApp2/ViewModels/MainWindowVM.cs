@@ -1841,28 +1841,55 @@ namespace WpfApp2.ViewModels
                     }
                     return interSuccess;
                 case "写入蓝牙地址":
-                    if (!TryParseBluetoothAddress(SetBulueToothAddress, out _))
+                    string inputAddress = SetBulueToothAddress; // 当前界面值
+                    bool isValid = false;
+                    
+                    // 循环直到获得有效地址或用户取消
+                    while (!isValid)
                     {
-                        LShowBlueToothMessage("输入蓝牙地址格式有误，请重新输入", SetBulueToothAddress, "蓝牙地址格式不正确");
+                        if ( !TryParseBluetoothAddress(inputAddress, out _))
+                        {
+                            // 弹出输入对话框，传入当前输入作为默认值
+                            string newInput = ShowBluetoothAddressDialog(
+                                "蓝牙地址输入有误，请重新输入",
+                                inputAddress,
+                                "蓝牙地址格式不正确"
+                            );
+
+                            inputAddress = newInput.Trim(); // 更新为有效输入
+                        }
+                        else
+                        {
+                            isValid = true;
+                        }
                     }
-                    if (string.IsNullOrEmpty(SetBulueToothAddress))
-                    LShowBlueToothMessage("请输入测试的蓝牙地址", SetBulueToothAddress, "蓝牙地址格式不正确");
-                    // 检查是否与上一次成功写入的地址重复
+
+                    // 此时 inputAddress 是有效地址，同步到绑定属性
+                    SetBulueToothAddress = inputAddress;
+
+                    // 重复地址提醒
                     if (!string.IsNullOrEmpty(LastSuccessAddress) &&
                         string.Equals(LastSuccessAddress, SetBulueToothAddress, StringComparison.OrdinalIgnoreCase))
                     {
-                        var result = MessageBox.Show("您输入的蓝牙地址与上一次相同，是否继续？", "重复地址", MessageBoxButton.YesNo, MessageBoxImage.Question);
+                        var result = MessageBox.Show("您输入的蓝牙地址与上一次相同，是否继续？",
+                                                     "重复地址",
+                                                     MessageBoxButton.YesNo,
+                                                     MessageBoxImage.Question);
                         if (result == MessageBoxResult.No)
                         {
+                            SetBulueToothAddress = string.Empty; // 清空输入框
                             return false;
                         }
                     }
-                    bool isSuccess = WriteBluetoothAdr();
+
+                    // 执行写入操作
+                    bool isSuccess = WriteBluetoothAdr(); 
+
                     if (isSuccess)
                     {
                         ShowBubbleWithTime("写蓝牙地址成功", 1000);
-                        LastSuccessAddress = SetBulueToothAddress;
-                        SetBulueToothAddress = string.Empty; 
+                        LastSuccessAddress = SetBulueToothAddress; // 记录成功地址
+                        SetBulueToothAddress = string.Empty;
                         return true;
                     }
                     else
@@ -7172,45 +7199,37 @@ namespace WpfApp2.ViewModels
         /// <param name="title">标题</param>
         /// <param name="error">输入错误提示</param>
         /// <returns></returns>
-        private string LShowBlueToothMessage(string message, string title, string error)
+        // 返回用户输入的字符串，若用户取消则返回 null
+        private string ShowBluetoothAddressDialog(string prompt, string defaultValue, string errorMessage)
         {
-            string result = string.Empty;
-            if (Application.Current.Dispatcher.CheckAccess())
+            string result = null;
+            Action showDialog = () =>
             {
-                // 当前是UI线程直接调用
                 result = _messageService.ShowInputDialog(
-                message,
-                title,
-                InputType.Text,
-                SetBulueToothAddress,
-                validator: input =>
-                {
-                    if (string.IsNullOrWhiteSpace(input))
-                        return false;
-                    string trimmed = input.Trim();
-                    // 正则：6组两位十六进制数，用冒号分隔，大小写不敏感
-                    return System.Text.RegularExpressions.Regex.IsMatch(
-                        trimmed,
-                        @"^([0-9A-Fa-f]{2}:){5}[0-9A-Fa-f]{2}$"
-                    );
-                },
-            validationMessage: error,
-                fontSize: 50);
-            }
+                    prompt,
+                    "输入蓝牙地址",   // 对话框标题
+                    InputType.Text,
+                    defaultValue,
+                    validator: input =>
+                    {
+                        if (string.IsNullOrWhiteSpace(input))
+                            return false;
+                        string trimmed = input.Trim();
+                        return System.Text.RegularExpressions.Regex.IsMatch(
+                            trimmed,
+                            @"^([0-9A-Fa-f]{2}:){5}[0-9A-Fa-f]{2}$"
+                        );
+                    },
+                    validationMessage: errorMessage,
+                    fontSize: 50
+                );
+            };
+
+            if (Application.Current.Dispatcher.CheckAccess())
+                showDialog();
             else
-            {
-                Application.Current.Dispatcher.Invoke(new Action(() =>
-                {
-                    result = _messageService.ShowInputDialog(
-                message,
-                title,
-                InputType.Text,
-                SetBulueToothAddress,
-                validator: input => input.Length >= 12,
-                validationMessage: error,
-                fontSize: 50);
-                }));
-            }
+                Application.Current.Dispatcher.Invoke(showDialog);
+
             return result;
         }
 
