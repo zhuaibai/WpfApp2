@@ -1841,35 +1841,34 @@ namespace WpfApp2.ViewModels
                     }
                     return interSuccess;
                 case "写入蓝牙地址":
-                    string inputAddress = SetBulueToothAddress; // 当前界面值
-                    bool isValid = false;
-                    
-                    // 循环直到获得有效地址或用户取消
-                    while (!isValid)
+                    string inputAddress = SetBulueToothAddress;
+                    byte[] bluetoothBytes = null;
+                    while (true)// 格式校验
                     {
-                        if ( !TryParseBluetoothAddress(inputAddress, out _))
-                        {
-                            // 弹出输入对话框，传入当前输入作为默认值
-                            string newInput = ShowBluetoothAddressDialog(
-                                "蓝牙地址输入有误，请重新输入",
-                                inputAddress,
-                                "蓝牙地址格式不正确"
-                            );
+                        if (TryParseBluetoothAddress(inputAddress, out bluetoothBytes))
+                            break; // 格式正确，退出循环
 
-                            inputAddress = newInput.Trim(); // 更新为有效输入
-                        }
-                        else
+                        // 格式错误，弹出对话框让用户重新输入
+                        string newInput = ShowBluetoothAddressDialog(
+                            "蓝牙地址格式不正确，请重新输入",
+                            inputAddress,
+                            "蓝牙地址格式不正确"
+                        );
+
+                        if (string.IsNullOrEmpty(newInput)) // 用户取消
                         {
-                            isValid = true;
+                            SetBulueToothAddress = string.Empty;
+                            return false;
                         }
+                        inputAddress = newInput.Trim();
                     }
 
-                    // 此时 inputAddress 是有效地址，同步到绑定属性
+                    // 更新绑定属性
                     SetBulueToothAddress = inputAddress;
 
                     // 重复地址提醒
                     if (!string.IsNullOrEmpty(LastSuccessAddress) &&
-                        string.Equals(LastSuccessAddress, SetBulueToothAddress, StringComparison.OrdinalIgnoreCase))
+                        string.Equals(LastSuccessAddress, inputAddress, StringComparison.OrdinalIgnoreCase))
                     {
                         var result = MessageBox.Show("您输入的蓝牙地址与上一次相同，是否继续？",
                                                      "重复地址",
@@ -1877,18 +1876,18 @@ namespace WpfApp2.ViewModels
                                                      MessageBoxImage.Question);
                         if (result == MessageBoxResult.No)
                         {
-                            SetBulueToothAddress = string.Empty; // 清空输入框
+                            SetBulueToothAddress = string.Empty;
                             return false;
                         }
                     }
 
                     // 执行写入操作
-                    bool isSuccess = WriteBluetoothAdr(); 
+                    bool isSuccess = WriteBluetoothAdr(bluetoothBytes);
 
                     if (isSuccess)
                     {
                         ShowBubbleWithTime("写蓝牙地址成功", 1000);
-                        LastSuccessAddress = SetBulueToothAddress; // 记录成功地址
+                        LastSuccessAddress = inputAddress; // 记录成功地址
                         SetBulueToothAddress = string.Empty;
                         return true;
                     }
@@ -5775,7 +5774,7 @@ namespace WpfApp2.ViewModels
         /// 写入蓝牙地址
         /// </summary>
         /// <returns></returns>
-        private bool WriteBluetoothAdr()
+        private bool WriteBluetoothAdr(byte[] bluetoothBytes)
         {
             AddLog("正在写入蓝牙地址");
             //写入参数
@@ -5783,7 +5782,6 @@ namespace WpfApp2.ViewModels
             int ERROR_COUNT = 0;
             //蓝牙地址
             byte[] head = new byte[] { 0x01, 0x10, 0x01, 0x29, 0x00, 0x03, 0x06 };
-            TryParseBluetoothAddress(SetBulueToothAddress, out byte[] bluetoothBytes);
             byte[] writeBluetooth = bluetoothBytes;
             byte[] readBluetooth = Tools.CommunicateTool.ConcatByteArrays(head, writeBluetooth);
             byte[] crc16 = SerialCommunicationService2.getCRC16(readBluetooth);
