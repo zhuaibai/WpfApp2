@@ -1704,28 +1704,28 @@
                                 <Button
                                     Margin="4"
                                     Command="{Binding OpenReserved2}"
-                                    Content="预留2开启"
+                                    Content="拨码开关开启"
                                     FontSize="17"
                                     Foreground="{Binding BMS_Receive.Reserved2, Converter={StaticResource ColorConverter}}"
                                     Style="{StaticResource BtnStyle5}" />
                                 <Button
                                     Margin="4"
                                     Command="{Binding CloseReserved2}"
-                                    Content="预留2关闭"
+                                    Content="拨码开关关闭"
                                     FontSize="17"
                                     Foreground="{Binding BMS_Receive.Reserved2, Converter={StaticResource ColorConverter2}}"
                                     Style="{StaticResource BtnStyle5}" />
                                 <Button
                                     Margin="4"
                                     Command="{Binding OpenReserved3}"
-                                    Content="预留3开启"
+                                    Content="复位开关开启"
                                     FontSize="17"
                                     Foreground="{Binding BMS_Receive.Reserved3, Converter={StaticResource ColorConverter}}"
                                     Style="{StaticResource BtnStyle5}" />
                                 <Button
                                     Margin="4"
                                     Command="{Binding CloseReserved3}"
-                                    Content="预留3关闭"
+                                    Content="复位开关关闭"
                                     FontSize="17"
                                     Foreground="{Binding BMS_Receive.Reserved3, Converter={StaticResource ColorConverter2}}"
                                     Style="{StaticResource BtnStyle5}" />
@@ -1804,14 +1804,14 @@
                                 <Button
                                     Margin="4"
                                     Command="{Binding Relay2ControlTestCmd}"
-                                    Content="预留继电器2开启"
+                                    Content="48V开启"
                                     FontSize="17"
                                     Foreground="{Binding BMS_Receive.Reserved1RelayStatus, Converter={StaticResource ColorConverter}}"
                                     Style="{StaticResource BtnStyle5}" />
                                 <Button
                                     Margin="4"
                                     Command="{Binding CloseRelay2ControlTestCmd}"
-                                    Content="预留继电器2关闭"
+                                    Content="24V开启"
                                     FontSize="17"
                                     Foreground="{Binding BMS_Receive.Reserved1RelayStatus, Converter={StaticResource ColorConverter2}}"
                                     Style="{StaticResource BtnStyle5}" />
@@ -1832,14 +1832,14 @@
                                 <Button
                                     Margin="4"
                                     Command="{Binding Relay4ControlTestCmd}"
-                                    Content="预留继电器4开启"
+                                    Content="弱电开关开启"
                                     FontSize="17"
                                     Foreground="{Binding BMS_Receive.Reserved3RelayStatus, Converter={StaticResource ColorConverter}}"
                                     Style="{StaticResource BtnStyle5}" />
                                 <Button
                                     Margin="4"
                                     Command="{Binding CloseRelay4ControlTestCmd}"
-                                    Content="预留继电器4关闭"
+                                    Content="弱电开关关闭"
                                     FontSize="17"
                                     Foreground="{Binding BMS_Receive.Reserved3RelayStatus, Converter={StaticResource ColorConverter2}}"
                                     Style="{StaticResource BtnStyle5}" />
