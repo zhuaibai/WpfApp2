@@ -1841,7 +1841,12 @@ namespace WpfApp2.ViewModels
                     }
                     return interSuccess;
                 case "写入蓝牙地址":
-                    LShowBlueToothMessage("请输入测试的蓝牙地址", SetBulueToothAddress, "至少12位字符");
+                    if (!TryParseBluetoothAddress(SetBulueToothAddress, out byte[] bluetoothBytes))
+                    { 
+                        
+                    }
+                    if (string.IsNullOrEmpty(SetBulueToothAddress))
+                    LShowBlueToothMessage("请输入测试的蓝牙地址", SetBulueToothAddress, "蓝牙地址格式不正确");
                     string _lastWrittenBluetoothAddress;
                     _lastWrittenBluetoothAddress = SetBulueToothAddress;
                     if (!string.IsNullOrEmpty(_lastWrittenBluetoothAddress) && _lastWrittenBluetoothAddress.Equals(SetBulueToothAddress, StringComparison.OrdinalIgnoreCase))
@@ -1849,7 +1854,7 @@ namespace WpfApp2.ViewModels
                         // 给出提醒，询问用户是否继续
                         var result = MessageBox.Show("您输入的蓝牙地址与上一次相同，是否继续？", "重复地址", MessageBoxButton.YesNo, MessageBoxImage.Question);
                         if (result == MessageBoxResult.No)
-                            return false; // 不执行写入
+                            return false; 
                     }
                     bool isSuccess = WriteBluetoothAdr();
                     if (isSuccess)
@@ -5738,16 +5743,7 @@ namespace WpfApp2.ViewModels
             int ERROR_COUNT = 0;
             //蓝牙地址
             byte[] head = new byte[] { 0x01, 0x10, 0x01, 0x29, 0x00, 0x03, 0x06 };
-            if (!TryParseBluetoothAddress(SetBulueToothAddress, out byte[] bluetoothBytes))
-            {
-                // 解析失败，弹出提示框
-                MessageBox.Show(
-                    "蓝牙地址格式不正确",
-                    "输入错误",
-                    MessageBoxButton.OK,
-                    MessageBoxImage.Warning);
-                return false;
-            }
+            TryParseBluetoothAddress(SetBulueToothAddress, out byte[] bluetoothBytes);
             byte[] writeBluetooth = bluetoothBytes;
             byte[] readBluetooth = Tools.CommunicateTool.ConcatByteArrays(head, writeBluetooth);
             byte[] crc16 = SerialCommunicationService2.getCRC16(readBluetooth);
@@ -7174,8 +7170,18 @@ namespace WpfApp2.ViewModels
                 title,
                 InputType.Text,
                 SetBulueToothAddress,
-                validator: input => input.Length >= 12,
-                validationMessage: error,
+                validator: input =>
+                {
+                    if (string.IsNullOrWhiteSpace(input))
+                        return false;
+                    string trimmed = input.Trim();
+                    // 正则：6组两位十六进制数，用冒号分隔，大小写不敏感
+                    return System.Text.RegularExpressions.Regex.IsMatch(
+                        trimmed,
+                        @"^([0-9A-Fa-f]{2}:){5}[0-9A-Fa-f]{2}$"
+                    );
+                },
+            validationMessage: error,
                 fontSize: 50);
             }
             else
