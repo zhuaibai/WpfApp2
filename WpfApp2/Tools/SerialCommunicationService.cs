@@ -94,7 +94,7 @@ namespace WpfApp2.Tools
                 {
                     SerialPort.Close();
                 }
-                catch (Exception ex)
+                catch (Exception)
                 {
                    
                     return false;
@@ -123,7 +123,7 @@ namespace WpfApp2.Tools
                 catch (Exception ex)
                 {
                     throw new Exception("串口通讯一打开失败", ex);
-                    return false;
+                    
                 }
             }
             else
@@ -137,7 +137,7 @@ namespace WpfApp2.Tools
                 catch (Exception ex)
                 {
                     throw new Exception("串口通讯一打开失败", ex);
-                    return false;
+                   
                 }
             }
         }
@@ -267,7 +267,7 @@ namespace WpfApp2.Tools
                 string DataBuffer = Encoding.ASCII.GetString(buffer);
                 return DataBuffer;
             }
-            catch (Exception ex)
+            catch (Exception)
             {
                 // 超时未
                 //MessageBox.Show("超时未收到ACK");
@@ -322,7 +322,7 @@ namespace WpfApp2.Tools
                 string DataBuffer = Encoding.ASCII.GetString(buffer);
                 return DataBuffer;
             }
-            catch (TimeoutException ex)
+            catch (TimeoutException)
             {
                 // 超时未
                 //MessageBox.Show("超时未收到ACK");
@@ -330,7 +330,7 @@ namespace WpfApp2.Tools
                 AddReceiveFrame(totalBytesRead);
                 return string.Empty;
             }
-            catch (Exception ex)
+            catch (Exception)
             {
                 return string.Empty;
             }
@@ -418,14 +418,14 @@ namespace WpfApp2.Tools
 
                 
             }
-            catch (TimeoutException ex)
+            catch (TimeoutException)
             {
                 // 超时未
                 //MessageBox.Show("超时未收到ACK");
                 
                 return new byte[] {0x02};//超时
             }
-            catch (Exception ex)
+            catch (Exception)
             {
                 return Array.Empty<byte>();
             }
