@@ -7123,7 +7123,7 @@ namespace WpfApp2.ViewModels
         private MessageResult LShowMessage(string message, string title, MessageIcon messageIcon)
         {
             MessageResult result = MessageResult.OK;
-
+            //检查当前线程是否能直接访问由该 Dispatcher 管理的 UI 元素的方法
             if (Application.Current.Dispatcher.CheckAccess())
             {
                 // 当前是UI线程直接调用
