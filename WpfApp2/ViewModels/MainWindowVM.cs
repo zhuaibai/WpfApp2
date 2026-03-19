@@ -1869,8 +1869,7 @@ namespace WpfApp2.ViewModels
                     SetBulueToothAddress = inputAddress;
 
                     // 重复地址提醒
-                    if (!string.IsNullOrEmpty(LastSuccessAddress) &&
-                        string.Equals(LastSuccessAddress, inputAddress, StringComparison.OrdinalIgnoreCase))
+                    if (string.Equals(LastSuccessAddress, inputAddress, StringComparison.OrdinalIgnoreCase))
                     {
                         var result = MessageBox.Show("您输入的蓝牙地址与上一次相同，是否继续？",
                                                      "重复地址",
@@ -1888,18 +1887,22 @@ namespace WpfApp2.ViewModels
 
                     if (isSuccess)
                     {
-                        
                         LastSuccessAddress = inputAddress; // 记录成功地址
                         SetBulueToothAddress = string.Empty;
                         return true;
                     }
                     else
                     {
-                        
                         SetBulueToothAddress = string.Empty;
                         return false;
                     }
-
+                case "检查地址扫入":
+                    if (string.IsNullOrWhiteSpace(SetBulueToothAddress))
+                    {
+                        return false;
+                    }
+                        return true;
+                    
                 default:
                     return false;
             }
@@ -1965,7 +1968,7 @@ namespace WpfApp2.ViewModels
                 //发送命令字符串
                 byte[] result = SerialCommunicationService.SendTestCommand(sengdingPack, 77);
 
-                // 检查响应是否为空
+                // 检查响应是否为空     
                 if (result == null || result.Length == 0)
                 {
                     return false;
@@ -5818,11 +5821,19 @@ namespace WpfApp2.ViewModels
         public bool TryParseBluetoothAddress(string input, out byte[] bytes)
         {
             bytes = null;
-            if (string.IsNullOrWhiteSpace(input))
+
+
+            // 移除首尾空格
+            string trimmed = input.Trim();
+
+            // 严格正则匹配：6组两位十六进制，冒号分隔
+            if (!System.Text.RegularExpressions.Regex.IsMatch(trimmed, @"^([0-9A-Fa-f]{2}:){5}[0-9A-Fa-f]{2}$"))
                 return false;
 
-            string cleaned = Regex.Replace(input, @"[^0-9 A-F a-f]", "");
-            if (cleaned.Length != 12)
+            // 按冒号分割
+            string[] parts = trimmed.Split(':');
+            // 正则已保证长度为6，但防御性保留
+            if (parts.Length != 6)
                 return false;
 
             try
@@ -5830,9 +5841,7 @@ namespace WpfApp2.ViewModels
                 bytes = new byte[6];
                 for (int i = 0; i < 6; i++)
                 {
-                    string byteStr = cleaned.Substring(i * 2, 2);
-
-                    bytes[i] = byte.Parse(byteStr, System.Globalization.NumberStyles.HexNumber, null);
+                    bytes[i] = byte.Parse(parts[i], System.Globalization.NumberStyles.HexNumber);
                 }
                 return true;
             }
@@ -7215,9 +7224,8 @@ namespace WpfApp2.ViewModels
                 validator: input => {
                     if (string.IsNullOrWhiteSpace(input))
                         return false;
-                    string trimmed = input.Trim();
                     return System.Text.RegularExpressions.Regex.IsMatch(
-                        trimmed,
+                        input.Trim(),
                         @"^([0-9A-Fa-f]{2}:){5}[0-9A-Fa-f]{2}$"
                     );
                 },
@@ -7233,13 +7241,11 @@ namespace WpfApp2.ViewModels
                 "输入蓝牙地址",
                 InputType.Text,
                 defaultValue,
-
                 validator: input => {
                     if (string.IsNullOrWhiteSpace(input))
                         return false;
-                    string trimmed = input.Trim();
                     return System.Text.RegularExpressions.Regex.IsMatch(
-                        trimmed,
+                        input.Trim(),
                         @"^([0-9A-Fa-f]{2}:){5}[0-9A-Fa-f]{2}$"
                     );
                 },
