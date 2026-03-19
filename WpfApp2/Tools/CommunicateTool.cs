@@ -72,13 +72,13 @@ namespace WpfApp2.Tools
         /// <param name="a"></param>
         /// <param name="b"></param>
         /// <returns></returns>
-        public static bool AreWithinFive(int a, int b)
+        public static bool AreWithinFive(int a, int b,bool flag)
         {
             // 计算两个数的差值的绝对值
             int difference = Math.Abs(a - b);
 
             // 判断差值是否小于5
-            return difference <= 2;
+            return flag? difference<=10: difference <= 2;
         }
 
         /// <summary>

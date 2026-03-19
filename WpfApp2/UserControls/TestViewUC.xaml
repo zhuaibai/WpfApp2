@@ -306,7 +306,7 @@
                             <Grid.ColumnDefinitions>
                                 <ColumnDefinition Width="*" />
                             </Grid.ColumnDefinitions>
-                            <TextBox Height="20"></TextBox>
+                            <TextBox Height="20" />
                         </Grid>
                     </GroupBox>
                 </StackPanel>
@@ -1818,14 +1818,14 @@
                                 <Button
                                     Margin="4"
                                     Command="{Binding Relay2ControlTestCmd}"
-                                    Content="48V开启"
+                                    Content="预留继电器2开启"
                                     FontSize="17"
                                     Foreground="{Binding BMS_Receive.Reserved1RelayStatus, Converter={StaticResource ColorConverter}}"
                                     Style="{StaticResource BtnStyle5}" />
                                 <Button
                                     Margin="4"
                                     Command="{Binding CloseRelay2ControlTestCmd}"
-                                    Content="24V开启"
+                                    Content="预留继电器2关闭"
                                     FontSize="17"
                                     Foreground="{Binding BMS_Receive.Reserved1RelayStatus, Converter={StaticResource ColorConverter2}}"
                                     Style="{StaticResource BtnStyle5}" />
@@ -1856,6 +1856,20 @@
                                     Content="弱电开关关闭"
                                     FontSize="17"
                                     Foreground="{Binding BMS_Receive.Reserved3RelayStatus, Converter={StaticResource ColorConverter2}}"
+                                    Style="{StaticResource BtnStyle5}" />
+                                <Button
+                                    Margin="4"
+                                    Command="{Binding OpenVoltageControlTestCmd}"
+                                    Content="48V开启"
+                                    FontSize="17"
+                                    Foreground="{Binding BMS_Receive.TestSuccessLedStatus, Converter={StaticResource ColorConverter}}"
+                                    Style="{StaticResource BtnStyle5}" />
+                                <Button
+                                    Margin="4"
+                                    Command="{Binding CloseVoltageControlTestCmd}"
+                                    Content="24V开启"
+                                    FontSize="17"
+                                    Foreground="{Binding BMS_Receive.TestSuccessLedStatus, Converter={StaticResource ColorConverter2}}"
                                     Style="{StaticResource BtnStyle5}" />
                             </UniformGrid>
                         </GroupBox>
