@@ -1843,7 +1843,7 @@ namespace WpfApp2.ViewModels
                     return interSuccess;
                 case "写入蓝牙地址":
                     string inputAddress = SetBulueToothAddress;
-                    byte[] bluetoothBytes = null;
+                    byte[] bluetoothBytes;
                     while (true)// 格式校验
                     {
                         if (TryParseBluetoothAddress(inputAddress, out bluetoothBytes))
@@ -1887,18 +1887,23 @@ namespace WpfApp2.ViewModels
 
                     if (isSuccess)
                     {
-                        //ShowBubbleWithTime("写蓝牙地址成功", 1000);
+                        
                         LastSuccessAddress = inputAddress; // 记录成功地址
                         SetBulueToothAddress = string.Empty;
                         return true;
                     }
                     else
                     {
-                        //ShowBubbleWithTime("写蓝牙地址失败", 1000);
+                        
                         SetBulueToothAddress = string.Empty;
                         return false;
                     }
-                 
+                case "检查地址扫入":
+                    if (string.IsNullOrWhiteSpace(SetBulueToothAddress))
+                    {
+                        return false;
+                    }   
+                    return true;
                 default:
                     return false;
             }
@@ -5866,11 +5871,15 @@ namespace WpfApp2.ViewModels
         public bool TryParseBluetoothAddress(string input, out byte[] bytes)
         {
             bytes = null;
-            if (string.IsNullOrWhiteSpace(input))
+
+            // 6组两位十六进制，冒号分隔
+            if (!System.Text.RegularExpressions.Regex.IsMatch(input, @"^([0-9A-Fa-f]{2}:){5}[0-9A-Fa-f]{2}$"))
                 return false;
 
-            string cleaned = Regex.Replace(input, @"[^0-9 A-F a-f]", "");
-            if (cleaned.Length != 12)
+            // 按冒号分割
+            string[] parts = input.Split(':');
+            // 正则已保证长度为6，但防御性保留
+            if (parts.Length != 6)
                 return false;
 
             try
@@ -5878,9 +5887,7 @@ namespace WpfApp2.ViewModels
                 bytes = new byte[6];
                 for (int i = 0; i < 6; i++)
                 {
-                    string byteStr = cleaned.Substring(i * 2, 2);
-
-                    bytes[i] = byte.Parse(byteStr, System.Globalization.NumberStyles.HexNumber, null);
+                    bytes[i] = byte.Parse(parts[i], System.Globalization.NumberStyles.HexNumber);
                 }
                 return true;
             }
@@ -7293,36 +7300,6 @@ namespace WpfApp2.ViewModels
         // 返回用户输入的字符串，若用户取消则返回 null
         private string ShowBluetoothAddressDialog(string prompt, string defaultValue, string errorMessage)
         {
-            //string result = null;
-            //Action showDialog = () =>
-            //{
-            //    result = _messageService.ShowInputDialog(
-            //        prompt,
-            //        "输入蓝牙地址",   // 对话框标题
-            //        InputType.Text,
-            //        defaultValue,
-            //        validator: input =>
-            //        {
-            //            if (string.IsNullOrWhiteSpace(input))
-            //                return false;
-            //            string trimmed = input.Trim();
-            //            return System.Text.RegularExpressions.Regex.IsMatch(
-            //                trimmed,
-            //                @"^([0-9A-Fa-f]{2}:){5}[0-9A-Fa-f]{2}$"
-            //            );
-            //        },
-            //        validationMessage: errorMessage,
-            //        fontSize: 50
-            //    );
-            //};
-
-            //if (Application.Current.Dispatcher.CheckAccess())
-            //    showDialog();
-            //else
-            //    Application.Current.Dispatcher.Invoke(showDialog);
-
-            //return result;
-
             string result = string.Empty;
             if (Application.Current.Dispatcher.CheckAccess())
             {
@@ -7348,7 +7325,7 @@ namespace WpfApp2.ViewModels
                 prompt,
                 defaultValue,
                 InputType.Text,
-                "管理员密码",
+                "输入蓝牙地址",
 
                 validator: input => System.Text.RegularExpressions.Regex.IsMatch(
                                 input.Trim(),
