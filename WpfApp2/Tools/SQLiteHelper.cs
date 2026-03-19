@@ -91,8 +91,7 @@ namespace WpfApp2.Tools
             return parameter;
         }
         #endregion
-
-        #region ExecuteDataSet(commandText,paramList[])
+                #region ExecuteDataSet(commandText,paramList[])
         /// <summary>
         /// 查询数据集
         /// </summary>
@@ -111,7 +110,7 @@ namespace WpfApp2.Tools
                 }
 
                 DataSet ds = new DataSet();
-                try
+                try 
                 {
                     if (conn.State == ConnectionState.Closed)
                         conn.Open();

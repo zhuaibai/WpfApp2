@@ -84,7 +84,7 @@ namespace WpfApp2.ViewModels
                     }
                 }
             }
-            catch (Exception ex)
+            catch (Exception)
             {
                
                 return new MachineType();
