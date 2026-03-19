@@ -15,6 +15,7 @@ using WpfApp2.Tools;
 using WpfApp2.UserControls;
 using static System.Runtime.InteropServices.JavaScript.JSType;
 using InputType = WpfApp2.CustomMessageBox.InputType;
+using static System.Runtime.InteropServices.JavaScript.JSType;
 
 namespace WpfApp2.ViewModels
 {
@@ -782,13 +783,13 @@ namespace WpfApp2.ViewModels
                 else if (testMachine.BatVol == "24")
                 {
                     //预留继电器2关闭，即8个电芯
-                    parametersSending.Reserved1RelayStatus = 0;
+                    parametersSending.TestSuccessLedStatus = 0;//关闭继电器
                     parametersSending.DcSource1Voltage = 2500;
                     passVoltage = 250;
                 }else if(testMachine.BatVol == "48")
                 {
                     //预留继电器2开启，即16个电芯
-                    parametersSending.Reserved1RelayStatus = 1;
+                    parametersSending.TestSuccessLedStatus = 1;
                     parametersSending.DcSource1Voltage = 5000;
                     passVoltage = 500;
                 }
@@ -811,7 +812,7 @@ namespace WpfApp2.ViewModels
                     Thread.Sleep(1000);
                     BMS_Receive = SendPacked(parametersSending);
                     voltage++;
-                    if(Math.Abs(BMS_Receive.DcSource1Voltage - passVoltage) < 50)
+                    if(Math.Abs(BMS_Receive.DcSource1Voltage - passVoltage) < 50|| parametersSending.DcSource1Voltage == 0)
                     {
                         successCount++;
                     }
@@ -825,7 +826,7 @@ namespace WpfApp2.ViewModels
                     SwitchButtonVisible(true);
                     return;
                 }
-                 parametersSending.Reserved2RelayStatus = 1;parametersSending.Reserved3RelayStatus = 1;
+                parametersSending.Reserved1RelayStatus = 1; parametersSending.Reserved2RelayStatus = 1;parametersSending.Reserved3RelayStatus = 1;
                 //先开机，确保开机属性
                 BMS_Receive = SendPacked(parametersSending);
                 Thread.Sleep(1000);
@@ -841,7 +842,7 @@ namespace WpfApp2.ViewModels
                     
                 }
                              
-                if (BMS_Receive.DcSource1Switch == 1 && BMS_Receive.LowPowerRelayStatus == 1  && BMS_Receive.Reserved2RelayStatus == 1 && BMS_Receive.Reserved3RelayStatus == 1)
+                if (BMS_Receive.LowPowerRelayStatus == 1  && BMS_Receive.Reserved2RelayStatus == 1 && BMS_Receive.Reserved3RelayStatus == 1)
                 {
                     flag = true;
                 }
@@ -972,7 +973,7 @@ namespace WpfApp2.ViewModels
                     int ERROR_COUNT = 0;
                     interSuccess = EnterTestMode();
                     BMS_Receive = SendPacked(parametersSending);
-                    AddLog($"设置源{parametersSending.DcSource1Voltage} ;源1电压{BMS_Receive.DcSource1Voltage}");
+                    //AddLog($"设置源{parametersSending.DcSource1Voltage} ;源1电压{BMS_Receive.DcSource1Voltage}");
                     if (interSuccess)
                     {
                         ERROR_COUNT = 0;
@@ -1893,6 +1894,7 @@ namespace WpfApp2.ViewModels
                     }
                     else
                     {
+
                         SetBulueToothAddress = string.Empty;
                         return false;
                     }
@@ -1902,7 +1904,6 @@ namespace WpfApp2.ViewModels
                         return false;
                     }
                         return true;
-                    
                 default:
                     return false;
             }
@@ -1968,6 +1969,7 @@ namespace WpfApp2.ViewModels
                 //发送命令字符串
                 byte[] result = SerialCommunicationService.SendTestCommand(sengdingPack, 77);
 
+
                 // 检查响应是否为空     
                 if (result == null || result.Length == 0)
                 {
@@ -1978,7 +1980,7 @@ namespace WpfApp2.ViewModels
                 BMS_Receive = AnalyseBmsReceive(result);
 
                 // 判断解析结果和通信状态
-                if (BMS_Receive != null && BMS_Receive.Bms232Communication == 1)
+                if (BMS_Receive != null )
                 {
                     return true;    // 通信正常
                 }
@@ -2541,7 +2543,7 @@ namespace WpfApp2.ViewModels
                     AddLog("标准电流超过预期范围，不校准");
                 }
                 //电流都不为0的情况
-                else if (CommunicateTool.AreWithinFive(com2Current, com1Current))
+                else if (CommunicateTool.AreWithinFive(com2Current, com1Current,testMachine.MachineName=="机型二"))
                 {
 
                     ushort adjustReceive = ReadChargeCurrentAdjustParameter();
@@ -2948,7 +2950,7 @@ namespace WpfApp2.ViewModels
                     AddLog("标准电流超过预期范围,不校准");
                     Thread.Sleep(500);
                 }
-                else if (CommunicateTool.AreWithinFive(com2Current, com1Current))
+                else if (CommunicateTool.AreWithinFive(com2Current, com1Current,testMachine.MachineName=="机型二"))
                 {
                     ushort adjustReceive = ReadDischargeCurrentAdjustParameter();
                     AddLog($"当前放电校准系数:{adjustReceive}");
@@ -3046,7 +3048,7 @@ namespace WpfApp2.ViewModels
                 } while (!succeed);
 
                 //1004软件版本启用
-                if (testData.TestSofterWare != "1003"&&testMachine.MachineName!="机型二")
+                if (testData.TestSofterWare != "1003" && testMachine.MachineName!="机型二")
                 {
                     if (AdSuccess < 3)
                     {
@@ -4160,6 +4162,55 @@ namespace WpfApp2.ViewModels
             return false;
         }
 
+        /// <summary>
+        /// 48/24V开关
+        /// </summary>
+        /// <returns></returns>
+        private bool TestSuccessLedStatusControl(ushort open)
+        {
+            //测试模式置0(即不在测试模式)
+            parametersSending.TestMode = 0;
+            //低功耗继电器控制打开
+            parametersSending.TestSuccessLedStatus = open;
+
+            //拼接字符串
+            byte[] sengdingPack = CommunicateTool.ConcatByteArrays(Head, parametersSending.ToByteArray());
+            sengdingPack = CommunicateTool.ConcatByteArrays(sengdingPack, SerialCommunicationService.getCRC16(sengdingPack));
+
+            //发送字符串
+            byte[] result = SerialCommunicationService.SendTestCommand(sengdingPack, 77);
+
+            //解析
+            BMS_Receive = AnalyseBmsReceive(result);
+
+            //判断
+            if (BMS_Receive == null)
+            {
+                return false;
+            }
+            else
+            {
+                //判断是否是普通模式
+                if (BMS_Receive.TestMode == 0)
+                {
+                    if (BMS_Receive.TestSuccessLedStatus != open)
+                    {
+                        AddLog("48/24V开关操作失败");
+                    }
+                    else
+                    {
+                        AddLog($"48/24V开关操作操作成功");
+                        return true;
+                    }
+                }
+                else
+                {
+                    //不是普通模式
+                    AddLog("返回普通模式失败");
+                }
+            }
+            return false;
+        }
 
 
 
@@ -5821,8 +5872,6 @@ namespace WpfApp2.ViewModels
         public bool TryParseBluetoothAddress(string input, out byte[] bytes)
         {
             bytes = null;
-
-
             // 移除首尾空格
             string trimmed = input.Trim();
 
@@ -6839,6 +6888,49 @@ namespace WpfApp2.ViewModels
         }
 
         /// <summary>
+        /// 开启48V
+        /// </summary>
+        public RelayCommand OpenVoltageControlTestCmd
+        {
+            get
+            {
+                return new RelayCommand(() =>
+                {
+                    bool isSuccess = TestSuccessLedStatusControl(1);
+                    if (isSuccess)
+                    {
+                        ShowBubbleWithTime("48V开启成功", 2000);
+                    }
+                    else
+                    {
+                        ShowBubbleWithTime("48V开启失败", 2000);
+                    }
+                });
+            }
+        }
+
+        /// <summary>
+        /// 开启24V
+        /// </summary>
+        public RelayCommand CloseVoltageControlTestCmd
+        {
+            get
+            {
+                return new RelayCommand(() =>
+                {
+                    bool isSuccess = TestSuccessLedStatusControl(0);
+                    if (isSuccess)
+                    {
+                        ShowBubbleWithTime("24V开启成功", 2000);
+                    }
+                    else
+                    {
+                        ShowBubbleWithTime("24V开启失败", 2000);
+                    }
+                });
+            }
+        }
+        /// <summary>
         /// 开启DC电源
         /// </summary>
         public RelayCommand OpenDcSourceSwitchCmd
@@ -7220,16 +7312,15 @@ namespace WpfApp2.ViewModels
                 "输入蓝牙地址",
                 InputType.Text,
                 defaultValue,
-
-                validator: input => {
-                    if (string.IsNullOrWhiteSpace(input))
-                        return false;
-                    return System.Text.RegularExpressions.Regex.IsMatch(
-                        input.Trim(),
-                        @"^([0-9A-Fa-f]{2}:){5}[0-9A-Fa-f]{2}$"
-                    );
-                },
-                validationMessage: errorMessage,
+                 validator: input => {
+                     if (string.IsNullOrWhiteSpace(input))
+                         return false;
+                     return System.Text.RegularExpressions.Regex.IsMatch(
+                         input.Trim(),
+                         @"^([0-9A-Fa-f]{2}:){5}[0-9A-Fa-f]{2}$"
+                     );
+                 },
+             validationMessage: errorMessage,
                 fontSize: 50);
             }
             else
@@ -7241,15 +7332,15 @@ namespace WpfApp2.ViewModels
                 "输入蓝牙地址",
                 InputType.Text,
                 defaultValue,
-                validator: input => {
-                    if (string.IsNullOrWhiteSpace(input))
-                        return false;
-                    return System.Text.RegularExpressions.Regex.IsMatch(
-                        input.Trim(),
-                        @"^([0-9A-Fa-f]{2}:){5}[0-9A-Fa-f]{2}$"
-                    );
-                },
-            validationMessage: errorMessage,
+                 validator: input => {
+                     if (string.IsNullOrWhiteSpace(input))
+                         return false;
+                     return System.Text.RegularExpressions.Regex.IsMatch(
+                         input.Trim(),
+                         @"^([0-9A-Fa-f]{2}:){5}[0-9A-Fa-f]{2}$"
+                     );
+                 },
+             validationMessage: errorMessage,
                 fontSize: 50);
                 }));
             }

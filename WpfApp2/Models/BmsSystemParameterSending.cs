@@ -23,7 +23,7 @@ namespace WpfApp2.Models
         // LED状态参数
         public ushort Relay1Status { get; set; }             // 干节点1状态
         public ushort Relay2Status { get; set; }             // 干节点2状态
-        public ushort TestSuccessLedStatus { get; set; }     // 测试成功LED灯状态
+        public ushort TestSuccessLedStatus { get; set; }     // 测试成功LED灯状态(48/24V)
         public ushort TestFailureLedStatus { get; set; }     // 测试失败LED灯状态
 
         // DC源参数
@@ -59,6 +59,7 @@ namespace WpfApp2.Models
         public ushort Reserved1RelayStatus { get; set; }       // 预留1继电器状态
         public ushort Reserved2RelayStatus { get; set; }       // 预留2继电器状态
         public ushort Reserved3RelayStatus { get; set; }       // 预留3继电器状态
+
 
         //// MOS管控制参数
         //public ushort ChargeDischargeMosfet1Control { get; set; } // 充放电MOS管1控制
