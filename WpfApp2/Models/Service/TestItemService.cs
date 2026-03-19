@@ -16,7 +16,7 @@ namespace WpfApp2.Models.Service
         private string tableName;
         // 创建表（如果不存在）
         public void CreateTable()
-        {
+        {       
             string sql = $@"
                 CREATE TABLE IF NOT EXISTS {tableName} (
                     Id INTEGER PRIMARY KEY,

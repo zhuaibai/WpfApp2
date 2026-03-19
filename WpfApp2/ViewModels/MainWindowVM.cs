@@ -1,10 +1,11 @@
-﻿using System.Collections.ObjectModel;
+﻿using Microsoft.VisualBasic;
+using System.Collections.ObjectModel;
 using System.IO;
+using System.Text.RegularExpressions;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Input;
 using System.Windows.Media.Animation;
-using Microsoft.VisualBasic;
 using WpfApp2.Command;
 using WpfApp2.CustomMessageBox;
 using WpfApp2.CustomMessageBox.Service;
@@ -12,7 +13,7 @@ using WpfApp2.Models;
 using WpfApp2.Models.Service;
 using WpfApp2.Tools;
 using WpfApp2.UserControls;
-using System.Text.RegularExpressions;
+using static System.Runtime.InteropServices.JavaScript.JSType;
 using InputType = WpfApp2.CustomMessageBox.InputType;
 using static System.Runtime.InteropServices.JavaScript.JSType;
 
@@ -961,6 +962,7 @@ namespace WpfApp2.ViewModels
         /// <returns></returns>
         private bool TestProgress(string progressName)
         {
+
             switch (progressName)
             {
                 case "BMS232通讯":
@@ -1843,7 +1845,7 @@ namespace WpfApp2.ViewModels
                     return interSuccess;
                 case "写入蓝牙地址":
                     string inputAddress = SetBulueToothAddress;
-                    byte[] bluetoothBytes = null;
+                    byte[] bluetoothBytes;
                     while (true)// 格式校验
                     {
                         if (TryParseBluetoothAddress(inputAddress, out bluetoothBytes))
@@ -1868,8 +1870,7 @@ namespace WpfApp2.ViewModels
                     SetBulueToothAddress = inputAddress;
 
                     // 重复地址提醒
-                    if (!string.IsNullOrEmpty(LastSuccessAddress) &&
-                        string.Equals(LastSuccessAddress, inputAddress, StringComparison.OrdinalIgnoreCase))
+                    if (string.Equals(LastSuccessAddress, inputAddress, StringComparison.OrdinalIgnoreCase))
                     {
                         var result = MessageBox.Show("您输入的蓝牙地址与上一次相同，是否继续？",
                                                      "重复地址",
@@ -1887,18 +1888,24 @@ namespace WpfApp2.ViewModels
 
                     if (isSuccess)
                     {
-                        //ShowBubbleWithTime("写蓝牙地址成功", 1000);
+
                         LastSuccessAddress = inputAddress; // 记录成功地址
                         SetBulueToothAddress = string.Empty;
                         return true;
                     }
                     else
                     {
-                        //ShowBubbleWithTime("写蓝牙地址失败", 1000);
+
+
                         SetBulueToothAddress = string.Empty;
                         return false;
                     }
-                 
+                case "检查地址扫入":
+                    if (string.IsNullOrWhiteSpace(SetBulueToothAddress))
+                    {
+                        return false;
+                    }
+                        return true;
                 default:
                     return false;
             }
@@ -1964,7 +1971,8 @@ namespace WpfApp2.ViewModels
                 //发送命令字符串
                 byte[] result = SerialCommunicationService.SendTestCommand(sengdingPack, 77);
 
-                // 检查响应是否为空
+
+                // 检查响应是否为空     
                 if (result == null || result.Length == 0)
                 {
                     return false;
@@ -3042,7 +3050,8 @@ namespace WpfApp2.ViewModels
                 } while (!succeed);
 
                 //1004软件版本启用
-                if (testData.TestSofterWare != "1003"&&testMachine.MachineName!="机型二")
+
+                if (testData.TestSofterWare != "1003" && testMachine.MachineName!="机型二")
                 {
                     if (AdSuccess < 3)
                     {
@@ -4936,7 +4945,7 @@ namespace WpfApp2.ViewModels
         /// </summary>
         /// <param name="result">数据报文</param>
         /// <returns>指令实体类(null代表异常)</returns>
-        private BmsSystemparametersReceive      AnalyseBmsReceive(byte[] result)
+        private BmsSystemparametersReceive AnalyseBmsReceive(byte[] result)
         {
             //解析字符串
             if (result.Length == 0)
@@ -5866,11 +5875,18 @@ namespace WpfApp2.ViewModels
         public bool TryParseBluetoothAddress(string input, out byte[] bytes)
         {
             bytes = null;
-            if (string.IsNullOrWhiteSpace(input))
+
+            // 移除首尾空格
+            string trimmed = input.Trim();
+
+            // 严格正则匹配：6组两位十六进制，冒号分隔
+            if (!System.Text.RegularExpressions.Regex.IsMatch(trimmed, @"^([0-9A-Fa-f]{2}:){5}[0-9A-Fa-f]{2}$"))
                 return false;
 
-            string cleaned = Regex.Replace(input, @"[^0-9 A-F a-f]", "");
-            if (cleaned.Length != 12)
+            // 按冒号分割
+            string[] parts = trimmed.Split(':');
+            // 正则已保证长度为6，但防御性保留
+            if (parts.Length != 6)
                 return false;
 
             try
@@ -5878,9 +5894,7 @@ namespace WpfApp2.ViewModels
                 bytes = new byte[6];
                 for (int i = 0; i < 6; i++)
                 {
-                    string byteStr = cleaned.Substring(i * 2, 2);
-
-                    bytes[i] = byte.Parse(byteStr, System.Globalization.NumberStyles.HexNumber, null);
+                    bytes[i] = byte.Parse(parts[i], System.Globalization.NumberStyles.HexNumber);
                 }
                 return true;
             }
@@ -7216,7 +7230,7 @@ namespace WpfApp2.ViewModels
         private MessageResult LShowMessage(string message, string title, MessageIcon messageIcon)
         {
             MessageResult result = MessageResult.OK;
-
+            //检查当前线程是否能直接访问由该 Dispatcher 管理的 UI 元素的方法
             if (Application.Current.Dispatcher.CheckAccess())
             {
                 // 当前是UI线程直接调用
@@ -7293,73 +7307,51 @@ namespace WpfApp2.ViewModels
         // 返回用户输入的字符串，若用户取消则返回 null
         private string ShowBluetoothAddressDialog(string prompt, string defaultValue, string errorMessage)
         {
-            //string result = null;
-            //Action showDialog = () =>
-            //{
-            //    result = _messageService.ShowInputDialog(
-            //        prompt,
-            //        "输入蓝牙地址",   // 对话框标题
-            //        InputType.Text,
-            //        defaultValue,
-            //        validator: input =>
-            //        {
-            //            if (string.IsNullOrWhiteSpace(input))
-            //                return false;
-            //            string trimmed = input.Trim();
-            //            return System.Text.RegularExpressions.Regex.IsMatch(
-            //                trimmed,
-            //                @"^([0-9A-Fa-f]{2}:){5}[0-9A-Fa-f]{2}$"
-            //            );
-            //        },
-            //        validationMessage: errorMessage,
-            //        fontSize: 50
-            //    );
-            //};
-
-            //if (Application.Current.Dispatcher.CheckAccess())
-            //    showDialog();
-            //else
-            //    Application.Current.Dispatcher.Invoke(showDialog);
-
-            //return result;
-
             string result = string.Empty;
             if (Application.Current.Dispatcher.CheckAccess())
             {
                 // 当前是UI线程直接调用
                 result = _messageService.ShowInputDialog(
+                
                 prompt,
-                defaultValue,
-                InputType.Text,
                 "输入蓝牙地址",
 
-                validator: input => System.Text.RegularExpressions.Regex.IsMatch(
-                                input.Trim(),
-                                @"^([0-9A-Fa-f]{2}:){5}[0-9A-Fa-f]{2}$"
-                            ),
-                validationMessage: errorMessage,
+                InputType.Text,
+                defaultValue,
+                 validator: input => {
+                     if (string.IsNullOrWhiteSpace(input))
+                         return false;
+                     return System.Text.RegularExpressions.Regex.IsMatch(
+                         input.Trim(),
+                         @"^([0-9A-Fa-f]{2}:){5}[0-9A-Fa-f]{2}$"
+                     );
+                 },
+             validationMessage: errorMessage,
                 fontSize: 50);
             }
             else
+
             {
                 Application.Current.Dispatcher.Invoke(new Action(() =>
                 {
                     result = _messageService.ShowInputDialog(
                 prompt,
-                defaultValue,
+                "输入蓝牙地址",
                 InputType.Text,
-                "管理员密码",
-
-                validator: input => System.Text.RegularExpressions.Regex.IsMatch(
-                                input.Trim(),
-                                @"^([0-9A-Fa-f]{2}:){5}[0-9A-Fa-f]{2}$"
-                            ),
-                validationMessage: errorMessage,
+                defaultValue,
+                 validator: input => {
+                     if (string.IsNullOrWhiteSpace(input))
+                         return false;
+                     return System.Text.RegularExpressions.Regex.IsMatch(
+                         input.Trim(),
+                         @"^([0-9A-Fa-f]{2}:){5}[0-9A-Fa-f]{2}$"
+                     );
+                 },
+             validationMessage: errorMessage,
                 fontSize: 50);
                 }));
             }
             return result;
-
         }
 
         /// <summary>
