@@ -778,6 +778,19 @@ namespace WpfApp2.ViewModels
                     // 机型二不需要电源电压
                     parametersSending.DcSource1Voltage = 0;
                     passVoltage = 0;
+                    parametersSending.Reserved1RelayStatus = 1;
+                    parametersSending.LowPowerRelayStatus = 1;
+                    parametersSending.Reserved2RelayStatus = 1;
+                    parametersSending.Reserved3RelayStatus = 1;
+                    BMS_Receive = SendPacked(parametersSending);
+                    Thread.Sleep(1000);
+                    BMS_Receive = SendPacked(parametersSending);
+                    if (BMS_Receive.LowPowerRelayStatus == 1 && BMS_Receive.Reserved2RelayStatus == 1 && BMS_Receive.Reserved3RelayStatus == 1)
+                    {
+                        flag = true;
+                    }
+                    break;
+                    
 
                 }
                 else if (testMachine.BatVol == "24")
@@ -1901,11 +1914,11 @@ namespace WpfApp2.ViewModels
                         return false;
                     }
                 case "检查地址扫入":
-                    if (string.IsNullOrWhiteSpace(SetBulueToothAddress))
+                    if (!TryParseBluetoothAddress(SetBulueToothAddress, out bluetoothBytes))
                     {
                         return false;
                     }
-                        return true;
+                    return true;
                 default:
                     return false;
             }
@@ -5875,6 +5888,7 @@ namespace WpfApp2.ViewModels
         public bool TryParseBluetoothAddress(string input, out byte[] bytes)
         {
             bytes = null;
+            if (string.IsNullOrEmpty(input)) return false;
 
             // 移除首尾空格
             string trimmed = input.Trim();
