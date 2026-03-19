@@ -1888,17 +1888,24 @@ namespace WpfApp2.ViewModels
 
                     if (isSuccess)
                     {
-                        ShowBubbleWithTime("写蓝牙地址成功", 1000);
+
                         LastSuccessAddress = inputAddress; // 记录成功地址
                         SetBulueToothAddress = string.Empty;
                         return true;
                     }
                     else
                     {
-                        ShowBubbleWithTime("写蓝牙地址失败", 1000);
+
+
                         SetBulueToothAddress = string.Empty;
                         return false;
                     }
+                case "检查地址扫入":
+                    if (string.IsNullOrWhiteSpace(SetBulueToothAddress))
+                    {
+                        return false;
+                    }
+                        return true;
                 default:
                     return false;
             }
@@ -1963,6 +1970,7 @@ namespace WpfApp2.ViewModels
 
                 //发送命令字符串
                 byte[] result = SerialCommunicationService.SendTestCommand(sengdingPack, 77);
+
 
                 // 检查响应是否为空     
                 if (result == null || result.Length == 0)
@@ -3042,7 +3050,8 @@ namespace WpfApp2.ViewModels
                 } while (!succeed);
 
                 //1004软件版本启用
-                if (testData.TestSofterWare != "1003"&&testMachine.MachineName!="机型二")
+
+                if (testData.TestSofterWare != "1003" && testMachine.MachineName!="机型二")
                 {
                     if (AdSuccess < 3)
                     {
@@ -5866,9 +5875,18 @@ namespace WpfApp2.ViewModels
         public bool TryParseBluetoothAddress(string input, out byte[] bytes)
         {
             bytes = null;
-            if (string.IsNullOrWhiteSpace(input))
+
+            // 移除首尾空格
+            string trimmed = input.Trim();
+
+            // 严格正则匹配：6组两位十六进制，冒号分隔
+            if (!System.Text.RegularExpressions.Regex.IsMatch(trimmed, @"^([0-9A-Fa-f]{2}:){5}[0-9A-Fa-f]{2}$"))
                 return false;
 
+            // 按冒号分割
+            string[] parts = trimmed.Split(':');
+            // 正则已保证长度为6，但防御性保留
+            if (parts.Length != 6)
                 return false;
 
             try
@@ -7294,19 +7312,46 @@ namespace WpfApp2.ViewModels
             {
                 // 当前是UI线程直接调用
                 result = _messageService.ShowInputDialog(
-            };
+                
+                prompt,
+                "输入蓝牙地址",
 
+                InputType.Text,
+                defaultValue,
+                 validator: input => {
+                     if (string.IsNullOrWhiteSpace(input))
+                         return false;
+                     return System.Text.RegularExpressions.Regex.IsMatch(
+                         input.Trim(),
+                         @"^([0-9A-Fa-f]{2}:){5}[0-9A-Fa-f]{2}$"
+                     );
+                 },
+             validationMessage: errorMessage,
+                fontSize: 50);
+            }
             else
-                validator: input => System.Text.RegularExpressions.Regex.IsMatch(
-                                input.Trim(),
-                                @"^([0-9A-Fa-f]{2}:){5}[0-9A-Fa-f]{2}$"
-                            ),
-                validationMessage: errorMessage,
+
+            {
+                Application.Current.Dispatcher.Invoke(new Action(() =>
+                {
+                    result = _messageService.ShowInputDialog(
+                prompt,
+                "输入蓝牙地址",
+                InputType.Text,
+                defaultValue,
+                 validator: input => {
+                     if (string.IsNullOrWhiteSpace(input))
+                         return false;
+                     return System.Text.RegularExpressions.Regex.IsMatch(
+                         input.Trim(),
+                         @"^([0-9A-Fa-f]{2}:){5}[0-9A-Fa-f]{2}$"
+                     );
+                 },
+             validationMessage: errorMessage,
                 fontSize: 50);
                 }));
             }
             return result;
-
         }
 
         /// <summary>
