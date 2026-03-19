@@ -1,10 +1,11 @@
-﻿using System.Collections.ObjectModel;
+﻿using Microsoft.VisualBasic;
+using System.Collections.ObjectModel;
 using System.IO;
+using System.Text.RegularExpressions;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Input;
 using System.Windows.Media.Animation;
-using Microsoft.VisualBasic;
 using WpfApp2.Command;
 using WpfApp2.CustomMessageBox;
 using WpfApp2.CustomMessageBox.Service;
@@ -12,7 +13,7 @@ using WpfApp2.Models;
 using WpfApp2.Models.Service;
 using WpfApp2.Tools;
 using WpfApp2.UserControls;
-using System.Text.RegularExpressions;
+using static System.Runtime.InteropServices.JavaScript.JSType;
 using InputType = WpfApp2.CustomMessageBox.InputType;
 
 namespace WpfApp2.ViewModels
@@ -960,6 +961,7 @@ namespace WpfApp2.ViewModels
         /// <returns></returns>
         private bool TestProgress(string progressName)
         {
+
             switch (progressName)
             {
                 case "BMS232通讯":
@@ -1886,14 +1888,14 @@ namespace WpfApp2.ViewModels
 
                     if (isSuccess)
                     {
-                        ShowBubbleWithTime("写蓝牙地址成功", 1000);
+                        
                         LastSuccessAddress = inputAddress; // 记录成功地址
                         SetBulueToothAddress = string.Empty;
                         return true;
                     }
                     else
                     {
-                        ShowBubbleWithTime("写蓝牙地址失败", 1000);
+                        
                         SetBulueToothAddress = string.Empty;
                         return false;
                     }
@@ -7200,34 +7202,51 @@ namespace WpfApp2.ViewModels
         // 返回用户输入的字符串，若用户取消则返回 null
         private string ShowBluetoothAddressDialog(string prompt, string defaultValue, string errorMessage)
         {
-            string result = null;
-            Action showDialog = () =>
-            {
-                result = _messageService.ShowInputDialog(
-                    prompt,
-                    "输入蓝牙地址",   // 对话框标题
-                    InputType.Text,
-                    defaultValue,
-                    validator: input =>
-                    {
-                        if (string.IsNullOrWhiteSpace(input))
-                            return false;
-                        string trimmed = input.Trim();
-                        return System.Text.RegularExpressions.Regex.IsMatch(
-                            trimmed,
-                            @"^([0-9A-Fa-f]{2}:){5}[0-9A-Fa-f]{2}$"
-                        );
-                    },
-                    validationMessage: errorMessage,
-                    fontSize: 50
-                );
-            };
-
+            string result = string.Empty;
             if (Application.Current.Dispatcher.CheckAccess())
-                showDialog();
-            else
-                Application.Current.Dispatcher.Invoke(showDialog);
+            {
+                // 当前是UI线程直接调用
+                result = _messageService.ShowInputDialog(
+                prompt,
+                "输入蓝牙地址",
+                InputType.Text,
+                defaultValue,
 
+                validator: input => {
+                    if (string.IsNullOrWhiteSpace(input))
+                        return false;
+                    string trimmed = input.Trim();
+                    return System.Text.RegularExpressions.Regex.IsMatch(
+                        trimmed,
+                        @"^([0-9A-Fa-f]{2}:){5}[0-9A-Fa-f]{2}$"
+                    );
+                },
+                validationMessage: errorMessage,
+                fontSize: 50);
+            }
+            else
+            {
+                Application.Current.Dispatcher.Invoke(new Action(() =>
+                {
+                    result = _messageService.ShowInputDialog(
+                prompt,
+                "输入蓝牙地址",
+                InputType.Text,
+                defaultValue,
+
+                validator: input => {
+                    if (string.IsNullOrWhiteSpace(input))
+                        return false;
+                    string trimmed = input.Trim();
+                    return System.Text.RegularExpressions.Regex.IsMatch(
+                        trimmed,
+                        @"^([0-9A-Fa-f]{2}:){5}[0-9A-Fa-f]{2}$"
+                    );
+                },
+            validationMessage: errorMessage,
+                fontSize: 50);
+                }));
+            }
             return result;
         }
 
