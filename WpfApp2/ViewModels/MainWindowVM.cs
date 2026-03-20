@@ -27,6 +27,7 @@ namespace WpfApp2.ViewModels
             Init();
             //消息框初始化
             _messageService = messageService;
+            SpaceCommand = new RelayCommand(ExecuteSpace, CanExecuteSpace);
             ShowMessageCommand = new RelayCommand(OnShowMessage);
         }
 
@@ -633,6 +634,26 @@ namespace WpfApp2.ViewModels
         //
         #region 开始、停止按钮的互相切换
         private Visibility _visibility = Visibility.Visible;
+        public ICommand SpaceCommand { get; }
+        private void ExecuteSpace()
+        {
+            // 判断哪个按钮可见
+            if (StartVisible == Visibility.Visible)
+            {
+                    StartCommand.Execute(null);
+            }
+            else if (StopVisible == Visibility.Visible)
+            {
+                    StopCommand.Execute(null);
+            }
+        }
+
+        private bool CanExecuteSpace()
+        {
+            // 只有当当前可见的按钮可用时，空格命令才可用
+            return (StartVisible == Visibility.Visible && StartCommand.CanExecute(null)) ||
+                   (StopVisible == Visibility.Visible && StopCommand.CanExecute(null));
+        }
 
         //开始按钮可视
         public Visibility StartVisible
