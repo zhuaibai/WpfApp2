@@ -5804,17 +5804,6 @@ namespace WpfApp2.ViewModels
                 this.RaiseProperChanged(nameof(SetBulueToothAddress));
             }
         }
-
-        private string _lastSuccessAddress;
-        public string LastSuccessAddress
-        {
-            get { return _lastSuccessAddress; }
-            set
-            {
-                _lastSuccessAddress = value;
-                this.RaiseProperChanged(nameof(LastSuccessAddress));
-            }
-        }
         /// <summary>
         /// 写入蓝牙地址
         /// </summary>
