@@ -778,6 +778,19 @@ namespace WpfApp2.ViewModels
                     // 机型二不需要电源电压
                     parametersSending.DcSource1Voltage = 0;
                     passVoltage = 0;
+                    parametersSending.Reserved1RelayStatus = 1;
+                    parametersSending.LowPowerRelayStatus = 1;
+                    parametersSending.Reserved2RelayStatus = 1;
+                    parametersSending.Reserved3RelayStatus = 1;
+                    BMS_Receive = SendPacked(parametersSending);
+                    Thread.Sleep(1000);
+                    BMS_Receive = SendPacked(parametersSending);
+                    if (BMS_Receive.LowPowerRelayStatus == 1 && BMS_Receive.Reserved2RelayStatus == 1 && BMS_Receive.Reserved3RelayStatus == 1)
+                    {
+                        flag = true;
+                    }
+                    break;
+                    
 
                 }
                 else if (testMachine.BatVol == "24")
@@ -1845,6 +1858,7 @@ namespace WpfApp2.ViewModels
                     return interSuccess;
                 case "写入蓝牙地址":
                     string inputAddress = SetBulueToothAddress;
+
                     byte[] bluetoothBytes;
                     while (true)// 格式校验
                     {
@@ -1870,6 +1884,7 @@ namespace WpfApp2.ViewModels
                     SetBulueToothAddress = inputAddress;
 
                     // 重复地址提醒
+
                     if (string.Equals(LastSuccessAddress, inputAddress, StringComparison.OrdinalIgnoreCase))
                     {
                         var result = MessageBox.Show("您输入的蓝牙地址与上一次相同，是否继续？",
@@ -1896,16 +1911,15 @@ namespace WpfApp2.ViewModels
                     else
                     {
 
-
                         SetBulueToothAddress = string.Empty;
                         return false;
                     }
                 case "检查地址扫入":
-                    if (string.IsNullOrWhiteSpace(SetBulueToothAddress))
+                    if (!TryParseBluetoothAddress(SetBulueToothAddress, out bluetoothBytes))
                     {
                         return false;
                     }
-                        return true;
+                    return true;
                 default:
                     return false;
             }
@@ -5875,6 +5889,7 @@ namespace WpfApp2.ViewModels
         public bool TryParseBluetoothAddress(string input, out byte[] bytes)
         {
             bytes = null;
+            if (string.IsNullOrEmpty(input)) return false;
 
             // 移除首尾空格
             string trimmed = input.Trim();
