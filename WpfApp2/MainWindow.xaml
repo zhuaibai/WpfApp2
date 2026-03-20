@@ -12,6 +12,7 @@
     WindowState="Maximized"
     WindowStyle="None"
     mc:Ignorable="d">
+    
     <!--<WindowChrome.WindowChrome>
         <WindowChrome
         GlassFrameThickness="0"

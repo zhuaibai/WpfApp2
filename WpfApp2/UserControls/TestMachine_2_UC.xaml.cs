@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.ComponentModel;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -25,7 +26,30 @@ namespace WpfApp2.UserControls
         public TestMachine_2_UC()
         {
             InitializeComponent();
+            Loaded += (s, e) => BlueText.Focus(); // 初始聚焦
+
+            // 监听 ViewModel 属性变化
+            this.DataContextChanged += (s, e) =>
+            {
+                if (e.OldValue is INotifyPropertyChanged oldVm)
+                    oldVm.PropertyChanged -= ViewModel_PropertyChanged;
+                if (e.NewValue is INotifyPropertyChanged newVm)
+                    newVm.PropertyChanged += ViewModel_PropertyChanged;
+            };
         }
+            private void ViewModel_PropertyChanged(object sender, PropertyChangedEventArgs e)
+            {
+            if (e.PropertyName == nameof(MainWindowVM.ShouldFocusTextBox))
+            {
+                var vm = sender as MainWindowVM;
+                if (vm.ShouldFocusTextBox)
+                {
+                    BlueText.Focus();
+                    vm.ShouldFocusTextBox = false; // 重置信号，避免重复触发
+                }
+            }
+            }
+        
         #region 日志自动滚动
         public void SetupScrolling()
         {

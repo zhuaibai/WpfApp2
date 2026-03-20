@@ -15,7 +15,7 @@ using WpfApp2.Tools;
 using WpfApp2.UserControls;
 using static System.Runtime.InteropServices.JavaScript.JSType;
 using InputType = WpfApp2.CustomMessageBox.InputType;
-using static System.Runtime.InteropServices.JavaScript.JSType;
+
 
 namespace WpfApp2.ViewModels
 {
@@ -785,13 +785,19 @@ namespace WpfApp2.ViewModels
                     BMS_Receive = SendPacked(parametersSending);
                     Thread.Sleep(1000);
                     BMS_Receive = SendPacked(parametersSending);
+                    if (BMS_Receive == null)
+                    {
+                        AddLog("上位机通讯返回异常（机型二），请检查串口或设备响应");
+                        LShowMessage("上位机通讯返回异常,请检查串口是否连接正确", "异常", MessageIcon.Error);
+                        IsRunning = false;
+                        SwitchButtonVisible(true);
+                        return;
+                    }
                     if (BMS_Receive.LowPowerRelayStatus == 1 && BMS_Receive.Reserved2RelayStatus == 1 && BMS_Receive.Reserved3RelayStatus == 1)
                     {
                         flag = true;
                     }
                     break;
-                    
-
                 }
                 else if (testMachine.BatVol == "24")
                 {
@@ -830,7 +836,7 @@ namespace WpfApp2.ViewModels
                         successCount++;
                     }
                     parametersSending.DcSource1Switch = 1;
-                } while (voltage < 30 && successCount<3);
+                } while (voltage < 30 && successCount < 3);
                 if (successCount < 3)
                 {
                     AddLog($"源1电压达不到开机要求");
@@ -839,11 +845,14 @@ namespace WpfApp2.ViewModels
                     SwitchButtonVisible(true);
                     return;
                 }
-                parametersSending.Reserved1RelayStatus = 1; parametersSending.Reserved2RelayStatus = 1;parametersSending.Reserved3RelayStatus = 1;
+                //设置继电器状态
+                parametersSending.Reserved1RelayStatus = 1; 
+                parametersSending.Reserved2RelayStatus = 1;
+                parametersSending.Reserved3RelayStatus = 1;
+                parametersSending.LowPowerRelayStatus = 1;
                 //先开机，确保开机属性
                 BMS_Receive = SendPacked(parametersSending);
                 Thread.Sleep(1000);
-                parametersSending.LowPowerRelayStatus = 1;
                 BMS_Receive = SendPacked(parametersSending);
                 if (BMS_Receive == null)
                 {
@@ -901,7 +910,6 @@ namespace WpfApp2.ViewModels
                             //修改成已测试
                             TestItems[i].Flag = 1;
                             //测试不合格
-                            //MessageBoxResult boxResult = MessageBox.Show("是否继续？", "测试暂停", MessageBoxButton.YesNo, MessageBoxImage.Question);
                             MessageResult boxResult = LShowMessage($"{TestItems[i].Name}测试没通过，是否继续？ 【确定】：继续测试本项；【取消】：停止本次测试", "测试暂停", MessageIcon.Question);
                             if (boxResult == MessageResult.Cancel)
                             {
@@ -1857,66 +1865,19 @@ namespace WpfApp2.ViewModels
                     }
                     return interSuccess;
                 case "写入蓝牙地址":
-                    string inputAddress = SetBulueToothAddress;
-
                     byte[] bluetoothBytes;
-                    while (true)// 格式校验
-                    {
-                        if (TryParseBluetoothAddress(inputAddress, out bluetoothBytes))
-                            break; // 格式正确，退出循环
-
-                        // 格式错误，弹出对话框让用户重新输入
-                        string newInput = ShowBluetoothAddressDialog(
-                            "蓝牙地址格式不正确，请重新输入",
-                            inputAddress,
-                            "蓝牙地址格式不正确"
-                        );
-
-                        if (string.IsNullOrEmpty(newInput)) // 用户取消
-                        {
-                            SetBulueToothAddress = string.Empty;
-                            return false;
-                        }
-                        inputAddress = newInput.Trim();
-                    }
-
-                    // 更新绑定属性
-                    SetBulueToothAddress = inputAddress;
-
-                    // 重复地址提醒
-
-                    if (string.Equals(LastSuccessAddress, inputAddress, StringComparison.OrdinalIgnoreCase))
-                    {
-                        var result = MessageBox.Show("您输入的蓝牙地址与上一次相同，是否继续？",
-                                                     "重复地址",
-                                                     MessageBoxButton.YesNo,
-                                                     MessageBoxImage.Question);
-                        if (result == MessageBoxResult.No)
-                        {
-                            SetBulueToothAddress = string.Empty;
-                            return false;
-                        }
-                    }
-
+                    TryParseBluetoothAddress(SetBulueToothAddress, out bluetoothBytes);
                     // 执行写入操作
                     bool isSuccess = WriteBluetoothAdr(bluetoothBytes);
-
-                    if (isSuccess)
-                    {
-
-                        LastSuccessAddress = inputAddress; // 记录成功地址
-                        SetBulueToothAddress = string.Empty;
-                        return true;
-                    }
-                    else
-                    {
-
-                        SetBulueToothAddress = string.Empty;
-                        return false;
-                    }
+                    //清空输入框
+                    SetBulueToothAddress = string.Empty;
+                    ShouldFocusTextBox = true;
+                    return isSuccess;
                 case "检查地址扫入":
-                    if (!TryParseBluetoothAddress(SetBulueToothAddress, out bluetoothBytes))
+                    if (!TryParseBluetoothAddress(SetBulueToothAddress, out _))
                     {
+                        SetBulueToothAddress = string.Empty;
+                        ShouldFocusTextBox = true;
                         return false;
                     }
                     return true;
@@ -5822,6 +5783,17 @@ namespace WpfApp2.ViewModels
 
         #region 读写蓝牙地址
 
+        private bool _shouldFocusTextBox;
+        public bool ShouldFocusTextBox
+        {
+            get => _shouldFocusTextBox;
+            set
+            {
+                _shouldFocusTextBox = value;
+                OnPropertyChanged();
+            }
+        }
+
         private string _setBulueToothAddress;
         public string SetBulueToothAddress
         {
@@ -5889,7 +5861,8 @@ namespace WpfApp2.ViewModels
         public bool TryParseBluetoothAddress(string input, out byte[] bytes)
         {
             bytes = null;
-            if (string.IsNullOrEmpty(input)) return false;
+            if (string.IsNullOrEmpty(input)) 
+                return false;
 
             // 移除首尾空格
             string trimmed = input.Trim();
@@ -5900,7 +5873,6 @@ namespace WpfApp2.ViewModels
 
             // 按冒号分割
             string[] parts = trimmed.Split(':');
-            // 正则已保证长度为6，但防御性保留
             if (parts.Length != 6)
                 return false;
 
@@ -7327,16 +7299,14 @@ namespace WpfApp2.ViewModels
             {
                 // 当前是UI线程直接调用
                 result = _messageService.ShowInputDialog(
-                
                 prompt,
                 "输入蓝牙地址",
-
                 InputType.Text,
                 defaultValue,
                  validator: input => {
                      if (string.IsNullOrWhiteSpace(input))
                          return false;
-                     return System.Text.RegularExpressions.Regex.IsMatch(
+                     return Regex.IsMatch(
                          input.Trim(),
                          @"^([0-9A-Fa-f]{2}:){5}[0-9A-Fa-f]{2}$"
                      );
@@ -7345,11 +7315,10 @@ namespace WpfApp2.ViewModels
                 fontSize: 50);
             }
             else
-
             {
                 Application.Current.Dispatcher.Invoke(new Action(() =>
                 {
-                    result = _messageService.ShowInputDialog(
+                result = _messageService.ShowInputDialog(
                 prompt,
                 "输入蓝牙地址",
                 InputType.Text,
@@ -7357,7 +7326,7 @@ namespace WpfApp2.ViewModels
                  validator: input => {
                      if (string.IsNullOrWhiteSpace(input))
                          return false;
-                     return System.Text.RegularExpressions.Regex.IsMatch(
+                     return Regex.IsMatch(
                          input.Trim(),
                          @"^([0-9A-Fa-f]{2}:){5}[0-9A-Fa-f]{2}$"
                      );
