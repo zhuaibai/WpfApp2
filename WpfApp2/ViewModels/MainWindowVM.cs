@@ -5803,7 +5803,7 @@ namespace WpfApp2.ViewModels
         #endregion
 
         #region 读写蓝牙地址
-
+        //文本光标
         private bool _shouldFocusTextBox;
         public bool ShouldFocusTextBox
         {
@@ -5878,7 +5878,7 @@ namespace WpfApp2.ViewModels
             string trimmed = input.Trim();
 
             // 严格正则匹配：6组两位十六进制，冒号分隔
-            if (!System.Text.RegularExpressions.Regex.IsMatch(trimmed, @"^([0-9A-Fa-f]{2}:){5}[0-9A-Fa-f]{2}$"))
+            if (!Regex.IsMatch(trimmed, @"^([0-9A-Fa-f]{2}:){5}[0-9A-Fa-f]{2}$"))
                 return false;
 
             // 按冒号分割

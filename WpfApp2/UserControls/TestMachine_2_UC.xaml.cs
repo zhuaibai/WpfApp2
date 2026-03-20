@@ -37,19 +37,18 @@ namespace WpfApp2.UserControls
                     newVm.PropertyChanged += ViewModel_PropertyChanged;
             };
         }
-            private void ViewModel_PropertyChanged(object sender, PropertyChangedEventArgs e)
-            {
+        private void ViewModel_PropertyChanged(object? sender, PropertyChangedEventArgs e)
+        {
             if (e.PropertyName == nameof(MainWindowVM.ShouldFocusTextBox))
             {
-                var vm = sender as MainWindowVM;
-                if (vm.ShouldFocusTextBox)
+                if (sender is MainWindowVM vm && vm.ShouldFocusTextBox)
                 {
                     BlueText.Focus();
-                    vm.ShouldFocusTextBox = false; // 重置信号，避免重复触发
+                    vm.ShouldFocusTextBox = false; // 重置信号
                 }
             }
-            }
-        
+        }
+
         #region 日志自动滚动
         public void SetupScrolling()
         {
@@ -69,7 +68,11 @@ namespace WpfApp2.UserControls
                             // 同样使用Dispatcher确保UI已更新
                             Dispatcher.BeginInvoke((Action)(() =>
                             {
-                                LogListView.ScrollIntoView(s);
+                                var lastItem = e.NewItems[e.NewItems.Count - 1];
+                                if (lastItem != null && !IsItemVisible(lastItem))
+                                {
+                                    LogListView.ScrollIntoView(lastItem);
+                                }
                             }), System.Windows.Threading.DispatcherPriority.Render);
                         };
                     }
@@ -88,8 +91,10 @@ namespace WpfApp2.UserControls
         }
 
         //仅当最新项不在视图中时才触发滚动，避免干扰用户当前浏览位置
-        private bool IsItemVisible(object item)
+        private bool IsItemVisible(object? item)
         {
+            if (item == null) return false;
+
             var container = LogListView.ItemContainerGenerator.ContainerFromItem(item) as ListViewItem;
             if (container == null) return false;
 
@@ -99,7 +104,6 @@ namespace WpfApp2.UserControls
 
             return viewport.Contains(bounds.TopLeft) || viewport.Contains(bounds.BottomRight);
         }
-
 
         #endregion
     }
