@@ -13,7 +13,8 @@ using WpfApp2.Models;
 using WpfApp2.Models.Service;
 using WpfApp2.Tools;
 using WpfApp2.UserControls;
-using static System.Runtime.InteropServices.JavaScript.JSType;
+using System.Globalization;
+//using static System.Runtime.InteropServices.JavaScript.JSType;
 using InputType = WpfApp2.CustomMessageBox.InputType;
 
 
@@ -5877,7 +5878,7 @@ namespace WpfApp2.ViewModels
             // 移除首尾空格
             string trimmed = input.Trim();
 
-            // 严格正则匹配：6组两位十六进制，冒号分隔
+            // 输入6组两位十六进制
             if (!Regex.IsMatch(trimmed, @"^([0-9A-Fa-f]{2}:){5}[0-9A-Fa-f]{2}$"))
                 return false;
 
@@ -5891,7 +5892,7 @@ namespace WpfApp2.ViewModels
                 bytes = new byte[6];
                 for (int i = 0; i < 6; i++)
                 {
-                    bytes[i] = byte.Parse(parts[i], System.Globalization.NumberStyles.HexNumber);
+                    bytes[i] = byte.Parse(parts[i], NumberStyles.HexNumber);
                 }
                 return true;
             }
