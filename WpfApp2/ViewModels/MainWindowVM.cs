@@ -2473,7 +2473,7 @@ namespace WpfApp2.ViewModels
                 //判断是否达到
                 if (Math.Abs(Current - 2000) < 10)
                 {
-                    succeed = true;
+                    succeed = true; 
                 }
                 Thread.Sleep(2000);
             } while (!succeed);
