@@ -813,6 +813,7 @@ namespace WpfApp2.ViewModels
                         LShowMessage("上位机通讯返回异常,请检查串口是否连接正确", "异常", MessageIcon.Error);
                         IsRunning = false;
                         SwitchButtonVisible(true);
+                        SetBulueToothAddress = string.Empty;
                         return;
                     }
                     if (BMS_Receive.LowPowerRelayStatus == 1 && BMS_Receive.Reserved2RelayStatus == 1 && BMS_Receive.Reserved3RelayStatus == 1)
@@ -1029,6 +1030,7 @@ namespace WpfApp2.ViewModels
                         if (!interSuccess)
                         {
                             AddLog("BMS232通讯异常");
+                            SetBulueToothAddress = string.Empty;
                             return false;
                         }
                         //写入出厂日期
@@ -1039,6 +1041,7 @@ namespace WpfApp2.ViewModels
                     {
                         //进入测试模式失败
                         AddLog("进入测试模式异常");
+                        SetBulueToothAddress = string.Empty;
                         return false;
                     }
                 case "重置参数":
@@ -1106,6 +1109,7 @@ namespace WpfApp2.ViewModels
                         {
                             AddLog($"电芯电压异常:{result}");
                             LShowMessage($"电芯电压异常:{result}", "电芯电压异常", MessageIcon.Warning);
+                            SetBulueToothAddress = string.Empty;
                             return false;
                         }
                         return true;
@@ -1505,6 +1509,7 @@ namespace WpfApp2.ViewModels
                     if (!interSuccess)
                     {
                         AddLog("充电电流测试失败，正在关闭相应电子元件");
+                        SetBulueToothAddress = string.Empty;
                         int failCount = 0;
                         bool succeed = false;
                         do
@@ -1552,6 +1557,7 @@ namespace WpfApp2.ViewModels
                     if (!interSuccess)
                     {
                         AddLog("放电电流测试失败,正在关闭相应电子元件");
+                        SetBulueToothAddress = string.Empty;
                         int failCount = 0;
                         bool succeed = false;
                         do
@@ -1694,6 +1700,7 @@ namespace WpfApp2.ViewModels
                         if (!interSuccess)
                         {
                             AddLog("BMS232通讯异常");
+                            SetBulueToothAddress = string.Empty;
                             return false;
                         }
                         //读取系统时间
@@ -1703,12 +1710,14 @@ namespace WpfApp2.ViewModels
                         if (!flag)
                         {
                             LShowMessage("读取软件版本失败", "警告", MessageIcon.Warning);
+                            SetBulueToothAddress = string.Empty;
                             return false;
                         }
 
                         if (testData.TestSofterWare != testData.SoftwareVersion)
                         {
                             LShowMessage($"软件版本冲突，当前板子软件版本为：{testData.SoftwareVersion},测试软件版本为：{testData.TestSofterWare}", "警告", MessageIcon.Warning);
+                            SetBulueToothAddress = string.Empty;
                             return false;
                         }
                         //读取是否激活
@@ -1836,6 +1845,7 @@ namespace WpfApp2.ViewModels
                         {
                             AddLog($"环境温度异常!板子温度:{testData.En_Temp},实际温度:{En_Temp};二者差距过大");
                             LShowMessage($"环境温度异常:板子温度:{testData.En_Temp},实际温度:{En_Temp};二者差距过大", "环境温度异常", MessageIcon.Warning);
+                            SetBulueToothAddress = string.Empty;
                             return false;
                         }
                         
@@ -5837,7 +5847,7 @@ namespace WpfApp2.ViewModels
             bool interSuccess = false;
             int ERROR_COUNT = 0;
             //蓝牙地址
-            byte[] head = new byte[] { 0x01, 0x10, 0x01, 0x29, 0x00, 0x03, 0x06 };
+            byte[] head = new byte[] { 0x01, 0x10, 0x01, 0x29, 0x00, 0x06, 0x0C };
             byte[] writeBluetooth = bluetoothBytes;
             byte[] readBluetooth = Tools.CommunicateTool.ConcatByteArrays(head, writeBluetooth);
             byte[] crc16 = SerialCommunicationService2.getCRC16(readBluetooth);
@@ -5884,8 +5894,6 @@ namespace WpfApp2.ViewModels
 
             // 按冒号分割
             string[] parts = trimmed.Split(':');
-            if (parts.Length != 6)
-                return false;
 
             try
             {
