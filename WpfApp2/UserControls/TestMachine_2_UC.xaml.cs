@@ -37,6 +37,7 @@ namespace WpfApp2.UserControls
                     newVm.PropertyChanged += ViewModel_PropertyChanged;
             };
         }
+
         private void ViewModel_PropertyChanged(object? sender, PropertyChangedEventArgs e)
         {
             if (e.PropertyName == nameof(MainWindowVM.ShouldFocusTextBox))

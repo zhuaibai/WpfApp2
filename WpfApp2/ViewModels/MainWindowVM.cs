@@ -1031,6 +1031,7 @@ namespace WpfApp2.ViewModels
                         {
                             AddLog("BMS232通讯异常");
                             SetBulueToothAddress = string.Empty;
+                            
                             return false;
                         }
                         //写入出厂日期
@@ -5886,20 +5887,18 @@ namespace WpfApp2.ViewModels
         }
 
         /// <summary>
-        /// 获取蓝牙地址
+        /// 字节转换(蓝牙地址)
         /// </summary>
         /// <returns></returns>
         public bool TryParseBluetoothAddress(string input, out byte[] bytes)
         {
             bytes = null;
-            if (string.IsNullOrEmpty(input)) 
-                return false;
 
             // 移除首尾空格
             string trimmed = input.Trim();
 
-            // 输入6组两位十六进制
-            if (!Regex.IsMatch(trimmed, @"^([0-9A-Fa-f]{2}:){5}[0-9A-Fa-f]{2}$"))
+            // 输入6组两位十六进制数
+            if (!Regex.IsMatch(trimmed, @"^([0-9A-F]{2}:){5}[0-9A-F]{2}$") || string.IsNullOrEmpty(input))
                 return false;
 
             // 按冒号分割
@@ -7321,51 +7320,51 @@ namespace WpfApp2.ViewModels
         /// <param name="error">输入错误提示</param>
         /// <returns></returns>
         // 返回用户输入的字符串，若用户取消则返回 null
-        private string ShowBluetoothAddressDialog(string prompt, string defaultValue, string errorMessage)
-        {
-            string result = string.Empty;
-            if (Application.Current.Dispatcher.CheckAccess())
-            {
-                // 当前是UI线程直接调用
-                result = _messageService.ShowInputDialog(
-                prompt,
-                "输入蓝牙地址",
-                InputType.Text,
-                defaultValue,
-                 validator: input => {
-                     if (string.IsNullOrWhiteSpace(input))
-                         return false;
-                     return Regex.IsMatch(
-                         input.Trim(),
-                         @"^([0-9A-Fa-f]{2}:){5}[0-9A-Fa-f]{2}$"
-                     );
-                 },
-             validationMessage: errorMessage,
-                fontSize: 50);
-            }
-            else
-            {
-                Application.Current.Dispatcher.Invoke(new Action(() =>
-                {
-                result = _messageService.ShowInputDialog(
-                prompt,
-                "输入蓝牙地址",
-                InputType.Text,
-                defaultValue,
-                 validator: input => {
-                     if (string.IsNullOrWhiteSpace(input))
-                         return false;
-                     return Regex.IsMatch(
-                         input.Trim(),
-                         @"^([0-9A-Fa-f]{2}:){5}[0-9A-Fa-f]{2}$"
-                     );
-                 },
-             validationMessage: errorMessage,
-                fontSize: 50);
-                }));
-            }
-            return result;
-        }
+        //private string ShowBluetoothAddressDialog(string prompt, string defaultValue, string errorMessage)
+        //{
+        //    string result = string.Empty;
+        //    if (Application.Current.Dispatcher.CheckAccess())
+        //    {
+        //        // 当前是UI线程直接调用
+        //        result = _messageService.ShowInputDialog(
+        //        prompt,
+        //        "输入蓝牙地址",
+        //        InputType.Text,
+        //        defaultValue,
+        //         validator: input => {
+        //             if (string.IsNullOrWhiteSpace(input))
+        //                 return false;
+        //             return Regex.IsMatch(
+        //                 input.Trim(),
+        //                 @"^([0-9A-Fa-f]{2}:){5}[0-9A-Fa-f]{2}$"
+        //             );
+        //         },
+        //     validationMessage: errorMessage,
+        //        fontSize: 50);
+        //    }
+        //    else
+        //    {
+        //        Application.Current.Dispatcher.Invoke(new Action(() =>
+        //        {
+        //        result = _messageService.ShowInputDialog(
+        //        prompt,
+        //        "输入蓝牙地址",
+        //        InputType.Text,
+        //        defaultValue,
+        //         validator: input => {
+        //             if (string.IsNullOrWhiteSpace(input))
+        //                 return false;
+        //             return Regex.IsMatch(
+        //                 input.Trim(),
+        //                 @"^([0-9A-Fa-f]{2}:){5}[0-9A-Fa-f]{2}$"
+        //             );
+        //         },
+        //     validationMessage: errorMessage,
+        //        fontSize: 50);
+        //        }));
+        //    }
+        //    return result;
+        //}
 
         /// <summary>
         /// 密码输入消息框
