@@ -5848,7 +5848,12 @@ namespace WpfApp2.ViewModels
             int ERROR_COUNT = 0;
             //蓝牙地址
             byte[] head = new byte[] { 0x01, 0x10, 0x01, 0x29, 0x00, 0x06, 0x0C };
-            byte[] writeBluetooth = bluetoothBytes;
+            byte[] writeBluetooth = new byte[6];
+            for (int i = 0; i < bluetoothBytes.Length; i++)
+            {
+                writeBluetooth[i] = bluetoothBytes[bluetoothBytes.Length - 1 - i];
+            }
+            
             byte[] readBluetooth = Tools.CommunicateTool.ConcatByteArrays(head, writeBluetooth);
             byte[] crc16 = SerialCommunicationService2.getCRC16(readBluetooth);
             readBluetooth = CommunicateTool.ConcatByteArrays(readBluetooth, crc16);
