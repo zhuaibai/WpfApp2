@@ -5911,6 +5911,10 @@ namespace WpfApp2.ViewModels
                 {
                     bytes[i] = byte.Parse(parts[i], NumberStyles.HexNumber);
                 }
+                if (bytes.All(b => b == 0))
+                {
+                    return false;
+                }
                 return true;
             }
             catch
