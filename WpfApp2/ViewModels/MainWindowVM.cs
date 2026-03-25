@@ -70,9 +70,7 @@ namespace WpfApp2.ViewModels
             testData = new TestData();
 
             //整机测试
-            //SetBulueToothAddress = string.Empty;  // 保证不为 null
             TestItems = new ObservableCollection<TestItem>();
-            //parametersSending = new BmsSystemParametersSending();
             SendingViewModel = new SendingCommandSettingsViewModel() { ShowBoubleWithTime = ShowBubbles };
         }
         #endregion
@@ -1034,7 +1032,6 @@ namespace WpfApp2.ViewModels
                         if (!interSuccess)
                         {
                             AddLog("BMS232通讯异常");
-                            SetBulueToothAddress = string.Empty;
                             return false;
                         }
                         //写入出厂日期
@@ -1045,7 +1042,6 @@ namespace WpfApp2.ViewModels
                     {
                         //进入测试模式失败
                         AddLog("进入测试模式异常");
-                        SetBulueToothAddress = string.Empty;
                         return false;
                     }
                 case "重置参数":
@@ -1113,7 +1109,6 @@ namespace WpfApp2.ViewModels
                         {
                             AddLog($"电芯电压异常:{result}");
                             LShowMessage($"电芯电压异常:{result}", "电芯电压异常", MessageIcon.Warning);
-                            SetBulueToothAddress = string.Empty;
                             return false;
                         }
                         return true;
@@ -1513,7 +1508,6 @@ namespace WpfApp2.ViewModels
                     if (!interSuccess)
                     {
                         AddLog("充电电流测试失败，正在关闭相应电子元件");
-                        SetBulueToothAddress = string.Empty;
                         int failCount = 0;
                         bool succeed = false;
                         do
@@ -1561,7 +1555,6 @@ namespace WpfApp2.ViewModels
                     if (!interSuccess)
                     {
                         AddLog("放电电流测试失败,正在关闭相应电子元件");
-                        SetBulueToothAddress = string.Empty;
                         int failCount = 0;
                         bool succeed = false;
                         do
@@ -5853,14 +5846,14 @@ namespace WpfApp2.ViewModels
             int ERROR_COUNT = 0;
             //蓝牙地址
             byte[] head = [0x01, 0x10, 0x01, 0x29, 0x00, 0x06, 0x0C];
-            List<byte> data = new List<byte>();
+            List<byte> writeBluetooth = new List<byte>();
             for (int i = 0; i < bluetoothBytes.Length; i++)
             {
-                data.Add(0x00);              
-                data.Add(bluetoothBytes[bluetoothBytes.Length - 1 - i]); 
+                writeBluetooth.Add(0x00);
+                writeBluetooth.Add(bluetoothBytes[bluetoothBytes.Length - 1 - i]); 
             }
            
-            byte[] readBluetooth = CommunicateTool.ConcatByteArrays(head, data.ToArray());
+            byte[] readBluetooth = CommunicateTool.ConcatByteArrays(head, writeBluetooth.ToArray());
             byte[] crc16 = SerialCommunicationService2.getCRC16(readBluetooth);
             readBluetooth = CommunicateTool.ConcatByteArrays(readBluetooth, crc16);
 
