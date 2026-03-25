@@ -1031,7 +1031,6 @@ namespace WpfApp2.ViewModels
                         {
                             AddLog("BMS232通讯异常");
                             SetBulueToothAddress = string.Empty;
-                            
                             return false;
                         }
                         //写入出厂日期
@@ -5853,7 +5852,7 @@ namespace WpfApp2.ViewModels
             byte[] writeBluetooth = new byte[6];
             for (int i = 0; i < bluetoothBytes.Length; i++)
             {
-                registerValues[i] = bluetoothBytes[bluetoothBytes.Length - 1 - i] >> 8;
+                registerValues[i] = bluetoothBytes[bluetoothBytes.Length - 1 - i] << 8;
             }
             for (int i = 0; i < registerValues.Length; i++)
             {
