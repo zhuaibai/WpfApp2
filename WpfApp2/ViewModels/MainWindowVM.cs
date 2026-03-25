@@ -932,6 +932,7 @@ namespace WpfApp2.ViewModels
                             AddLog($"{TestItems[i].Name}测试没通过");
                             //修改测试结果(true = 通过, false = 失败)
                             TestItems[i].IsImportant = false;
+                            SetBulueToothAddress = string.Empty;
                             //修改成已测试
                             TestItems[i].Flag = 1;
                             //测试不合格
@@ -1909,8 +1910,7 @@ namespace WpfApp2.ViewModels
                         ShouldFocusTextBox = true;
                         return false;
                     }
-                    return true;
-               
+                    return true;         
                 default:
                     return false;
             }
