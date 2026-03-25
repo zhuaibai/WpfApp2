@@ -68,7 +68,11 @@ namespace WpfApp2.ViewModels
             BMS_Receive = new BmsSystemparametersReceive();
             //测试数据
             testData = new TestData();
+
             //整机测试
+            //SetBulueToothAddress = string.Empty;  // 保证不为 null
+            TestItems = new ObservableCollection<TestItem>();
+            //parametersSending = new BmsSystemParametersSending();
             SendingViewModel = new SendingCommandSettingsViewModel() { ShowBoubleWithTime = ShowBubbles };
         }
         #endregion
@@ -294,7 +298,7 @@ namespace WpfApp2.ViewModels
         #endregion
 
         #region 测试项目显示
-        public ObservableCollection<TestItem> TestItems { get; set; }
+        public ObservableCollection<TestItem> TestItems { get; set; } = new ObservableCollection<TestItem>();
 
         private TestItemService _service;
 
@@ -1913,6 +1917,7 @@ namespace WpfApp2.ViewModels
                         return false;
                     }
                     return true;
+               
                 default:
                     return false;
             }
@@ -5822,7 +5827,7 @@ namespace WpfApp2.ViewModels
             set
             {
                 _shouldFocusTextBox = value;
-                OnPropertyChanged();
+                this.RaiseProperChanged(nameof(ShouldFocusTextBox)); 
             }
         }
 
@@ -5848,20 +5853,17 @@ namespace WpfApp2.ViewModels
             int ERROR_COUNT = 0;
             //蓝牙地址
             byte[] head = [0x01, 0x10, 0x01, 0x29, 0x00, 0x06, 0x0C];
-            int[] registerValues = new int[6];
-            byte[] writeBluetooth = new byte[6];
+            List<byte> data = new List<byte>();
             for (int i = 0; i < bluetoothBytes.Length; i++)
             {
-                registerValues[i] = bluetoothBytes[bluetoothBytes.Length - 1 - i] << 8;
+                data.Add(0x00);              
+                data.Add(bluetoothBytes[bluetoothBytes.Length - 1 - i]); 
             }
-            for (int i = 0; i < registerValues.Length; i++)
-            {
-                writeBluetooth[i] = (byte)registerValues[i];
-            }
-            // byte[] writeBluetooth = bluetoothBytes;
-            byte[] readBluetooth = CommunicateTool.ConcatByteArrays(head, writeBluetooth);
+           
+            byte[] readBluetooth = CommunicateTool.ConcatByteArrays(head, data.ToArray());
             byte[] crc16 = SerialCommunicationService2.getCRC16(readBluetooth);
             readBluetooth = CommunicateTool.ConcatByteArrays(readBluetooth, crc16);
+
             do
             {
                 ERROR_COUNT++;

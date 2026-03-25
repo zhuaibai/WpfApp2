@@ -13,6 +13,7 @@ using System.Windows.Media;
 using System.Windows.Media.Imaging;
 using System.Windows.Navigation;
 using System.Windows.Shapes;
+using System.Windows.Threading;
 using WpfApp2.Models;
 using WpfApp2.ViewModels;
 
@@ -26,7 +27,10 @@ namespace WpfApp2.UserControls
         public TestMachine_2_UC()
         {
             InitializeComponent();
-            Loaded += (s, e) => BlueText.Focus(); // 初始聚焦
+            Loaded += (sender, e) =>
+            {
+                Dispatcher.BeginInvoke(new Action(() => BlueText.Focus()), DispatcherPriority.Input);
+            };
 
             // 监听 ViewModel 属性变化
             this.DataContextChanged += (s, e) =>
@@ -44,8 +48,12 @@ namespace WpfApp2.UserControls
             {
                 if (sender is MainWindowVM vm && vm.ShouldFocusTextBox)
                 {
-                    BlueText.Focus();
-                    vm.ShouldFocusTextBox = false; // 重置信号
+                    // 确保在 UI 线程上执行
+                    Dispatcher.Invoke(() =>
+                    {
+                        BlueText.Focus();
+                        vm.ShouldFocusTextBox = false;
+                    });
                 }
             }
         }

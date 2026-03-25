@@ -592,7 +592,7 @@
                                         VerticalAlignment="Top"
                                         FontSize="17"
                                         Foreground="Black"
-                                        Text="{Binding SetBulueToothAddress}" Grid.ColumnSpan="2" />
+                                        Text="{Binding SetBulueToothAddress, UpdateSourceTrigger=PropertyChanged}" Grid.ColumnSpan="2" />
                                 </Grid>
 
                             </GroupBox>
