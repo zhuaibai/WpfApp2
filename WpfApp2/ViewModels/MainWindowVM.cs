@@ -5848,19 +5848,19 @@ namespace WpfApp2.ViewModels
             bool interSuccess = false;
             int ERROR_COUNT = 0;
             //蓝牙地址
-            byte[] head = new byte[] { 0x01, 0x10, 0x01, 0x29, 0x00, 0x06, 0x0C };
-            //int[] registerValues = new int[6];
-            //byte[] writeBluetooth = new byte[6];
-            //for (int i = 0; i < bluetoothBytes.Length; i++)
-            //{
-            //    registerValues[i] = bluetoothBytes[bluetoothBytes.Length - 1 - i] >> 8;
-            //}
-            //for (int i = 0; i < registerValues.Length; i++)
-            //{
-            //    writeBluetooth[i] = (byte)registerValues[i];
-            //}
-            byte[] writeBluetooth = bluetoothBytes;
-            byte[] readBluetooth = Tools.CommunicateTool.ConcatByteArrays(head, writeBluetooth);
+            byte[] head = [0x01, 0x10, 0x01, 0x29, 0x00, 0x06, 0x0C];
+            int[] registerValues = new int[6];
+            byte[] writeBluetooth = new byte[6];
+            for (int i = 0; i < bluetoothBytes.Length; i++)
+            {
+                registerValues[i] = bluetoothBytes[bluetoothBytes.Length - 1 - i] >> 8;
+            }
+            for (int i = 0; i < registerValues.Length; i++)
+            {
+                writeBluetooth[i] = (byte)registerValues[i];
+            }
+            // byte[] writeBluetooth = bluetoothBytes;
+            byte[] readBluetooth = CommunicateTool.ConcatByteArrays(head, writeBluetooth);
             byte[] crc16 = SerialCommunicationService2.getCRC16(readBluetooth);
             readBluetooth = CommunicateTool.ConcatByteArrays(readBluetooth, crc16);
             do
