@@ -11,7 +11,9 @@
     WindowStartupLocation="CenterScreen"
     WindowState="Maximized"
     WindowStyle="None"
+    PreviewKeyDown="Window_PreviewKeyDown"
     mc:Ignorable="d">
+    
     <!--<WindowChrome.WindowChrome>
         <WindowChrome
         GlassFrameThickness="0"
@@ -19,6 +21,10 @@
         CaptionHeight="0"
         />
     </WindowChrome.WindowChrome>-->
+    
+    <Window.InputBindings>
+        <KeyBinding Key="Space" Command="{Binding SpaceCommand}"/>
+    </Window.InputBindings>
     <Grid>
         <!--  背景颜色渐变  -->
         <Grid.Background>

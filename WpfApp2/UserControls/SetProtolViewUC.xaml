@@ -481,7 +481,7 @@
                             Margin="5"
                             FontSize="15"
                             Foreground="#ff2bedf1"
-                            IsEnabled="False"
+                            IsEnabled="True"
                             ItemsSource="{Binding SerialPort1.BaudRates}"
                             SelectedItem="{Binding SerialPort1.SelectedBaudRate}"
                             Style="{DynamicResource ComboBoxStyle1}" />
@@ -590,7 +590,7 @@
                             Margin="5"
                             FontSize="15"
                             Foreground="#ff2bedf1"
-                            IsEnabled="False"
+                            IsEnabled="True"
                             ItemsSource="{Binding SerialPort2.BaudRates}"
                             SelectedItem="{Binding SerialPort2.SelectedBaudRate}"
                             Style="{DynamicResource ComboBoxStyle1}" />

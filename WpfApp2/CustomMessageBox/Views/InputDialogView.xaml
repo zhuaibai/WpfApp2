@@ -11,10 +11,7 @@
              WindowStartupLocation="CenterScreen"
              WindowStyle="None"
              d:DesignHeight="550" d:DesignWidth="800">
-    <Window.InputBindings>
-        <KeyBinding Key="Space" Command="{Binding OkCommand}"/>
-        <KeyBinding Key="Escape" Command="{Binding CancelCommand}"/>
-    </Window.InputBindings>
+
     <Window.Resources>
         <!-- 在App.xaml中添加输入框样式 -->
         <Style TargetType="TextBox" x:Key="InputTextBoxStyle">

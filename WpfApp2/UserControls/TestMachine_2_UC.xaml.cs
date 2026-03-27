@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.ComponentModel;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -12,6 +13,7 @@ using System.Windows.Media;
 using System.Windows.Media.Imaging;
 using System.Windows.Navigation;
 using System.Windows.Shapes;
+using System.Windows.Threading;
 using WpfApp2.Models;
 using WpfApp2.ViewModels;
 
@@ -25,7 +27,37 @@ namespace WpfApp2.UserControls
         public TestMachine_2_UC()
         {
             InitializeComponent();
+            Loaded += (sender, e) =>
+            {
+                Dispatcher.BeginInvoke(new Action(() => BlueText.Focus()), DispatcherPriority.Input);
+            };
+
+            // 监听 ViewModel 属性变化
+            this.DataContextChanged += (s, e) =>
+            {
+                if (e.OldValue is INotifyPropertyChanged oldVm)
+                    oldVm.PropertyChanged -= ViewModel_PropertyChanged;
+                if (e.NewValue is INotifyPropertyChanged newVm)
+                    newVm.PropertyChanged += ViewModel_PropertyChanged;
+            };
         }
+
+        private void ViewModel_PropertyChanged(object? sender, PropertyChangedEventArgs e)
+        {
+            if (e.PropertyName == nameof(MainWindowVM.ShouldFocusTextBox))
+            {
+                if (sender is MainWindowVM vm && vm.ShouldFocusTextBox)
+                {
+                    // 确保在 UI 线程上执行
+                    Dispatcher.Invoke(() =>
+                    {
+                        BlueText.Focus();
+                        vm.ShouldFocusTextBox = false;
+                    });
+                }
+            }
+        }
+
         #region 日志自动滚动
         public void SetupScrolling()
         {
@@ -45,7 +77,11 @@ namespace WpfApp2.UserControls
                             // 同样使用Dispatcher确保UI已更新
                             Dispatcher.BeginInvoke((Action)(() =>
                             {
-                                LogListView.ScrollIntoView(s);
+                                var lastItem = e.NewItems[e.NewItems.Count - 1];
+                                if (lastItem != null && !IsItemVisible(lastItem))
+                                {
+                                    LogListView.ScrollIntoView(lastItem);
+                                }
                             }), System.Windows.Threading.DispatcherPriority.Render);
                         };
                     }
@@ -64,8 +100,10 @@ namespace WpfApp2.UserControls
         }
 
         //仅当最新项不在视图中时才触发滚动，避免干扰用户当前浏览位置
-        private bool IsItemVisible(object item)
+        private bool IsItemVisible(object? item)
         {
+            if (item == null) return false;
+
             var container = LogListView.ItemContainerGenerator.ContainerFromItem(item) as ListViewItem;
             if (container == null) return false;
 
@@ -75,7 +113,6 @@ namespace WpfApp2.UserControls
 
             return viewport.Contains(bounds.TopLeft) || viewport.Contains(bounds.BottomRight);
         }
-
 
         #endregion
     }

@@ -9,6 +9,7 @@
     d:DesignHeight="450"
     d:DesignWidth="800"
     mc:Ignorable="d">
+    
     <UserControl.Resources>
         <!--  注册布尔值到文本的转换器  -->
         <convert:BooleanToTextConverter x:Key="BooleanToTextConverter" />
@@ -118,6 +119,7 @@
             </Style.Triggers>
         </Style>
     </UserControl.Resources>
+
     <Grid>
         <Grid.ColumnDefinitions>
             <ColumnDefinition MinWidth="350" MaxWidth="400" />
@@ -575,20 +577,22 @@
                                         Foreground="Black"
                                         Text="{Binding En_Temp}" Grid.ColumnSpan="3" />
                                     <TextBlock
+                                        x:Name="MyTextBox"
                                         Grid.Column="2"
                                         Margin="51,16,0,0"
                                         HorizontalAlignment="Left"
-                                        VerticalAlignment="Top"
+                                        VerticalAlignment="Center"
                                         FontSize="15"
                                         Foreground="White"
                                         Text="蓝牙地址:" Grid.ColumnSpan="2" />
                                     <TextBox
+                                        x:Name="BlueText"
                                         Grid.Column="3"
                                         Margin="58,14,20,0"
                                         VerticalAlignment="Top"
                                         FontSize="17"
                                         Foreground="Black"
-                                        Text="{Binding SetBulueToothAddress}" Grid.ColumnSpan="2" />
+                                        Text="{Binding SetBulueToothAddress, UpdateSourceTrigger=PropertyChanged}" Grid.ColumnSpan="2" />
                                 </Grid>
 
                             </GroupBox>

@@ -144,5 +144,18 @@ namespace WpfApp2
 
             isFullScreen = false;
         }
+
+        private void Window_PreviewKeyDown(object sender, KeyEventArgs e)
+        {
+            if (e.Key == Key.Space)
+            {
+                var vm = DataContext as MainWindowVM;
+                if (vm?.SpaceCommand.CanExecute(null) == true)
+                {
+                    vm.SpaceCommand.Execute(null);
+                    e.Handled = true; // 阻止文本框接收空格
+                }
+            }
+        }
     }
 }
